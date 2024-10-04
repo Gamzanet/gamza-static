@@ -1,0 +1,15 @@
+{
+    "name": "gamza-engine",
+    "version": "1.0.0",
+    "main": "index.js",
+    "scripts": {
+        "test": "cd foundry && forge test",
+        "case1": "semgrep scan -f rules/misconfigured-Hook.yaml .",
+        "case2": "semgrep scan -f rules/misconfigured-Hook.yaml source",
+        "case3": "semgrep scan -f rules/missing-poolManagerOnly-modifier.yaml .",
+        "case4": "semgrep scan -f rules/missing-poolManagerOnly-modifier.yaml source"
+    },
+    "author": "ooMia",
+    "license": "ISC",
+    "description": ""
+}

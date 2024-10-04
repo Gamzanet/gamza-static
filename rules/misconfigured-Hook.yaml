@@ -1,0 +1,90 @@
+rules:
+  # - id: misconfigured-Hook-1
+  #   message: $CONTRACT | $KEYWORDS | $SIG
+  #   languages:
+  #     - solidity
+  #   severity: WARNING
+  #   patterns:
+  #     - patterns:+
+  #         - pattern-inside: |
+  #             contract $CONTRACT is ..., BaseHook, ... { ... }
+  #         - pattern: |
+  #             function beforeSwap(...) override returns (...) { ... }
+  - id: misconfigured-Hook-2
+    message: $CONTRACT | $SIG | $IMPL
+    languages:
+      - solidity
+    severity: WARNING
+    patterns:
+      - pattern-inside: |
+          contract $CONTRACT is ..., BaseHook, ... { ... }
+      - patterns:
+          - pattern-regex: |-
+              (?P<SIG>\w+):\s*true
+          - pattern-inside: |
+              return Hooks.Permissions( ... );
+          - pattern-inside: |
+              function getHookPermissions() override returns (Hooks.Permissions) { ... }
+      - patterns:
+          - pattern-regex: function\s+(?P<IMPL>\w+)
+      
+  # - id: misconfigured-Hook-3
+  #   message: $CONTRACT | $SIG | $VALUE | $IMPL
+  #   languages:
+  #     - solidity
+  #   severity: WARNING
+  #   pattern-either:
+  #       - pattern-inside: |
+  #           contract $CONTRACT is ..., BaseHook, ... { ... }
+  #       - pattern: function $IMPL(...) override returns (...) { ... }
+  #       - pattern-regex: (?P<SIG>\w*):\s*(?P<VALUE>true)
+        # - patterns:
+        #   - pattern-inside: function getHookPermissions() override returns (Hooks.Permissions) { ... }
+        #   # - pattern-regex: (?P<SIG>\w*):\s*(?P<VALUE>true)
+        #   - pattern-regex: (beforeSwap):\s*true
+        # - patterns:
+        #     - pattern-not: function $IMPL(...) override returns (...) { ... }
+          # - pattern-not-regex: (beforeSwap):\s*true[\s|\S]*function\s*\1|function\s*(beforeSwap)[\s|\S]*\1:\s*true
+       
+
+
+        # - pattern-inside: |
+        #     return Hooks.Permissions( ... );
+  
+        # - pattern-inside: |
+        #     contract $CONTRACT is ..., BaseHook, ... { ... }
+        # - pattern-inside: |
+        #     function getHookPermissions() override returns (Hooks.Permissions) { ... }
+        # - pattern-inside: |
+        #     return Hooks.Permissions( ... );
+   
+        # - focus-metavariable: $SIG_1
+        # - pattern: |
+        #     function $SIG_1 (...) override returns (...) { ... }
+
+          
+
+        # - pattern-regex: (?s)(.*)
+        # - pattern-not-regex: (?s)(.*)
+      # - pattern-inside: |
+      #       contract $CONTRACT is ..., BaseHook, ... { ... }
+      # - pattern: |
+      #       function $SIG_1(...) override returns (...) { ... }
+      # - patterns:
+      #   - pattern-inside: |
+      #       contract $CONTRACT is ..., BaseHook, ... { ... }
+      #   - pattern-inside: |
+      #       function getHookPermissions() override returns (Hooks.Permissions) { ... }
+      #   - pattern-inside: |
+      #       return Hooks.Permissions( ... );
+      #   - pattern: |
+      #       true
+      #   - metavariable-comparison:
+      #      comparison: $SIG_1 == $SIG_2
+
+        
+        
+
+      #   # - pattern-regex: (?s)(.*)
+      #   # - pattern: |
+      #   #     function beforeSwap(...) override returns (...) { ... }
