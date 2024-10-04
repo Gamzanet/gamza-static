@@ -15,7 +15,7 @@ rules:
     languages:
       - solidity
     severity: WARNING
-    patterns:
+    pattern-either:
       - pattern-inside: |
           contract $CONTRACT is ..., BaseHook, ... { ... }
       - patterns:
@@ -25,10 +25,14 @@ rules:
               return Hooks.Permissions( ... );
           - pattern-inside: |
               function getHookPermissions() override returns (Hooks.Permissions) { ... }
+          - pattern-inside: |
+              contract $CONTRACT is ..., BaseHook, ... { ... }
       - patterns:
-          - pattern-regex: function\s+(?P<IMPL>\w+)
-      
-  # - id: misconfigured-Hook-3
+        - pattern-regex: function\s+(?P<IMPL>\w+)
+
+
+
+          # - id: misconfigured-Hook-3
   #   message: $CONTRACT | $SIG | $VALUE | $IMPL
   #   languages:
   #     - solidity
