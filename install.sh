@@ -30,6 +30,9 @@ function main() {
     echo "install start"
     pip install --upgrade pip -q
     pip install semgrep -q
+    pip install web3 -q
+    pip install python-dotenv -q
+    pip install jmespath -q
     echo "installed successfully"
 }
 
