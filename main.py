@@ -1,29 +1,27 @@
-# TODO: run semgrep rules
-def run_semgrep():
-    pass
+from jmespath import search
+
+from lib.run_semgrep import get_semgrep_output
 
 
-# TODO: get the output of the semgrep analysis
-def get_semgrep_output():
-    pass
+def is_valid_hook(_target_path="source/1.sol"):
+    # Get the output of the semgrep command
+    output: list = get_semgrep_output("misconfigured-Hook", _target_path)
+    # pprint(output)
 
-
-# TODO: read result of the analysis
-def read_semgrep_output():
-    pass
-
-
-# TODO: run semgrep JSON output to the use
-def run_semgrep_json():
-    pass
-
-
-def is_no_op():
-    return False
+    # group output["data"]["SIG"]
+    # group output["data"]["IMPL"]
+    # intersect the two groups
+    sig = set(search("[*].data.SIG", output))
+    # print(sig)
+    impl = set(search("[*].data.IMPL", output))
+    # print(impl)
+    res = sig - impl
+    if res:
+        print(f"{_target_path}:", ', '.join(res), "is not implemented")
+        return False
+    return True
 
 
 if __name__ == "__main__":
-    run_semgrep()  # semgrep result stored in a JSON file
-    get_semgrep_output()  # get the output of the semgrep analysis
-    read_semgrep_output()  # read result of the analysis
-    run_semgrep_json()  # run semgrep JSON output to the use
+    res = is_valid_hook(_target_path="source/1.sol")
+    print(res)

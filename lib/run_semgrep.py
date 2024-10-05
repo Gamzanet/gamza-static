@@ -1,4 +1,6 @@
+import hashlib
 import json
+import os.path
 import re
 import subprocess
 from pprint import pprint
@@ -6,9 +8,11 @@ from pprint import pprint
 import yaml
 from jmespath import search
 
+path = os.path.abspath(os.path.join(os.path.dirname(__file__), ".."))
+os.chdir(path)
+
 
 # TODO: encapsulate routines in a class
-
 # read semgrep rule to run
 # save variable context
 def read_semgrep_rule_by_rule_name(_rule_name: str):
@@ -29,25 +33,26 @@ def parse_semgrep_rule_message_by_rule_name(_rule_name: str):
     return res
 
 
-# TODO: should run case based on user input
 # CLI: npm run case2
-def run_semgrep(_rule_name: str, _target_dir: str = "source") -> str:
+def run_semgrep(_rule_name: str, _target_path: str = "source") -> str:
     # semgrep scan -f rules/misconfigured-Hook.yaml source --emacs
-    print(_rule_name, _target_dir)
-    res = subprocess.run(["semgrep", "scan", "-f", f"rules/{_rule_name}.yaml", _target_dir, "--emacs"],
+    print(_rule_name, _target_path)
+    res = subprocess.run(["semgrep", "scan", "-f", f"rules/{_rule_name}.yaml", _target_path, "--emacs"],
                          capture_output=True)
     res = res.stdout.decode("utf-8")
     print(res)
     return res
 
 
-def get_semgrep_output(_rule_name: str, _target_dir: str = "source") -> list:
+def get_semgrep_output(_rule_name: str, _target_path: str = "source") -> list:
     # try read json output
+    _json_file_name = f"{_rule_name}_{_target_path}.json"
+    _json_file_name = hashlib.sha256(_json_file_name.encode()).hexdigest()
     try:
-        with open(f"out/{_rule_name}.json", "r") as f:
+        with open(f"out/{_json_file_name}", "r") as f:
             return json.load(f, strict=True)['data']
     except FileNotFoundError:
-        res = run_semgrep(_rule_name, _target_dir)
+        res = run_semgrep(_rule_name, _target_path)
         res = re.findall(r"(\S+:\S+):(\S+):([ \S]+):([ \S]+)", res, flags=re.MULTILINE)
         # pprint(res)
         _msg_schema = parse_semgrep_rule_message_by_rule_name(_rule_name)
@@ -55,9 +60,9 @@ def get_semgrep_output(_rule_name: str, _target_dir: str = "source") -> list:
         _output = []
         for r in res:
             _output.append(emacs_tuple_to_dict(r, _msg_schema))
-        with open(f"out/{_rule_name}.json", "w") as f:
+        with open(f"out/{_json_file_name}", "w") as f:
             json.dump({"data": _output}, f)
-    return _output
+            return _output
 
 
 def emacs_tuple_to_dict(_tuple: tuple, _msg_schema: list):
@@ -80,22 +85,6 @@ def emacs_tuple_to_dict(_tuple: tuple, _msg_schema: list):
     }
 
 
-# TODO: read result of the analysis
-def read_semgrep_output():
-    pass
-
-
-# TODO: run semgrep JSON output to the use
-def run_semgrep_json():
-    pass
-
-
-def is_no_op():
-    return False
-
-
 if __name__ == "__main__":
     output = get_semgrep_output("misconfigured-Hook", "source")  # get the output of the semgrep analysis
     pprint(output)
-    read_semgrep_output()  # read result of the analysis
-    run_semgrep_json()  # run semgrep JSON output to the use

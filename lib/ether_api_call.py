@@ -9,7 +9,6 @@ from jmespath import search
 load_dotenv()
 
 
-# TODO: Get a source code from etherscan using etherscan API
 # https://api-sepolia.etherscan.io/api
 # ?module = contract
 # & action = getsourcecode

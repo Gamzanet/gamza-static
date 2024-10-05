@@ -1,8 +1,6 @@
 // SPDX-License-Identifier: MIT
 pragma solidity ^0.8.0;
 
-import "./BaseHook.sol";
-
 contract ExampleHook is BaseHook {
     // State variables
     string public name;
@@ -16,16 +14,16 @@ contract ExampleHook is BaseHook {
 
     function getHookPermissions() public pure override returns (Hooks.Permissions memory){
         return Hooks.Permissions({
-            beforeInitialize: true,
-            afterInitialize: true,
+            beforeInitialize: false,
+            afterInitialize: false,
             beforeSwap: true,
-            afterSwap: true,
-            beforeAddLiquidity: true,
-            afterAddLiquidity: true,
-            beforeRemoveLiquidity: true,
-            afterRemoveLiquidity: true,
-            beforeDonate: true,
-            afterDonate: true
+            afterSwap: false,
+            beforeAddLiquidity: false,
+            afterAddLiquidity: false,
+            beforeRemoveLiquidity: false,
+            afterRemoveLiquidity: false,
+            beforeDonate: false,
+            afterDonate: false
         });
     }
 }
