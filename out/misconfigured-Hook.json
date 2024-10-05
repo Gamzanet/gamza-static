@@ -1,0 +1,484 @@
+{
+    "data": [
+        {
+            "source": "source/1.sol:6:1",
+            "rule": "warning(misconfigured-Hook-2)",
+            "log": "contract ExampleHook is BaseHook {",
+            "data": {
+                "CONTRACT": "ExampleHook",
+                "SIG": null,
+                "IMPL": null
+            }
+        },
+        {
+            "source": "source/1.sol:17:5",
+            "rule": "warning(misconfigured-Hook-2)",
+            "log": "    function getHookPermissions() public pure override returns (Hooks.Permissions memory){",
+            "data": {
+                "CONTRACT": null,
+                "SIG": null,
+                "IMPL": "getHookPermissions"
+            }
+        },
+        {
+            "source": "source/1.sol:19:13",
+            "rule": "warning(misconfigured-Hook-2)",
+            "log": "            beforeInitialize: true,",
+            "data": {
+                "CONTRACT": "ExampleHook",
+                "SIG": "beforeInitialize",
+                "IMPL": null
+            }
+        },
+        {
+            "source": "source/1.sol:20:13",
+            "rule": "warning(misconfigured-Hook-2)",
+            "log": "            afterInitialize: true,",
+            "data": {
+                "CONTRACT": "ExampleHook",
+                "SIG": "afterInitialize",
+                "IMPL": null
+            }
+        },
+        {
+            "source": "source/1.sol:21:13",
+            "rule": "warning(misconfigured-Hook-2)",
+            "log": "            beforeSwap: true,",
+            "data": {
+                "CONTRACT": "ExampleHook",
+                "SIG": "beforeSwap",
+                "IMPL": null
+            }
+        },
+        {
+            "source": "source/1.sol:22:13",
+            "rule": "warning(misconfigured-Hook-2)",
+            "log": "            afterSwap: true,",
+            "data": {
+                "CONTRACT": "ExampleHook",
+                "SIG": "afterSwap",
+                "IMPL": null
+            }
+        },
+        {
+            "source": "source/1.sol:23:13",
+            "rule": "warning(misconfigured-Hook-2)",
+            "log": "            beforeAddLiquidity: true,",
+            "data": {
+                "CONTRACT": "ExampleHook",
+                "SIG": "beforeAddLiquidity",
+                "IMPL": null
+            }
+        },
+        {
+            "source": "source/1.sol:24:13",
+            "rule": "warning(misconfigured-Hook-2)",
+            "log": "            afterAddLiquidity: true,",
+            "data": {
+                "CONTRACT": "ExampleHook",
+                "SIG": "afterAddLiquidity",
+                "IMPL": null
+            }
+        },
+        {
+            "source": "source/1.sol:25:13",
+            "rule": "warning(misconfigured-Hook-2)",
+            "log": "            beforeRemoveLiquidity: true,",
+            "data": {
+                "CONTRACT": "ExampleHook",
+                "SIG": "beforeRemoveLiquidity",
+                "IMPL": null
+            }
+        },
+        {
+            "source": "source/1.sol:26:13",
+            "rule": "warning(misconfigured-Hook-2)",
+            "log": "            afterRemoveLiquidity: true,",
+            "data": {
+                "CONTRACT": "ExampleHook",
+                "SIG": "afterRemoveLiquidity",
+                "IMPL": null
+            }
+        },
+        {
+            "source": "source/1.sol:27:13",
+            "rule": "warning(misconfigured-Hook-2)",
+            "log": "            beforeDonate: true,",
+            "data": {
+                "CONTRACT": "ExampleHook",
+                "SIG": "beforeDonate",
+                "IMPL": null
+            }
+        },
+        {
+            "source": "source/1.sol:28:13",
+            "rule": "warning(misconfigured-Hook-2)",
+            "log": "            afterDonate: true",
+            "data": {
+                "CONTRACT": "ExampleHook",
+                "SIG": "afterDonate",
+                "IMPL": null
+            }
+        },
+        {
+            "source": "source/2.sol:6:1",
+            "rule": "warning(misconfigured-Hook-2)",
+            "log": "contract ExampleHook is BaseHook, someOtherContract {",
+            "data": {
+                "CONTRACT": "ExampleHook",
+                "SIG": null,
+                "IMPL": null
+            }
+        },
+        {
+            "source": "source/2.sol:17:5",
+            "rule": "warning(misconfigured-Hook-2)",
+            "log": "    function beforeSwap(address, PoolKey calldata, IPoolManager.SwapParams calldata, bytes calldata)",
+            "data": {
+                "CONTRACT": null,
+                "SIG": null,
+                "IMPL": "beforeSwap"
+            }
+        },
+        {
+            "source": "source/2.sol:25:5",
+            "rule": "warning(misconfigured-Hook-2)",
+            "log": "    function getHookPermissions() public pure override returns (Hooks.Permissions memory){",
+            "data": {
+                "CONTRACT": null,
+                "SIG": null,
+                "IMPL": "getHookPermissions"
+            }
+        },
+        {
+            "source": "source/2.sol:27:13",
+            "rule": "warning(misconfigured-Hook-2)",
+            "log": "            beforeInitialize: true,",
+            "data": {
+                "CONTRACT": "ExampleHook",
+                "SIG": "beforeInitialize",
+                "IMPL": null
+            }
+        },
+        {
+            "source": "source/2.sol:28:13",
+            "rule": "warning(misconfigured-Hook-2)",
+            "log": "            afterInitialize: true,",
+            "data": {
+                "CONTRACT": "ExampleHook",
+                "SIG": "afterInitialize",
+                "IMPL": null
+            }
+        },
+        {
+            "source": "source/2.sol:30:13",
+            "rule": "warning(misconfigured-Hook-2)",
+            "log": "            afterSwap: true,",
+            "data": {
+                "CONTRACT": "ExampleHook",
+                "SIG": "afterSwap",
+                "IMPL": null
+            }
+        },
+        {
+            "source": "source/2.sol:31:13",
+            "rule": "warning(misconfigured-Hook-2)",
+            "log": "            beforeAddLiquidity: true,",
+            "data": {
+                "CONTRACT": "ExampleHook",
+                "SIG": "beforeAddLiquidity",
+                "IMPL": null
+            }
+        },
+        {
+            "source": "source/2.sol:32:13",
+            "rule": "warning(misconfigured-Hook-2)",
+            "log": "            afterAddLiquidity: true,",
+            "data": {
+                "CONTRACT": "ExampleHook",
+                "SIG": "afterAddLiquidity",
+                "IMPL": null
+            }
+        },
+        {
+            "source": "source/2.sol:33:13",
+            "rule": "warning(misconfigured-Hook-2)",
+            "log": "            beforeRemoveLiquidity: true,",
+            "data": {
+                "CONTRACT": "ExampleHook",
+                "SIG": "beforeRemoveLiquidity",
+                "IMPL": null
+            }
+        },
+        {
+            "source": "source/2.sol:34:13",
+            "rule": "warning(misconfigured-Hook-2)",
+            "log": "            afterRemoveLiquidity: true,",
+            "data": {
+                "CONTRACT": "ExampleHook",
+                "SIG": "afterRemoveLiquidity",
+                "IMPL": null
+            }
+        },
+        {
+            "source": "source/2.sol:35:13",
+            "rule": "warning(misconfigured-Hook-2)",
+            "log": "            beforeDonate: true,",
+            "data": {
+                "CONTRACT": "ExampleHook",
+                "SIG": "beforeDonate",
+                "IMPL": null
+            }
+        },
+        {
+            "source": "source/2.sol:36:13",
+            "rule": "warning(misconfigured-Hook-2)",
+            "log": "            afterDonate: true",
+            "data": {
+                "CONTRACT": "ExampleHook",
+                "SIG": "afterDonate",
+                "IMPL": null
+            }
+        },
+        {
+            "source": "source/3.sol:6:1",
+            "rule": "warning(misconfigured-Hook-2)",
+            "log": "contract ExampleHook is someOtherContract, BaseHook {",
+            "data": {
+                "CONTRACT": "ExampleHook",
+                "SIG": null,
+                "IMPL": null
+            }
+        },
+        {
+            "source": "source/3.sol:17:5",
+            "rule": "warning(misconfigured-Hook-2)",
+            "log": "    function getHookPermissions() public pure override returns (Hooks.Permissions memory){",
+            "data": {
+                "CONTRACT": null,
+                "SIG": null,
+                "IMPL": "getHookPermissions"
+            }
+        },
+        {
+            "source": "source/3.sol:19:13",
+            "rule": "warning(misconfigured-Hook-2)",
+            "log": "            beforeInitialize: true,",
+            "data": {
+                "CONTRACT": "ExampleHook",
+                "SIG": "beforeInitialize",
+                "IMPL": null
+            }
+        },
+        {
+            "source": "source/3.sol:20:13",
+            "rule": "warning(misconfigured-Hook-2)",
+            "log": "            afterInitialize: true,",
+            "data": {
+                "CONTRACT": "ExampleHook",
+                "SIG": "afterInitialize",
+                "IMPL": null
+            }
+        },
+        {
+            "source": "source/3.sol:22:13",
+            "rule": "warning(misconfigured-Hook-2)",
+            "log": "            afterSwap: true,",
+            "data": {
+                "CONTRACT": "ExampleHook",
+                "SIG": "afterSwap",
+                "IMPL": null
+            }
+        },
+        {
+            "source": "source/3.sol:23:13",
+            "rule": "warning(misconfigured-Hook-2)",
+            "log": "            beforeAddLiquidity: true,",
+            "data": {
+                "CONTRACT": "ExampleHook",
+                "SIG": "beforeAddLiquidity",
+                "IMPL": null
+            }
+        },
+        {
+            "source": "source/3.sol:24:13",
+            "rule": "warning(misconfigured-Hook-2)",
+            "log": "            afterAddLiquidity: true,",
+            "data": {
+                "CONTRACT": "ExampleHook",
+                "SIG": "afterAddLiquidity",
+                "IMPL": null
+            }
+        },
+        {
+            "source": "source/3.sol:25:13",
+            "rule": "warning(misconfigured-Hook-2)",
+            "log": "            beforeRemoveLiquidity: true,",
+            "data": {
+                "CONTRACT": "ExampleHook",
+                "SIG": "beforeRemoveLiquidity",
+                "IMPL": null
+            }
+        },
+        {
+            "source": "source/3.sol:26:13",
+            "rule": "warning(misconfigured-Hook-2)",
+            "log": "            afterRemoveLiquidity: true,",
+            "data": {
+                "CONTRACT": "ExampleHook",
+                "SIG": "afterRemoveLiquidity",
+                "IMPL": null
+            }
+        },
+        {
+            "source": "source/3.sol:27:13",
+            "rule": "warning(misconfigured-Hook-2)",
+            "log": "            beforeDonate: true,",
+            "data": {
+                "CONTRACT": "ExampleHook",
+                "SIG": "beforeDonate",
+                "IMPL": null
+            }
+        },
+        {
+            "source": "source/3.sol:28:13",
+            "rule": "warning(misconfigured-Hook-2)",
+            "log": "            afterDonate: true",
+            "data": {
+                "CONTRACT": "ExampleHook",
+                "SIG": "afterDonate",
+                "IMPL": null
+            }
+        },
+        {
+            "source": "source/4.sol:6:1",
+            "rule": "warning(misconfigured-Hook-2)",
+            "log": "contract ExampleHook is someOtherContract, BaseHook, someOtherContract {",
+            "data": {
+                "CONTRACT": "ExampleHook",
+                "SIG": null,
+                "IMPL": null
+            }
+        },
+        {
+            "source": "source/4.sol:17:5",
+            "rule": "warning(misconfigured-Hook-2)",
+            "log": "    function beforeSwap(address, PoolKey calldata, IPoolManager.SwapParams calldata, bytes calldata)",
+            "data": {
+                "CONTRACT": null,
+                "SIG": null,
+                "IMPL": "beforeSwap"
+            }
+        },
+        {
+            "source": "source/4.sol:25:5",
+            "rule": "warning(misconfigured-Hook-2)",
+            "log": "    function getHookPermissions() public pure override returns (Hooks.Permissions memory){",
+            "data": {
+                "CONTRACT": null,
+                "SIG": null,
+                "IMPL": "getHookPermissions"
+            }
+        },
+        {
+            "source": "source/4.sol:27:13",
+            "rule": "warning(misconfigured-Hook-2)",
+            "log": "            beforeInitialize: true,",
+            "data": {
+                "CONTRACT": "ExampleHook",
+                "SIG": "beforeInitialize",
+                "IMPL": null
+            }
+        },
+        {
+            "source": "source/4.sol:28:13",
+            "rule": "warning(misconfigured-Hook-2)",
+            "log": "            afterInitialize: true,",
+            "data": {
+                "CONTRACT": "ExampleHook",
+                "SIG": "afterInitialize",
+                "IMPL": null
+            }
+        },
+        {
+            "source": "source/4.sol:29:13",
+            "rule": "warning(misconfigured-Hook-2)",
+            "log": "            beforeSwap: true, // ok: misconfigured-Hook",
+            "data": {
+                "CONTRACT": "ExampleHook",
+                "SIG": "beforeSwap",
+                "IMPL": null
+            }
+        },
+        {
+            "source": "source/4.sol:30:13",
+            "rule": "warning(misconfigured-Hook-2)",
+            "log": "            afterSwap: true,",
+            "data": {
+                "CONTRACT": "ExampleHook",
+                "SIG": "afterSwap",
+                "IMPL": null
+            }
+        },
+        {
+            "source": "source/4.sol:31:13",
+            "rule": "warning(misconfigured-Hook-2)",
+            "log": "            beforeAddLiquidity: true,",
+            "data": {
+                "CONTRACT": "ExampleHook",
+                "SIG": "beforeAddLiquidity",
+                "IMPL": null
+            }
+        },
+        {
+            "source": "source/4.sol:32:13",
+            "rule": "warning(misconfigured-Hook-2)",
+            "log": "            afterAddLiquidity: true,",
+            "data": {
+                "CONTRACT": "ExampleHook",
+                "SIG": "afterAddLiquidity",
+                "IMPL": null
+            }
+        },
+        {
+            "source": "source/4.sol:33:13",
+            "rule": "warning(misconfigured-Hook-2)",
+            "log": "            beforeRemoveLiquidity: true,",
+            "data": {
+                "CONTRACT": "ExampleHook",
+                "SIG": "beforeRemoveLiquidity",
+                "IMPL": null
+            }
+        },
+        {
+            "source": "source/4.sol:34:13",
+            "rule": "warning(misconfigured-Hook-2)",
+            "log": "            afterRemoveLiquidity: true,",
+            "data": {
+                "CONTRACT": "ExampleHook",
+                "SIG": "afterRemoveLiquidity",
+                "IMPL": null
+            }
+        },
+        {
+            "source": "source/4.sol:35:13",
+            "rule": "warning(misconfigured-Hook-2)",
+            "log": "            beforeDonate: true,",
+            "data": {
+                "CONTRACT": "ExampleHook",
+                "SIG": "beforeDonate",
+                "IMPL": null
+            }
+        },
+        {
+            "source": "source/4.sol:36:13",
+            "rule": "warning(misconfigured-Hook-2)",
+            "log": "            afterDonate: true",
+            "data": {
+                "CONTRACT": "ExampleHook",
+                "SIG": "afterDonate",
+                "IMPL": null
+            }
+        }
+    ]
+}
