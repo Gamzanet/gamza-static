@@ -33,6 +33,7 @@ function main() {
     pip install web3 -q
     pip install python-dotenv -q
     pip install jmespath -q
+    pip install PyYAML -q
     echo "installed successfully"
 }
 
