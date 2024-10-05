@@ -1,9 +1,12 @@
 import re
 import subprocess
+from pprint import pprint
 
 import yaml
 from jmespath import search
 
+
+# TODO: encapsulate routines in a class
 
 # read semgrep rule to run
 # save variable context
@@ -25,15 +28,52 @@ def parse_semgrep_rule_message_by_file_name(_file_name: str):
     return res
 
 
-# TODO: run semgrep rules
+# TODO: should run case based on user input
 # CLI: npm run case2
-def run_semgrep():
-    subprocess.run(["npm", "run", "case2"])
+def run_semgrep(_rule_name: str, _target_dir: str = "source") -> str:
+    # semgrep scan -f rules/misconfigured-Hook.yaml source --emacs
+    res = subprocess.run(["semgrep", "scan", "-f", _rule_name, _target_dir, "--emacs"], capture_output=True)
+    res = res.stdout.decode("utf-8")
+    return res
+
+
+def get_semgrep_output(_rule_name: str, _target_dir: str = "source") -> list:
+    res = run_semgrep(_rule_name, _target_dir)
+    res = re.findall(r"(\S+:\S+):(\S+):([ \S]+):([ \S]+)", res, flags=re.MULTILINE)
+    # pprint(res)
+    _msg_schema = parse_semgrep_rule_message_by_file_name(_rule_name)
+
+    output = []
+    for r in res:
+        output.append(emacs_tuple_to_dict(r, _msg_schema))
+    return output
+
+
+def emacs_tuple_to_dict(_tuple: tuple, _msg_schema: list):
+    # source:   ('source/1.sol:6:1',
+    # rule:     'warning(misconfigured-Hook-2)',
+    # log:      'contract ExampleHook is BaseHook {',
+    # message:  'ExampleHook | $SIG | $IMPL')
+    _key = _msg_schema
+    _value = map(str.strip, _tuple[3].split("|"))
+    _data = dict(zip(_key, _value))
+    # if value == ${KEY}, then replace with the value to None
+    for k, v in _data.items():
+        if v == f"${k}":
+            _data[k] = None
+    return {
+        "source": _tuple[0],
+        "rule": _tuple[1],
+        "log": _tuple[2],
+        "data": _data
+    }
+
+
+def parse_semgrep_output():
     pass
 
 
-# TODO: get the output of the semgrep analysis
-def get_semgrep_output():
+def match_semgrep_output():
     pass
 
 
@@ -52,9 +92,7 @@ def is_no_op():
 
 
 if __name__ == "__main__":
-    msg = parse_semgrep_rule_message_by_file_name("rules/misconfigured-Hook.yaml")  # read semgrep rule
-    print(msg)
-    run_semgrep()  # semgrep result stored in a JSON file
-    get_semgrep_output()  # get the output of the semgrep analysis
+    output = get_semgrep_output("rules/misconfigured-Hook.yaml", "source")  # get the output of the semgrep analysis
+    pprint(output)
     read_semgrep_output()  # read result of the analysis
     run_semgrep_json()  # run semgrep JSON output to the use

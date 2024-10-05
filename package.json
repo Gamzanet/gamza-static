@@ -5,7 +5,7 @@
         "install": "bash install.sh",
         "test": "cd foundry && forge test",
         "case1": "semgrep scan -f rules/misconfigured-Hook.yaml .",
-        "case2": "semgrep scan -f rules/misconfigured-Hook.yaml source",
+        "case2": "semgrep scan -f rules/misconfigured-Hook.yaml source --emacs",
         "case3": "semgrep scan -f rules/missing-poolManagerOnly-modifier.yaml .",
         "case4": "semgrep scan -f rules/missing-poolManagerOnly-modifier.yaml source"
     },
