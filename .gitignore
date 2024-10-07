@@ -1,0 +1,14 @@
+# out
+out
+
+# Dotenv file
+.venv
+.env
+
+# IDE
+.idea
+.vscode
+
+# modules
+node_modules
+package-lock.json

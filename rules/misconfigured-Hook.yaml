@@ -1,0 +1,21 @@
+rules:
+  - id: misconfigured-Hook
+    message: $CONTRACT | $SIG | $IMPL
+    languages:
+      - solidity
+    severity: WARNING
+    pattern-either:
+      - pattern-inside: |
+          contract $CONTRACT is ..., BaseHook, ... { ... }
+      - patterns:
+          - pattern-regex: |-
+              (?P<SIG>\w+):\s*true
+          - pattern-inside: |
+              return Hooks.Permissions( ... );
+          - pattern-inside: |
+              function getHookPermissions() override returns (Hooks.Permissions) { ... }
+          - pattern-inside: |
+              contract $CONTRACT is ..., BaseHook, ... { ... }
+      - patterns:
+          - pattern-regex: |-
+              function\s+(?P<IMPL>\w+)[\(\w \)]+\s+override\s+returns\s+[\(\S \)]+{
