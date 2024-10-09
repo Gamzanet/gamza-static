@@ -1,3 +1,4 @@
+import json
 from pprint import pprint
 
 from jmespath import search
@@ -25,11 +26,7 @@ def is_valid_hook(_target_path="source/1.sol"):
 
 
 # currently source code should include single contract
-def get_function_info(_target_path="source/3.sol"):
-    # Get the output of the semgrep command
-    output: list = get_semgrep_output("info-function", _target_path)
-    # pprint(output)
-
+def get_modifiers(_target_path="source/3.sol"):
     # [*].data.CONTRACT
     # [*].data.SIG
     # [*].data.VIS
@@ -37,12 +34,28 @@ def get_function_info(_target_path="source/3.sol"):
     # [*].data.PURITY
     # [*].data.MOD
     # [*].data.RETURN
-    res = list(search("[*].data.[*][0]", output))
-    # pprint(res)
+    output: list = get_semgrep_output("info-function", _target_path)
+
+    res = {}
+    # TODO: JMESPath 내장 기능을 활용하여 구현해보기
+    for e in list(search("[*].data[]", output)):
+        if e["MOD"] is not None:
+            import re
+            mods = re.split(r"\s", e["MOD"])
+            for mod in mods:
+                mod = mod.strip()
+                if mod not in res.keys():
+                    res[mod] = []
+
+                inline = ''.join(re.split(r"(?<=[,()])\s+|\s+(?=\))", e['SIG'], flags=re.MULTILINE))
+                contract_sig = f"{e['CONTRACT']}:{inline}"
+                res[mod].append(contract_sig)
+    json.dump(res, open("out/modifiers.json", "w"))
     return res
 
 
 if __name__ == "__main__":
     # res = is_valid_hook(_target_path="source/1.sol")
-    res = get_function_info(_target_path="source/2.sol")
-    pprint(res)
+    res: dict = get_modifiers(_target_path="source/0xe8e23e97fa135823143d6b9cba9c699040d51f70.sol")
+    for k, v in res.items():
+        print(k, v)

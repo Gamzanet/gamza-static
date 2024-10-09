@@ -1,6 +1,6 @@
 {
     "name": "gamza-engine",
-    "version": "1.1.1",
+    "version": "1.1.2",
     "scripts": {
         "install": "bash install.sh",
         "test": "cd foundry && forge test",
