@@ -3,7 +3,6 @@ import json
 import os.path
 import re
 import subprocess
-from pprint import pprint
 
 import yaml
 from jmespath import search
@@ -45,25 +44,28 @@ def run_semgrep(_rule_name: str, _target_path: str = "source") -> str:
     return res
 
 
-def get_semgrep_output(_rule_name: str, _target_path: str = "source") -> list:
+def get_semgrep_output(_rule_name: str, _target_path: str = "source", caching: bool = False) -> list:
     # try read json output
     _json_file_name = f"{_rule_name}_{_target_path}.json"
     _json_file_name = hashlib.sha256(_json_file_name.encode()).hexdigest()
-    try:
-        with open(f"out/{_json_file_name}", "r") as f:
-            return json.load(f, strict=True)['data']
-    except FileNotFoundError:
-        res = run_semgrep(_rule_name, _target_path)
-        res = re.findall(r"(\S+:\S+):(\S+):([ \S]+):([ \S]+)", res, flags=re.MULTILINE)
-        # pprint(res)
-        _msg_schema = parse_semgrep_rule_message_by_rule_name(_rule_name)
+    if caching:
+        try:
+            with open(f"out/{_json_file_name}", "r") as f:
+                return json.load(f, strict=True)['data']
+        except FileNotFoundError:
+            pass
+    res = run_semgrep(_rule_name, _target_path)
+    # print("_res:", res)
+    res = re.findall(r"([\w+\/]+\w+.sol:\d+:\d+):([\S]+):([ \S]+):([\w(),.$ |\n]*)(?:^\w+)", res, flags=re.MULTILINE)
+    _msg_schema = parse_semgrep_rule_message_by_rule_name(_rule_name)
 
-        _output = []
-        for r in res:
-            _output.append(emacs_tuple_to_dict(r, _msg_schema))
-        with open(f"out/{_json_file_name}", "w") as f:
-            json.dump({"data": _output}, f)
-            return _output
+    _output = []
+    for r in res:
+        # r = list(map(str.strip, r))
+        _output.append(emacs_tuple_to_dict(r, _msg_schema))
+    with open(f"out/{_json_file_name}", "w") as f:
+        json.dump({"data": _output}, f)
+        return _output
 
 
 def emacs_tuple_to_dict(_tuple: tuple, _msg_schema: list):
@@ -72,11 +74,19 @@ def emacs_tuple_to_dict(_tuple: tuple, _msg_schema: list):
     # log:      'contract ExampleHook is BaseHook {',
     # message:  'ExampleHook | $SIG | $IMPL')
     _key = _msg_schema
-    _value = map(str.strip, _tuple[3].split("|"))
+    # _value = map(str.strip, _tuple[3].split("|"))
+    # _value = re.findall(r"([\S\s]+?)\s+\|", _tuple[3], flags=re.MULTILINE)
+    print("tuple[0]:", _tuple[0])
+    print("tuple[1]:", _tuple[1])
+    print("tuple[2]:", _tuple[2])
+    print("tuple[3]:", _tuple[3])
+
+    _value = re.split(r"\|\s+", _tuple[3], flags=re.MULTILINE)
+    _value = map(str.strip, _value)
     _data = dict(zip(_key, _value))
     # if value == ${KEY}, then replace with the value to None
     for k, v in _data.items():
-        if v == f"${k}":
+        if v == f"${k}" or v == "":
             _data[k] = None
     return {
         "source": _tuple[0],
@@ -87,5 +97,7 @@ def emacs_tuple_to_dict(_tuple: tuple, _msg_schema: list):
 
 
 if __name__ == "__main__":
-    output = get_semgrep_output("misconfigured-Hook", "source")  # get the output of the semgrep analysis
-    pprint(output)
+    output = get_semgrep_output("info-function",
+                                "source/0xe8e23e97fa135823143d6b9cba9c699040d51f70.sol",
+                                caching=False)  # get the output of the semgrep analysis
+    print(output)
