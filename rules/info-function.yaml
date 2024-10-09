@@ -1,0 +1,11 @@
+rules:
+  - id: info-function
+    message: $CONTRACT | $SIG | $VIS | $PAY | $PURITY | $MOD | $OVER | $RETURN
+    languages:
+      - solidity
+    severity: WARNING
+    patterns:
+      - pattern-inside: |
+          contract $CONTRACT { ... ... ... }
+      - pattern-regex: |-
+          ^\s*function\s+(?<SIG>\w+\s*\([\S\s,]*?\))\s*(?<VIS>\w+)(?:\s+(?<PAY>payable))?(?:\s+(?<PURITY>view|pure))?(?:(?<MOD>[\S\s]*?))(?=\s+override\b|\s+returns\b|\s*\{)(?:\s+(?<OVER>override))?(?:\s*(?<RETURN>returns\s*\([\s\S]*?\)))?

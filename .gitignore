@@ -8,6 +8,7 @@ out
 # IDE
 .idea
 .vscode
+__pycache__
 
 # modules
 node_modules
