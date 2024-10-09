@@ -12,7 +12,7 @@ function print_usage() {
 }
 
 function print_version() {
-    echo "버전 1.0.0"
+   jq -r '.version' package.json
 }
 
 # 옵션 파싱
