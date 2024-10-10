@@ -64,7 +64,8 @@ jobs:
 
       - name: Integrated installation
         run: |
-          npm install -g corepack |
+          pip install -r requirements.txt
+          corepack -v
           pnpm install
 
       - name: Run tests
