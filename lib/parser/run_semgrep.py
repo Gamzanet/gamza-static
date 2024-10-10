@@ -1,41 +1,35 @@
-import hashlib
 import json
-import os.path
 import re
 import subprocess
 
 import yaml
 from jmespath import search
 
-# TODO: 일일이 경로 지정하지 않아도, 디렉토리 탐색해서 파일명 맞으면 알아서 실행되도록 수정. 파일 트리 만들고 사용해도 됨
-path = os.path.abspath(os.path.join(os.path.dirname(__file__), ".."))
-os.chdir(path)
 
-
-# TODO: encapsulate routines in a class
-# read semgrep rule to run
 # save variable context
-def read_semgrep_rule_by_rule_name(_rule_name: str):
-    res = None
-    with open(f"rules/{_rule_name}.yaml", "r") as f:
-        file = f.read()
-        res = yaml.safe_load(file)
-        res = search("rules[0].message", res)
-        # print(res)
-    return res
+# rule should be in the `rules` directory
+def read_message_schema_by_rule_name(_rule_name: str):
+    try:
+        with open(f"rules/{_rule_name}.yaml", "r") as f:
+            file = f.read()
+            res = yaml.safe_load(file)
+            res = search("rules[0].message", res)
+            print("res:", res)
+            return res
+    except FileNotFoundError:
+        raise FileNotFoundError(f"rules/{_rule_name}.yaml not found")
 
 
-def parse_semgrep_rule_message_by_rule_name(_rule_name: str):
-    _msg = read_semgrep_rule_by_rule_name(_rule_name)
-    # print(_msg)
-    res = re.findall(r"\$(\w+)", _msg, flags=re.MULTILINE)
-    # print(res)
+# input: $CONTRACT | $SIG | $VIS | $PAY | $PURITY | $MOD | $OVER | $RETURN
+# output: ['CONTRACT', 'SIG', 'VIS', 'PAY', 'PURITY', 'MOD', 'OVER', 'RETURN']
+def parse_message_schema(_msg_schema: str):
+    res = re.findall(r"\$(\w+)", _msg_schema, flags=re.MULTILINE)
     return res
 
 
 # CLI: npm run case2
-def run_semgrep(_rule_name: str, _target_path: str = "source") -> str:
-    # semgrep scan -f rules/misconfigured-Hook.yaml source --emacs
+def run_semgrep(_rule_name: str, _target_path: str = "code") -> str:
+    # semgrep scan -f rules/misconfigured-Hook.yaml code --emacs
     print(_rule_name, _target_path)
     res = subprocess.run(["semgrep", "scan", "-f", f"rules/{_rule_name}.yaml", _target_path, "--emacs"],
                          capture_output=True)
@@ -44,32 +38,37 @@ def run_semgrep(_rule_name: str, _target_path: str = "source") -> str:
     return res
 
 
-def get_semgrep_output(_rule_name: str, _target_path: str = "source", caching: bool = False) -> list:
+def get_semgrep_output(_rule_name: str, _target_path: str = "code", use_cache: bool = False) -> list:
     # try read json output
-    _json_file_name = f"{_rule_name}_{_target_path}.json"
-    _json_file_name = hashlib.sha256(_json_file_name.encode()).hexdigest()
-    if caching:
+    _json_file_name = f"{_rule_name}_{_target_path.replace("/", "-")}.json"
+
+    if use_cache:
         try:
             with open(f"out/{_json_file_name}", "r") as f:
                 return json.load(f, strict=True)['data']
         except FileNotFoundError:
             pass
+
+    _output = []
     res = run_semgrep(_rule_name, _target_path)
     # print("_res:", res)
     res = re.findall(r"([\w+\/]+\w+.sol:\d+:\d+):([\S]+):([ \S]+):([\w(),.$ |\n]*)(?:^\w+)", res, flags=re.MULTILINE)
-    _msg_schema = parse_semgrep_rule_message_by_rule_name(_rule_name)
 
-    _output = []
+    _msg_raw_schema = read_message_schema_by_rule_name(_rule_name)
+    _msg_schema = parse_message_schema(_msg_raw_schema)
+
     for r in res:
         # r = list(map(str.strip, r))
         _output.append(emacs_tuple_to_dict(r, _msg_schema))
+
     with open(f"out/{_json_file_name}", "w") as f:
         json.dump({"data": _output}, f)
-        return _output
+
+    return _output
 
 
 def emacs_tuple_to_dict(_tuple: tuple, _msg_schema: list):
-    # source:   ('source/1.sol:6:1',
+    # code:   ('code/1.sol:6:1',
     # rule:     'warning(misconfigured-Hook-2)',
     # log:      'contract ExampleHook is BaseHook {',
     # message:  'ExampleHook | $SIG | $IMPL')
@@ -89,7 +88,7 @@ def emacs_tuple_to_dict(_tuple: tuple, _msg_schema: list):
         if v == f"${k}" or v == "":
             _data[k] = None
     return {
-        "source": _tuple[0],
+        "code": _tuple[0],
         "rule": _tuple[1],
         "log": _tuple[2],
         "data": _data
@@ -98,6 +97,6 @@ def emacs_tuple_to_dict(_tuple: tuple, _msg_schema: list):
 
 if __name__ == "__main__":
     output = get_semgrep_output("info-function",
-                                "source/0xe8e23e97fa135823143d6b9cba9c699040d51f70.sol",
-                                caching=False)  # get the output of the semgrep analysis
+                                "code/0xe8e23e97fa135823143d6b9cba9c699040d51f70.sol",
+                                use_cache=False)  # get the output of the semgrep analysis
     print(output)
