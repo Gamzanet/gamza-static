@@ -22,6 +22,7 @@ jobs:
         id: cache-submodule
         with:
           path: foundry
+          key: ${{ runner.os }}-submodules-${{ hashFiles('package.json') }}
           restore-keys: |
             ${{ runner.os }}-submodules
           lookup-only: true
