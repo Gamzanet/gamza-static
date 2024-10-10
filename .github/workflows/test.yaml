@@ -1,0 +1,72 @@
+name: Integrated Tests
+run-name: ${{ github.actor }} runs integrated tests
+on:
+  schedule:
+    - cron: '0 0 * * *'
+  pull_request:
+    branches:
+      - develop
+jobs:
+  Integrated-Tests:
+    runs-on: macos-latest
+    steps:
+      - run: echo "🎉 The job was automatically triggered by a ${{ github.event_name }} event."
+      - run: echo "🐧 This job is now running on a ${{ runner.os }} server hosted by GitHub!"
+      - run: echo "🔎 The name of your branch is ${{ github.ref }} and your repository is ${{ github.repository }}."
+
+      - uses: actions/checkout@v4
+        name: Check out repository code
+
+      - uses: actions/cache@v4
+        name: Cache Submodules
+        id: cache-submodule
+        with:
+          path: foundry
+          key: ${{ runner.os }}-submodules-${{ hashFiles('package.json') }}
+          restore-keys: |
+            ${{ runner.os }}-submodules
+          lookup-only: true
+
+      - uses: actions/checkout@v4
+        name: Update git submodules
+        if: steps.cache-submodule.outputs.cache-hit != 'true'
+        with:
+          submodules: recursive
+
+      - name: Install Foundry
+        uses: foundry-rs/foundry-toolchain@v1
+        with:
+          version: nightly
+
+      - uses: actions/cache@v4
+        name: Cache Submodules
+        if: steps.cache-submodule.outputs.cache-hit != 'true'
+        with:
+          path: foundry
+          key: ${{ runner.os }}-submodules-${{ hashFiles('package.json') }}
+
+      - uses: pnpm/action-setup@v4
+        name: Install pnpm
+        with:
+          run_install: false
+
+      - uses: actions/setup-node@v4
+        name: Install Node.js
+        with:
+          node-version-file: .nvmrc
+          cache: 'pnpm'
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version-file: .python-version
+          cache: 'pip'
+          cache-dependency-path: requirements.txt
+
+      - name: Integrated installation
+        run: |
+          pip install -r requirements.txt -q
+          pnpm install --ignore-scripts
+
+      - name: Run tests
+        run: pnpm test >> $GITHUB_STEP_SUMMARY
