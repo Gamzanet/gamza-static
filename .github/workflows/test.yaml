@@ -61,6 +61,7 @@ jobs:
         with:
           python-version-file: .python-version
           cache: 'pip'
+          cache-dependency-path: requirements.txt
 
       - name: Integrated installation
         run: |
