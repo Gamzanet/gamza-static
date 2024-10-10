@@ -5,7 +5,7 @@ on:
     - cron: '0 0 * * *'
   pull_request:
     branches:
-      - ci-actions
+      - develop
 jobs:
   Integrated-Tests:
     runs-on: macos-latest
