@@ -16,13 +16,26 @@ jobs:
 
       - uses: actions/checkout@v4
         name: Check out repository code
+
+      - uses: actions/cache@v4
+        name: Cache Submodules
+        id: cache-submodule
+        with:
+          path: foundry
+          key: ${{ runner.os }}-submodules-${{ hashFiles('.git/modules/foundry/FETCH_HEAD') }}
+          restore-keys: |
+            ${{ runner.os }}-submodules
+
+      - uses: actions/checkout@v4
+        name: Update git submodules
+        if: steps.cache-submodule.outputs.cache-hit != 'true'
         with:
           submodules: recursive
 
       - uses: actions/cache@v4
         name: Cache Submodules
         with:
-          path: foundry
+          path: foundry/*
           key: ${{ runner.os }}-submodules-${{ hashFiles('**/.gitmodules') }}
           restore-keys: |
             ${{ runner.os }}-submodules-
@@ -37,10 +50,10 @@ jobs:
         with:
           cache: 'pnpm'
 
-      - name: Set up Python ${{ matrix.python-version }}
+      - name: Set up Python
         uses: actions/setup-python@v5
         with:
-          python-version: ${{ matrix.python-version }}
+          python-version-file: .python-version
           cache: 'pip'
 
       - name: Integrated installation
