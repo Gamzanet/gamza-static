@@ -1,6 +1,11 @@
 name: Integrated Tests
 run-name: ${{ github.actor }} runs integrated tests
-on: [ pull_request ]
+on:
+  schedule:
+    - cron: '0 0 * * *'
+  pull_request:
+    branches:
+      - ci-actions
 jobs:
   Integrated-Tests:
     runs-on: macos-latest
