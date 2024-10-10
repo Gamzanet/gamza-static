@@ -767,7 +767,7 @@ interface EIP20Interface {
 
     /**
       * @notice Transfer `amount` tokens from `src` to `dst`
-      * @param src The address of the source account
+      * @param src The address of the code account
       * @param dst The address of the destination account
       * @param amount The number of tokens to transfer
       * @return Whether or not the transfer succeeded
@@ -1172,7 +1172,7 @@ contract CToken is CTokenStorage, CTokenInterface, CTokenViewInterface, Exponent
      * @notice Transfer `tokens` tokens from `src` to `dst` by `spender`
      * @dev Called by both `transfer` and `transferFrom` internally
      * @param spender The address of the account performing the transfer
-     * @param src The address of the source account
+     * @param src The address of the code account
      * @param dst The address of the destination account
      * @param tokens The number of tokens to transfer
      * @return Whether or not the transfer succeeded
@@ -1251,7 +1251,7 @@ contract CToken is CTokenStorage, CTokenInterface, CTokenViewInterface, Exponent
 
     /**
      * @notice Transfer `amount` tokens from `src` to `dst`
-     * @param src The address of the source account
+     * @param src The address of the code account
      * @param dst The address of the destination account
      * @param amount The number of tokens to transfer
      * @return Whether or not the transfer succeeded
@@ -2717,7 +2717,7 @@ interface EIP20NonStandardInterface {
 
     /**
       * @notice Transfer `amount` tokens from `src` to `dst`
-      * @param src The address of the source account
+      * @param src The address of the code account
       * @param dst The address of the destination account
       * @param amount The number of tokens to transfer
       */
@@ -3090,7 +3090,7 @@ contract CErc20Delegator is ODelegator, CTokenInterface, CErc20Interface {
 
     /**
      * @notice Transfer `amount` tokens from `src` to `dst`
-     * @param src The address of the source account
+     * @param src The address of the code account
      * @param dst The address of the destination account
      * @param amount The number of tokens to transfer
      * @return Whether or not the transfer succeeded
