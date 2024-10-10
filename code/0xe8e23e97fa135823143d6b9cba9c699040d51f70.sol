@@ -1,6 +1,55 @@
 // SPDX-License-Identifier: BUSL-1.1
 pragma solidity 0.8.26;
 
+import {ERC6909Claims} from "../foundry/lib/v4-core/src/ERC6909Claims.sol";
+import {Extsload} from "../foundry/lib/v4-core/src/Extsload.sol";
+import {Exttload} from "../foundry/lib/v4-core/src/Exttload.sol";
+import {NoDelegateCall} from "../foundry/lib/v4-core/src/NoDelegateCall.sol";
+import {PoolManager} from "../foundry/lib/v4-core/src/PoolManager.sol";
+import {ProtocolFees} from "../foundry/lib/v4-core/src/ProtocolFees.sol";
+import {IHooks} from "../foundry/lib/v4-core/src/interfaces/IHooks.sol";
+import {IPoolManager} from "../foundry/lib/v4-core/src/interfaces/IPoolManager.sol";
+import {IUnlockCallback} from "../foundry/lib/v4-core/src/interfaces/callback/IUnlockCallback.sol";
+import {CurrencyDelta} from "../foundry/lib/v4-core/src/libraries/CurrencyDelta.sol";
+import {CurrencyReserves} from "../foundry/lib/v4-core/src/libraries/CurrencyReserves.sol";
+import {CustomRevert} from "../foundry/lib/v4-core/src/libraries/CustomRevert.sol";
+import {Hooks} from "../foundry/lib/v4-core/src/libraries/Hooks.sol";
+import {LPFeeLibrary} from "../foundry/lib/v4-core/src/libraries/LPFeeLibrary.sol";
+import {Lock} from "../foundry/lib/v4-core/src/libraries/Lock.sol";
+import {NonzeroDeltaCount} from "../foundry/lib/v4-core/src/libraries/NonzeroDeltaCount.sol";
+import {Pool} from "../foundry/lib/v4-core/src/libraries/Pool.sol";
+import {Position} from "../foundry/lib/v4-core/src/libraries/Position.sol";
+import {SafeCast} from "../foundry/lib/v4-core/src/libraries/SafeCast.sol";
+import {TickMath} from "../foundry/lib/v4-core/src/libraries/TickMath.sol";
+import {BalanceDelta, BalanceDeltaLibrary} from "../foundry/lib/v4-core/src/types/BalanceDelta.sol";
+import {Currency, CurrencyLibrary} from "../foundry/lib/v4-core/src/types/Currency.sol";
+import {PoolKey} from "../foundry/lib/v4-core/src/types/PoolKey.sol";
+import {ERC6909Claims} from "../foundry/lib/v4-periphery/lib/v4-core/src/ERC6909Claims.sol";
+import {Extsload} from "../foundry/lib/v4-periphery/lib/v4-core/src/Extsload.sol";
+import {Exttload} from "../foundry/lib/v4-periphery/lib/v4-core/src/Exttload.sol";
+import {NoDelegateCall} from "../foundry/lib/v4-periphery/lib/v4-core/src/NoDelegateCall.sol";
+import {PoolManager} from "../foundry/lib/v4-periphery/lib/v4-core/src/PoolManager.sol";
+import {ProtocolFees} from "../foundry/lib/v4-periphery/lib/v4-core/src/ProtocolFees.sol";
+import {IHooks} from "../foundry/lib/v4-periphery/lib/v4-core/src/interfaces/IHooks.sol";
+import {IPoolManager} from "../foundry/lib/v4-periphery/lib/v4-core/src/interfaces/IPoolManager.sol";
+import {IUnlockCallback} from "../foundry/lib/v4-periphery/lib/v4-core/src/interfaces/callback/IUnlockCallback.sol";
+import {CurrencyDelta} from "../foundry/lib/v4-periphery/lib/v4-core/src/libraries/CurrencyDelta.sol";
+import {CurrencyReserves} from "../foundry/lib/v4-periphery/lib/v4-core/src/libraries/CurrencyReserves.sol";
+import {CustomRevert} from "../foundry/lib/v4-periphery/lib/v4-core/src/libraries/CustomRevert.sol";
+import {Hooks} from "../foundry/lib/v4-periphery/lib/v4-core/src/libraries/Hooks.sol";
+import {LPFeeLibrary} from "../foundry/lib/v4-periphery/lib/v4-core/src/libraries/LPFeeLibrary.sol";
+import {Lock} from "../foundry/lib/v4-periphery/lib/v4-core/src/libraries/Lock.sol";
+import {NonzeroDeltaCount} from "../foundry/lib/v4-periphery/lib/v4-core/src/libraries/NonzeroDeltaCount.sol";
+import {Pool} from "../foundry/lib/v4-periphery/lib/v4-core/src/libraries/Pool.sol";
+import {Position} from "../foundry/lib/v4-periphery/lib/v4-core/src/libraries/Position.sol";
+import {SafeCast} from "../foundry/lib/v4-periphery/lib/v4-core/src/libraries/SafeCast.sol";
+import {TickMath} from "../foundry/lib/v4-periphery/lib/v4-core/src/libraries/TickMath.sol";
+import {BalanceDelta, BalanceDeltaLibrary} from "../foundry/lib/v4-periphery/lib/v4-core/src/types/BalanceDelta.sol";
+import {Currency, CurrencyLibrary} from "../foundry/lib/v4-periphery/lib/v4-core/src/types/Currency.sol";
+import {PoolKey} from "../foundry/lib/v4-periphery/lib/v4-core/src/types/PoolKey.sol";
+import {PoolManager} from "../lib/etherscan/code/0xe8e23e97fa135823143d6b9cba9c699040d51f70.sol";
+import {PoolManager} from "../lib/parser/code/0xe8e23e97fa135823143d6b9cba9c699040d51f70.sol";
+
 //  4
 //   44
 //     444
@@ -87,7 +136,11 @@ contract PoolManager is IPoolManager, ProtocolFees, NoDelegateCall, ERC6909Claim
     }
 
     /// @inheritdoc IPoolManager
-    function initialize(PoolKey memory key, uint160 sqrtPriceX96) external noDelegateCall returns (int24 tick) {
+    function initialize(PoolKey memory key, uint160 sqrtPriceX96, bytes calldata hookData)
+    external
+    noDelegateCall
+    returns (int24 tick)
+    {
         // see TickBitmap.sol for overflow conditions that can arise from tick spacing being too large
         if (key.tickSpacing > MAX_TICK_SPACING) TickSpacingTooLarge.selector.revertWith(key.tickSpacing);
         if (key.tickSpacing < MIN_TICK_SPACING) TickSpacingTooSmall.selector.revertWith(key.tickSpacing);
@@ -100,14 +153,14 @@ contract PoolManager is IPoolManager, ProtocolFees, NoDelegateCall, ERC6909Claim
 
         uint24 lpFee = key.fee.getInitialLPFee();
 
-        key.hooks.beforeInitialize(key, sqrtPriceX96);
+        key.hooks.beforeInitialize(key, sqrtPriceX96, hookData);
 
         PoolId id = key.toId();
         uint24 protocolFee = _fetchProtocolFee(key);
 
         tick = _pools[id].initialize(sqrtPriceX96, protocolFee, lpFee);
 
-        key.hooks.afterInitialize(key, sqrtPriceX96, tick);
+        key.hooks.afterInitialize(key, sqrtPriceX96, tick, hookData);
 
         // emit all details of a pool key. poolkeys are not saved in storage and must always be provided by the caller
         // the key's fee may be a static fee or a sentinel to denote a dynamic fee.

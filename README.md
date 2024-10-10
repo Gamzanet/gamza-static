@@ -13,6 +13,9 @@ git clone https://github.com/ooMia/gamza-engine.git
 # Navigate to the project directory
 cd gamza-engine
 
+# require corepack
+npm install -g corepack
+
 # Install dependencies
 npm install
 ```
