@@ -22,9 +22,9 @@ jobs:
         id: cache-submodule
         with:
           path: foundry
-          key: ${{ runner.os }}-submodules-${{ hashFiles('.git/modules/foundry/FETCH_HEAD') }}
           restore-keys: |
             ${{ runner.os }}-submodules
+          lookup-only: true
 
       - uses: actions/checkout@v4
         name: Update git submodules
@@ -34,11 +34,10 @@ jobs:
 
       - uses: actions/cache@v4
         name: Cache Submodules
+        if: steps.cache-submodule.outputs.cache-hit != 'true'
         with:
-          path: foundry/*
-          key: ${{ runner.os }}-submodules-${{ hashFiles('**/.gitmodules') }}
-          restore-keys: |
-            ${{ runner.os }}-submodules-
+          path: foundry
+          key: ${{ runner.os }}-submodules-${{ hashFiles('package.json') }}
 
       - uses: pnpm/action-setup@v4
         name: Install pnpm
