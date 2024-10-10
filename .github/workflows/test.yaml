@@ -33,6 +33,13 @@ jobs:
         with:
           submodules: recursive
 
+      - name: Install Foundry
+        uses: foundry-rs/foundry-toolchain@v1
+        with:
+          version: nightly
+          cache-key: ${{ runner.os }}-foundry-${{ hashFiles('package.json') }}
+          cache-restore-keys: ${{ runner.os }}-foundry
+
       - uses: actions/cache@v4
         name: Cache Submodules
         if: steps.cache-submodule.outputs.cache-hit != 'true'
