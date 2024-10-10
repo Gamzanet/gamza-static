@@ -31,9 +31,7 @@ jobs:
       - uses: actions/setup-node@v4
         name: Install Node.js
         with:
-          node-version-file: '.nvmrc'
-          # node-version: 'latest'
-          cache: ${{ runner.os }}-${{ hashFiles('package.json') }}
+          cache: 'pnpm'
 
       - name: Set up Python ${{ matrix.python-version }}
         uses: actions/setup-python@v5
