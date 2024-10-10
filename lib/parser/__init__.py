@@ -1,5 +1,5 @@
-__all__ = ["run_semgrep"]
+__all__ = ["run_semgrep", "layer_2"]
 
 import os
 
-print(os.curdir)
+os.chdir(os.path.dirname(__file__))
