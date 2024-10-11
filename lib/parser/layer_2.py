@@ -57,3 +57,7 @@ def get_modifiers(_target_path="code/3.sol"):
 def get_variables(_target_path="code/1.sol"):
     output: list = get_semgrep_output("info-variable", _target_path)
     return output
+
+
+if __name__ == '__main__':
+    print(get_variables())
