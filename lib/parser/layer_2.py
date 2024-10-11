@@ -54,10 +54,59 @@ def get_modifiers(_target_path="code/3.sol"):
     return res
 
 
-def get_variables(_target_path="code/1.sol"):
+def get_variables(_target_path="code/0xe8e23e97fa135823143d6b9cba9c699040d51f70.sol"):
     output: list = get_semgrep_output("info-variable", _target_path)
-    return output
+    pre_process_atomic_var(output)
+    pass
+
+
+def pre_process_atomic_var(_vars: list[dict]) -> list:
+    _res = []
+    for _var in _vars:
+        _var: dict = _var.get("data")
+        # {'CONTRACT': 'PoolManager', 'SIG': 'modifyLiquidity', 'ARGS': None, 'RETURNS': None, 'IMPL': None,
+        #  'TYPE': 'BalanceDelta', 'LOCATION': None, 'VISIBLE': None, 'MUTABLE': None, 'NAME': 'principalDelta'}
+
+        _var["ARGS"] = list(map(str.strip, _var.get("ARGS").split(","))) if _var.get("ARGS") else None
+        # print(_var.get("ARGS")) # ['PoolKey memory key', 'uint24 newDynamicLPFee']
+        _var["RETURNS"] = list(map(str.strip, _var.get("RETURNS").split(","))) if _var.get("RETURNS") else None
+        # print(_var.get("RETURNS")) # ['Pool.State storage']
+
+
+# return True if the variable is named variable
+def is_named_variable(_name: str) -> bool:
+    return False
+
+
+def classify_variables(_var: dict) -> dict:
+    # 'ARGS': PoolKey memory key, BalanceDelta delta, address target
+    # 'CONTRACT': 'ExampleHook',
+    # 'IMPL': None,
+    # 'LOCATION': None,
+    # 'MUTABLE': None,
+    # 'NAME': 'name',
+    # 'RETURNS': None,
+    # 'SIG': None,
+    # 'TYPE': 'string',
+    # 'VISIBLE': 'public'
+    # to
+    # { $NAME: [
+    #   {
+    #       "SIG": $CONTRACT:$SIG
+    #       "SCOPE": "function:$LOCATION" | "storage:$VISIBLE" | "storage:inherited",
+    #       "TYPE": $TYPE,
+    #       "MUTABLE": "mutable" | "immutable" | "constant" | "transient"
+    #   },
+    # ]}
+    if _var["SIG"] or _var["ARGS"] or _var["RETURNS"] or _var["IMPL"]:
+        if _var["LOCATION"]:
+            return False
+    if _var["MUTABLE"] or _var["VISIBLE"]:
+        return False
+    if _var["TYPE"] or _var["CONTRACT"] or _var["NAME"]:
+        return False
+    return False
 
 
 if __name__ == '__main__':
-    print(get_variables())
+    get_variables()

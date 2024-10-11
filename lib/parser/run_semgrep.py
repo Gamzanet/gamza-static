@@ -34,7 +34,7 @@ def run_semgrep(_rule_name: str, _target_path: str = "code") -> str:
     res = subprocess.run(["semgrep", "scan", "-f", f"rules/{_rule_name}.yaml", _target_path, "--emacs"],
                          capture_output=True)
     res = res.stdout.decode("utf-8")
-    print(res)
+    # print(res)
     return res
 
 
@@ -75,10 +75,10 @@ def emacs_tuple_to_dict(_tuple: tuple, _msg_schema: list):
     _key = _msg_schema
     # _value = map(str.strip, _tuple[3].split("|"))
     # _value = re.findall(r"([\S\s]+?)\s+\|", _tuple[3], flags=re.MULTILINE)
-    print("tuple[0]:", _tuple[0])
-    print("tuple[1]:", _tuple[1])
-    print("tuple[2]:", _tuple[2])
-    print("tuple[3]:", _tuple[3])
+    # print("tuple[0]:", _tuple[0])
+    # print("tuple[1]:", _tuple[1])
+    # print("tuple[2]:", _tuple[2])
+    # print("tuple[3]:", _tuple[3])
 
     _value = re.split(r"\|\s+", _tuple[3], flags=re.MULTILINE)
     _value = map(str.strip, _value)
@@ -99,4 +99,4 @@ if __name__ == "__main__":
     output = get_semgrep_output("info-function",
                                 "code/0xe8e23e97fa135823143d6b9cba9c699040d51f70.sol",
                                 use_cache=False)  # get the output of the semgrep analysis
-    print(output)
+    # print(output)
