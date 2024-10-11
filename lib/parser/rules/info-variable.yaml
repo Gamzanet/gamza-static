@@ -1,10 +1,53 @@
 rules:
-  - id: info-function
-    message: $CONTRACT | $SIG | $VIS | $PAY | $PURITY | $MOD | $OVER | $RETURN
+  - id: info-variable
+    message: $CONTRACT | $SIG | $ARGS | $RETURNS | $IMPL | $TYPE | $LOCATION | $VISIBLE | $MUTABLE  | $NAME
     languages:
       - solidity
     severity: WARNING
-    patterns:
-      - pattern-inside: contract $CONTRACT { ... ... ... }
-      - pattern: function $SIG() ...,  { ... }
+    pattern-either:
+      #      private constant
+      #      constant는 slot 계산에서 제외
+      - patterns: # storage: declarations(;)
+          - pattern-inside: contract $CONTRACT { ... ... ... }
+          - pattern-not-inside: function $_(...) { ... ... ... }
+          - pattern-not-regex: |- # not using library
+              using\s+\w+\s+for\s+[\s\S]+?;
+          - pattern-regex: |- # line ends with ;
+              (?:(?<TYPE>[\S ]*?) (?<VISIBLE>private\s+|internal\s+|public\s+|external\s+|)(?<MUTABLE>immutable\s+|constant\s+|transient\s+|)(?<NAME>\w+)\s*)(?:\;|(?<!\W\s)=(?!\W\s))
+      #              (?:(?<TYPE>[\S ]*?)(?<VISIBLE>private\s+|internal\s+|public\s+|external\s+|)(?<MUTABLE>immutable\s+|constant\s+|transient\s+|)(?<NAME>\w+)\s*)(?:\;|(?<!\W\s)=(?!\W\s))
 
+      #              (?<TYPE>[\S ]+?(?<!return|for|\W))\s(?:(?<VISIBLE>private|public|internal|external)\s)?(?:(?<MUTABLE>constant|immutable|transient)\s)?(?<NAME>[\w]+(?<!return|_))\s*(?:\;|(?<!\W\s)=(?!\W\s))
+
+      - patterns: # function: declarations(;) in args and returns
+          - pattern-inside: contract $CONTRACT { ... ... ... }
+          - pattern-regex: |- # should parse ARGS and RETURNS in 2nd layer
+              function\s+(?<SIG>\w+)\((?<ARGS>[\S\s,]*?)\)[\S\s]+?(?=\s+returns\s*\(\b|\s*\{)(?:\s*returns\s*\((?<RETURNS>[\S\s,]*?)\))?
+
+      - patterns: # function: declarations(;) in impl
+          - pattern-inside: contract $CONTRACT { ... ... ... }
+          - pattern-inside: function $SIG(...) { ... ... ... }
+          - pattern-regex: |- # line ends with ;
+              (?<TYPE>[\w.]+(?<!return))\s(?:(?<LOCATION>memory|calldata|storage)\s)?(?<NAME>[\w]+)\;
+          - pattern-not-regex: |- # not a storage declaration pattern
+              (?:(?<TYPE>[\S ]*?)(private\s+|internal\s+|public\s+|external\s+|immutable\s+|constant\s+|transient\s+)(?<NAME>\w+)\s*)(?:\;|(?<!\W\s)=(?!\W\s))
+
+      #      - patterns: # function: assignments in impl
+      #      - patterns:
+      #          - pattern-not-regex: |- # not in function
+      #              function\s+\w+\([\S\s,]*?\)[\S\s]+?(?:\s*returns\s*\((?:[\S\s,]*?)\))?\{
+      #          - pattern: | # declaration
+      #              function\s+(?<SIG>\w+)\((?<ARGS>[\S\s,]*?)\)[\S\s]+?(?=\s+returns\s*\(\b|\s*\{)(?:\s*returns\s*\((?<RETURNS>[\S\s,]*?)\))?
+      #
+
+      #          - pattern-not-regex: |- # not in annotation
+      #              \/\/[ \S]+
+
+      #          - pattern-either:
+      #              - pattern-regex: |- # args
+      #                  (?<=function\s+\w+\s*\()\s*(?<ARGS>[\S\s]+?)(?<=\))
+      #          - pattern: # declaration
+
+
+      #      - pattern: # assignment
+      # consider `usage without declaration` as well
+      #              (?<TYPE>[\w.]+(?<!return))\s(?:(?<LOCATION>memory|calldata|storage)\s)?(?<NAME>[\w]+)\;
