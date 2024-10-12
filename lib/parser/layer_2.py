@@ -77,12 +77,14 @@ def get_variables(_target_path="code/0xe8e23e97fa135823143d6b9cba9c699040d51f70.
     processed: list[dict] = []
     for o in output:
         processed.extend(parse_args_returns(o))
-    # print(processed)
+    return aggregate_result_variables(processed)
 
+
+def aggregate_result_variables(_processed: list[dict]) -> dict:
     res = {}
-    for p in processed:
+    for p in _processed:
         classified = classify_variables(p)
-        print(classified)
+        # print(classified)
         _key = classified["NAME"]
         if _key not in res.keys():
             res[_key] = []

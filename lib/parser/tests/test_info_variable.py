@@ -2,7 +2,7 @@ import json
 
 from jmespath import search
 
-from parser.layer_2 import parse_args_returns, classify_variables
+from parser.layer_2 import parse_args_returns, classify_variables, aggregate_result_variables
 
 
 def test_scope_storage():
@@ -254,29 +254,21 @@ def test_scope_global_duplicated_name_listing():
     assert len(_output_5) == 3 + 2  # 3 args, 2 returns
     assert len(_output_8) == 3 + 1  # 3 args, 1 returns
     assert len(_output_14) == 4 + 1  # 4 args, 1 returns
-    # assert len(_output_22) == 2 + 0  # 2 args, 0 returns
-    # assert len(_output_25) == 3 + 0  # 3 args, 0 returns
+    assert len(_output_22) == 2 + 0  # 2 args, 0 returns
+    assert len(_output_25) == 3 + 0  # 3 args, 0 returns
 
-    # _output_5_2: dict = _output_5[2]
-    #
-    # assert _output_5_2 == {
-    #     'CONTRACT': 'PoolManager',
-    #     'LOCATION': 'calldata',
-    #     'MUTABLE': None,
-    #     'NAME': 'hookData',
-    #     'SCOPE': 'args',
-    #     'SIG': 'modifyLiquidity',
-    #     'TYPE': 'bytes',
-    #     'VISIBLE': None
-    # }
-    #
-    # _result_5_2 = classify_variables(_output_5_2)
-    # assert _result_5_2 == {
-    #     'LOCATION': 'calldata',
-    #     'MUTABLE': 'immutable',
-    #     'NAME': 'hookData',
-    #     'SCOPE': 'args',
-    #     'SIG': 'PoolManager:modifyLiquidity',
-    #     'TYPE': 'bytes',
-    #     'VISIBLE': None
-    # }
+    _outputs_key: list[dict] = _output_5 + _output_8 + _output_14 + _output_22 + _output_25
+    _unique_names = set(search("[*].NAME", _outputs_key))
+    # 19 variable usage in total where
+    #     variable name `key` is duplicated for 5 times
+    #     variable name `hookData` is duplicated for 3 times
+    #     variable name `params` is duplicated for 2 times
+    #     variable name `delta` is duplicated for 2 times
+    # which makes 11 unique names
+
+    _result_key = aggregate_result_variables(_outputs_key)
+    assert len(_result_key) == 19 - 4 - 2 - 1 - 1
+    assert len(_result_key["key"]) == 5
+    assert len(_result_key["hookData"]) == 3
+    assert len(_result_key["params"]) == 2
+    assert len(_result_key["delta"]) == 2
