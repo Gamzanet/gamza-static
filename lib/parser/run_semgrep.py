@@ -14,7 +14,7 @@ def read_message_schema_by_rule_name(_rule_name: str):
             file = f.read()
             res = yaml.safe_load(file)
             res = search("rules[0].message", res)
-            print("res:", res)
+            print("read_message_schema_by_rule_name:", res)
             return res
     except FileNotFoundError:
         raise FileNotFoundError(f"rules/{_rule_name}.yaml not found")
@@ -52,7 +52,8 @@ def get_semgrep_output(_rule_name: str, _target_path: str = "code", use_cache: b
     _output = []
     res = run_semgrep(_rule_name, _target_path)
     # print("_res:", res)
-    res = re.findall(r"([\w+\/]+\w+.sol:\d+:\d+):([\S]+):([ \S]+):([\w(),.$ |\n]*)(?:^\w+)", res, flags=re.MULTILINE)
+    res = re.findall(r"(code[\w+/]+\w+.sol:\d+:\d+):(\S+):([ \S]+):([\w(),.$=> |\n]*)(?=code)\b", res,
+                     flags=re.MULTILINE)
 
     _msg_raw_schema = read_message_schema_by_rule_name(_rule_name)
     _msg_schema = parse_message_schema(_msg_raw_schema)
@@ -96,7 +97,8 @@ def emacs_tuple_to_dict(_tuple: tuple, _msg_schema: list):
 
 
 if __name__ == "__main__":
-    output = get_semgrep_output("info-function",
+    output = get_semgrep_output("info-variable",
                                 "code/0xe8e23e97fa135823143d6b9cba9c699040d51f70.sol",
                                 use_cache=False)  # get the output of the semgrep analysis
-    # print(output)
+    # for e in output:
+    #     print(e)
