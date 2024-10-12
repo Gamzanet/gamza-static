@@ -1,0 +1,463 @@
+{
+    "data": [
+        {
+            "code": "code/0xe8e23e97fa135823143d6b9cba9c699040d51f70.sol:89:1",
+            "rule": "warning(info-variable)",
+            "log": "    int24 private constant MAX_TICK_SPACING = TickMath.MAX_TICK_SPACING;",
+            "data": {
+                "CONTRACT": "PoolManager",
+                "SIG": null,
+                "ARGS": null,
+                "RETURNS": null,
+                "IMPL": null,
+                "TYPE": "int24",
+                "LOCATION": null,
+                "VISIBLE": "private",
+                "MUTABLE": "constant",
+                "NAME": "MAX_TICK_SPACING"
+            }
+        },
+        {
+            "code": "code/0xe8e23e97fa135823143d6b9cba9c699040d51f70.sol:91:1",
+            "rule": "warning(info-variable)",
+            "log": "    int24 private constant MIN_TICK_SPACING = TickMath.MIN_TICK_SPACING;",
+            "data": {
+                "CONTRACT": "PoolManager",
+                "SIG": null,
+                "ARGS": null,
+                "RETURNS": null,
+                "IMPL": null,
+                "TYPE": "int24",
+                "LOCATION": null,
+                "VISIBLE": "private",
+                "MUTABLE": "constant",
+                "NAME": "MIN_TICK_SPACING"
+            }
+        },
+        {
+            "code": "code/0xe8e23e97fa135823143d6b9cba9c699040d51f70.sol:93:1",
+            "rule": "warning(info-variable)",
+            "log": "    mapping(PoolId id => Pool.State) internal _pools;",
+            "data": {
+                "CONTRACT": "PoolManager",
+                "SIG": null,
+                "ARGS": null,
+                "RETURNS": null,
+                "IMPL": null,
+                "TYPE": "mapping(PoolId id => Pool.State)",
+                "LOCATION": null,
+                "VISIBLE": "internal",
+                "MUTABLE": null,
+                "NAME": "_pools"
+            }
+        },
+        {
+            "code": "code/0xe8e23e97fa135823143d6b9cba9c699040d51f70.sol:102:5",
+            "rule": "warning(info-variable)",
+            "log": "    function unlock(bytes calldata data) external override returns (bytes memory result) {",
+            "data": {
+                "CONTRACT": "PoolManager",
+                "SIG": "unlock",
+                "ARGS": "bytes calldata data",
+                "RETURNS": "bytes memory result",
+                "IMPL": null,
+                "TYPE": null,
+                "LOCATION": null,
+                "VISIBLE": null,
+                "MUTABLE": null,
+                "NAME": null
+            }
+        },
+        {
+            "code": "code/0xe8e23e97fa135823143d6b9cba9c699040d51f70.sol:115:5",
+            "rule": "warning(info-variable)",
+            "log": "    function initialize(PoolKey memory key, uint160 sqrtPriceX96, bytes calldata hookData)",
+            "data": {
+                "CONTRACT": "PoolManager",
+                "SIG": "initialize",
+                "ARGS": "PoolKey memory key, uint160 sqrtPriceX96, bytes calldata hookData",
+                "RETURNS": "int24 tick",
+                "IMPL": null,
+                "TYPE": null,
+                "LOCATION": null,
+                "VISIBLE": null,
+                "MUTABLE": null,
+                "NAME": null
+            }
+        },
+        {
+            "code": "code/0xe8e23e97fa135823143d6b9cba9c699040d51f70.sol:147:5",
+            "rule": "warning(info-variable)",
+            "log": "    function modifyLiquidity(",
+            "data": {
+                "CONTRACT": "PoolManager",
+                "SIG": "modifyLiquidity",
+                "ARGS": "PoolKey memory key,\n        IPoolManager.ModifyLiquidityParams memory params,\n        bytes calldata hookData",
+                "RETURNS": "BalanceDelta callerDelta, BalanceDelta feesAccrued",
+                "IMPL": null,
+                "TYPE": null,
+                "LOCATION": null,
+                "VISIBLE": null,
+                "MUTABLE": null,
+                "NAME": null
+            }
+        },
+        {
+            "code": "code/0xe8e23e97fa135823143d6b9cba9c699040d51f70.sol:159:13",
+            "rule": "warning(info-variable)",
+            "log": "            BalanceDelta principalDelta;",
+            "data": {
+                "CONTRACT": "PoolManager",
+                "SIG": "modifyLiquidity",
+                "ARGS": null,
+                "RETURNS": null,
+                "IMPL": null,
+                "TYPE": "BalanceDelta",
+                "LOCATION": null,
+                "VISIBLE": null,
+                "MUTABLE": null,
+                "NAME": "principalDelta"
+            }
+        },
+        {
+            "code": "code/0xe8e23e97fa135823143d6b9cba9c699040d51f70.sol:178:9",
+            "rule": "warning(info-variable)",
+            "log": "        BalanceDelta hookDelta;",
+            "data": {
+                "CONTRACT": "PoolManager",
+                "SIG": "modifyLiquidity",
+                "ARGS": null,
+                "RETURNS": null,
+                "IMPL": null,
+                "TYPE": "BalanceDelta",
+                "LOCATION": null,
+                "VISIBLE": null,
+                "MUTABLE": null,
+                "NAME": "hookDelta"
+            }
+        },
+        {
+            "code": "code/0xe8e23e97fa135823143d6b9cba9c699040d51f70.sol:188:5",
+            "rule": "warning(info-variable)",
+            "log": "    function swap(PoolKey memory key, IPoolManager.SwapParams memory params, bytes calldata hookData)",
+            "data": {
+                "CONTRACT": "PoolManager",
+                "SIG": "swap",
+                "ARGS": "PoolKey memory key, IPoolManager.SwapParams memory params, bytes calldata hookData",
+                "RETURNS": "BalanceDelta swapDelta",
+                "IMPL": null,
+                "TYPE": null,
+                "LOCATION": null,
+                "VISIBLE": null,
+                "MUTABLE": null,
+                "NAME": null
+            }
+        },
+        {
+            "code": "code/0xe8e23e97fa135823143d6b9cba9c699040d51f70.sol:199:9",
+            "rule": "warning(info-variable)",
+            "log": "        BeforeSwapDelta beforeSwapDelta;",
+            "data": {
+                "CONTRACT": "PoolManager",
+                "SIG": "swap",
+                "ARGS": null,
+                "RETURNS": null,
+                "IMPL": null,
+                "TYPE": "BeforeSwapDelta",
+                "LOCATION": null,
+                "VISIBLE": null,
+                "MUTABLE": null,
+                "NAME": "beforeSwapDelta"
+            }
+        },
+        {
+            "code": "code/0xe8e23e97fa135823143d6b9cba9c699040d51f70.sol:201:13",
+            "rule": "warning(info-variable)",
+            "log": "            int256 amountToSwap;",
+            "data": {
+                "CONTRACT": "PoolManager",
+                "SIG": "swap",
+                "ARGS": null,
+                "RETURNS": null,
+                "IMPL": null,
+                "TYPE": "int256",
+                "LOCATION": null,
+                "VISIBLE": null,
+                "MUTABLE": null,
+                "NAME": "amountToSwap"
+            }
+        },
+        {
+            "code": "code/0xe8e23e97fa135823143d6b9cba9c699040d51f70.sol:202:13",
+            "rule": "warning(info-variable)",
+            "log": "            uint24 lpFeeOverride;",
+            "data": {
+                "CONTRACT": "PoolManager",
+                "SIG": "swap",
+                "ARGS": null,
+                "RETURNS": null,
+                "IMPL": null,
+                "TYPE": "uint24",
+                "LOCATION": null,
+                "VISIBLE": null,
+                "MUTABLE": null,
+                "NAME": "lpFeeOverride"
+            }
+        },
+        {
+            "code": "code/0xe8e23e97fa135823143d6b9cba9c699040d51f70.sol:221:9",
+            "rule": "warning(info-variable)",
+            "log": "        BalanceDelta hookDelta;",
+            "data": {
+                "CONTRACT": "PoolManager",
+                "SIG": "swap",
+                "ARGS": null,
+                "RETURNS": null,
+                "IMPL": null,
+                "TYPE": "BalanceDelta",
+                "LOCATION": null,
+                "VISIBLE": null,
+                "MUTABLE": null,
+                "NAME": "hookDelta"
+            }
+        },
+        {
+            "code": "code/0xe8e23e97fa135823143d6b9cba9c699040d51f70.sol:231:5",
+            "rule": "warning(info-variable)",
+            "log": "    function _swap(Pool.State storage pool, PoolId id, Pool.SwapParams memory params, Currency inputCurrency)",
+            "data": {
+                "CONTRACT": "PoolManager",
+                "SIG": "_swap",
+                "ARGS": "Pool.State storage pool, PoolId id, Pool.SwapParams memory params, Currency inputCurrency",
+                "RETURNS": "BalanceDelta",
+                "IMPL": null,
+                "TYPE": null,
+                "LOCATION": null,
+                "VISIBLE": null,
+                "MUTABLE": null,
+                "NAME": null
+            }
+        },
+        {
+            "code": "code/0xe8e23e97fa135823143d6b9cba9c699040d51f70.sol:257:5",
+            "rule": "warning(info-variable)",
+            "log": "    function donate(PoolKey memory key, uint256 amount0, uint256 amount1, bytes calldata hookData)",
+            "data": {
+                "CONTRACT": "PoolManager",
+                "SIG": "donate",
+                "ARGS": "PoolKey memory key, uint256 amount0, uint256 amount1, bytes calldata hookData",
+                "RETURNS": "BalanceDelta delta",
+                "IMPL": null,
+                "TYPE": null,
+                "LOCATION": null,
+                "VISIBLE": null,
+                "MUTABLE": null,
+                "NAME": null
+            }
+        },
+        {
+            "code": "code/0xe8e23e97fa135823143d6b9cba9c699040d51f70.sol:280:5",
+            "rule": "warning(info-variable)",
+            "log": "    function sync(Currency currency) external onlyWhenUnlocked {",
+            "data": {
+                "CONTRACT": "PoolManager",
+                "SIG": "sync",
+                "ARGS": "Currency currency",
+                "RETURNS": null,
+                "IMPL": null,
+                "TYPE": null,
+                "LOCATION": null,
+                "VISIBLE": null,
+                "MUTABLE": null,
+                "NAME": null
+            }
+        },
+        {
+            "code": "code/0xe8e23e97fa135823143d6b9cba9c699040d51f70.sol:292:5",
+            "rule": "warning(info-variable)",
+            "log": "    function take(Currency currency, address to, uint256 amount) external onlyWhenUnlocked {",
+            "data": {
+                "CONTRACT": "PoolManager",
+                "SIG": "take",
+                "ARGS": "Currency currency, address to, uint256 amount",
+                "RETURNS": null,
+                "IMPL": null,
+                "TYPE": null,
+                "LOCATION": null,
+                "VISIBLE": null,
+                "MUTABLE": null,
+                "NAME": null
+            }
+        },
+        {
+            "code": "code/0xe8e23e97fa135823143d6b9cba9c699040d51f70.sol:301:5",
+            "rule": "warning(info-variable)",
+            "log": "    function settle() external payable onlyWhenUnlocked returns (uint256) {",
+            "data": {
+                "CONTRACT": "PoolManager",
+                "SIG": "settle",
+                "ARGS": null,
+                "RETURNS": "uint256",
+                "IMPL": null,
+                "TYPE": null,
+                "LOCATION": null,
+                "VISIBLE": null,
+                "MUTABLE": null,
+                "NAME": null
+            }
+        },
+        {
+            "code": "code/0xe8e23e97fa135823143d6b9cba9c699040d51f70.sol:306:5",
+            "rule": "warning(info-variable)",
+            "log": "    function settleFor(address recipient) external payable onlyWhenUnlocked returns (uint256) {",
+            "data": {
+                "CONTRACT": "PoolManager",
+                "SIG": "settleFor",
+                "ARGS": "address recipient",
+                "RETURNS": "uint256",
+                "IMPL": null,
+                "TYPE": null,
+                "LOCATION": null,
+                "VISIBLE": null,
+                "MUTABLE": null,
+                "NAME": null
+            }
+        },
+        {
+            "code": "code/0xe8e23e97fa135823143d6b9cba9c699040d51f70.sol:311:5",
+            "rule": "warning(info-variable)",
+            "log": "    function clear(Currency currency, uint256 amount) external onlyWhenUnlocked {",
+            "data": {
+                "CONTRACT": "PoolManager",
+                "SIG": "clear",
+                "ARGS": "Currency currency, uint256 amount",
+                "RETURNS": null,
+                "IMPL": null,
+                "TYPE": null,
+                "LOCATION": null,
+                "VISIBLE": null,
+                "MUTABLE": null,
+                "NAME": null
+            }
+        },
+        {
+            "code": "code/0xe8e23e97fa135823143d6b9cba9c699040d51f70.sol:323:5",
+            "rule": "warning(info-variable)",
+            "log": "    function mint(address to, uint256 id, uint256 amount) external onlyWhenUnlocked {",
+            "data": {
+                "CONTRACT": "PoolManager",
+                "SIG": "mint",
+                "ARGS": "address to, uint256 id, uint256 amount",
+                "RETURNS": null,
+                "IMPL": null,
+                "TYPE": null,
+                "LOCATION": null,
+                "VISIBLE": null,
+                "MUTABLE": null,
+                "NAME": null
+            }
+        },
+        {
+            "code": "code/0xe8e23e97fa135823143d6b9cba9c699040d51f70.sol:333:5",
+            "rule": "warning(info-variable)",
+            "log": "    function burn(address from, uint256 id, uint256 amount) external onlyWhenUnlocked {",
+            "data": {
+                "CONTRACT": "PoolManager",
+                "SIG": "burn",
+                "ARGS": "address from, uint256 id, uint256 amount",
+                "RETURNS": null,
+                "IMPL": null,
+                "TYPE": null,
+                "LOCATION": null,
+                "VISIBLE": null,
+                "MUTABLE": null,
+                "NAME": null
+            }
+        },
+        {
+            "code": "code/0xe8e23e97fa135823143d6b9cba9c699040d51f70.sol:340:5",
+            "rule": "warning(info-variable)",
+            "log": "    function updateDynamicLPFee(PoolKey memory key, uint24 newDynamicLPFee) external {",
+            "data": {
+                "CONTRACT": "PoolManager",
+                "SIG": "updateDynamicLPFee",
+                "ARGS": "PoolKey memory key, uint24 newDynamicLPFee",
+                "RETURNS": null,
+                "IMPL": null,
+                "TYPE": null,
+                "LOCATION": null,
+                "VISIBLE": null,
+                "MUTABLE": null,
+                "NAME": null
+            }
+        },
+        {
+            "code": "code/0xe8e23e97fa135823143d6b9cba9c699040d51f70.sol:349:5",
+            "rule": "warning(info-variable)",
+            "log": "    function _settle(address recipient) internal returns (uint256 paid) {",
+            "data": {
+                "CONTRACT": "PoolManager",
+                "SIG": "_settle",
+                "ARGS": "address recipient",
+                "RETURNS": "uint256 paid",
+                "IMPL": null,
+                "TYPE": null,
+                "LOCATION": null,
+                "VISIBLE": null,
+                "MUTABLE": null,
+                "NAME": null
+            }
+        },
+        {
+            "code": "code/0xe8e23e97fa135823143d6b9cba9c699040d51f70.sol:368:5",
+            "rule": "warning(info-variable)",
+            "log": "    function _accountDelta(Currency currency, int128 delta, address target) internal {",
+            "data": {
+                "CONTRACT": "PoolManager",
+                "SIG": "_accountDelta",
+                "ARGS": "Currency currency, int128 delta, address target",
+                "RETURNS": null,
+                "IMPL": null,
+                "TYPE": null,
+                "LOCATION": null,
+                "VISIBLE": null,
+                "MUTABLE": null,
+                "NAME": null
+            }
+        },
+        {
+            "code": "code/0xe8e23e97fa135823143d6b9cba9c699040d51f70.sol:381:5",
+            "rule": "warning(info-variable)",
+            "log": "    function _accountPoolBalanceDelta(PoolKey memory key, BalanceDelta delta, address target) internal {",
+            "data": {
+                "CONTRACT": "PoolManager",
+                "SIG": "_accountPoolBalanceDelta",
+                "ARGS": "PoolKey memory key, BalanceDelta delta, address target",
+                "RETURNS": null,
+                "IMPL": null,
+                "TYPE": null,
+                "LOCATION": null,
+                "VISIBLE": null,
+                "MUTABLE": null,
+                "NAME": null
+            }
+        },
+        {
+            "code": "code/0xe8e23e97fa135823143d6b9cba9c699040d51f70.sol:387:5",
+            "rule": "warning(info-variable)",
+            "log": "    function _getPool(PoolId id) internal view override returns (Pool.State storage) {",
+            "data": {
+                "CONTRACT": "PoolManager",
+                "SIG": "_getPool",
+                "ARGS": "PoolId id",
+                "RETURNS": "Pool.State storage",
+                "IMPL": null,
+                "TYPE": null,
+                "LOCATION": null,
+                "VISIBLE": null,
+                "MUTABLE": null,
+                "NAME": null
+            }
+        }
+    ]
+}

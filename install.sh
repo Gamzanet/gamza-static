@@ -29,11 +29,13 @@ done
 function main() {
     echo "install start"
     pip install --upgrade pip -q
-    pip install semgrep -q
-    pip install web3 -q
-    pip install python-dotenv -q
-    pip install jmespath -q
-    pip install PyYAML -q
+    pip install -U semgrep -q
+    pip install -U web3 -q
+    pip install -U python-dotenv -q
+    pip install -U jmespath -q
+    pip install -U PyYAML -q
+    pip install -U pytest -q
+    pip freeze --require-virtualenv > requirements.txt
     echo "installed successfully"
 }
 

@@ -1,0 +1,28 @@
+rules:
+  - id: info-variable
+    message: $CONTRACT | $SIG | $ARGS | $RETURNS | $IMPL | $TYPE | $LOCATION | $VISIBLE | $MUTABLE  | $NAME
+    languages:
+      - solidity
+    severity: WARNING
+    pattern-either:
+      - patterns: # storage: declarations(;)
+          - pattern-inside: contract $CONTRACT { ... ... ... }
+          - pattern-not-inside: function $_(...) { ... ... ... }
+          - pattern-not-inside: modifier $_(...) { ... ... ... }
+          - pattern-not-regex: |- # not using library
+              using\s+\w+\s+for\s+[\s\S]+?;
+          - pattern-regex: |- # line ends with ; or ' = '
+              (?:(?P<TYPE>[\S ]*?) (?P<VISIBLE>private\s+|internal\s+|public\s+|external\s+|)(?P<MUTABLE>immutable\s+|constant\s+|transient\s+|)(?P<NAME>\S+)\s*)(?: = |;)
+
+      - patterns: # function: declarations(;) in args and returns
+          - pattern-inside: contract $CONTRACT { ... ... ... }
+          - pattern-regex: |- # should parse ARGS and RETURNS in 2nd layer
+              function\s+(?P<SIG>\w+)\((?P<ARGS>[\S\s,]*?)\)[\S\s]+?(?=\s+returns\s*\(\b|\s*\{)(?:\s*returns\s*\((?P<RETURNS>[\S\s,]*?)\))?
+
+      - patterns: # function: declarations(;) in impl
+          - pattern-inside: contract $CONTRACT { ... ... ... }
+          - pattern-inside: function $SIG(...) { ... ... ... }
+          - pattern-regex: |- # line ends with ;
+              (?P<TYPE>[\w.]+(?<!return))\s(?:(?P<LOCATION>memory|calldata|storage)\s)?(?P<NAME>[\w]+)\;
+          - pattern-not-regex: |- # not a storage declaration pattern
+              (?:(?P<TYPE>[\S ]*?)(private\s+|internal\s+|public\s+|external\s+|immutable\s+|constant\s+|transient\s+)(?P<NAME>\w+)\s*)(?:\;|(?<!\W\s)=(?!\W\s))
