@@ -154,6 +154,28 @@ def test_scope_function_calldata_immutable():
     }
 
 
+def test_scope_function_parsing_args_returns():
+    with open("tests/data/info-variable_code-0xe8e23e97fa135823143d6b9cba9c699040d51f70.sol.json", "r") as f:
+        _input: dict = json.load(f)["data"]
+    _input: list[dict] = search("[*].data[]", _input)
+
+    """ INPUT
+    {'ARGS': 'PoolKey memory key, uint24 newDynamicLPFee',
+     'CONTRACT': 'PoolManager',
+     'IMPL': None,
+     'LOCATION': None,
+     'MUTABLE': None,
+     'NAME': None,
+     'RETURNS': None,
+     'SIG': 'updateDynamicLPFee',
+     'TYPE': None,
+     'VISIBLE': None}
+    """  # pprint(_input[22])
+
+    _output_22: list[dict] = parse_args_returns(_input[22])
+    assert len(_output_22) == 2 + 0  # 2 args, 0 returns
+
+
 def test_scope_global_duplicated_name_listing():
     with open("tests/data/info-variable_code-0xe8e23e97fa135823143d6b9cba9c699040d51f70.sol.json", "r") as f:
         _input: dict = json.load(f)["data"]

@@ -91,6 +91,17 @@ def get_variables(_target_path="code/0xe8e23e97fa135823143d6b9cba9c699040d51f70.
 
 
 def parse_args_returns(_var: dict) -> list[dict]:
+    # {'ARGS': 'PoolKey memory key, uint24 newDynamicLPFee',
+    #  'CONTRACT': 'PoolManager',
+    #  'IMPL': None,
+    #  'LOCATION': None,
+    #  'MUTABLE': None,
+    #  'NAME': None,
+    #  'RETURNS': None,
+    #  'SIG': 'updateDynamicLPFee',
+    #  'TYPE': None,
+    #  'VISIBLE': None}
+
     _res = []
     _base: dict = {
         "SCOPE": None,
@@ -108,7 +119,7 @@ def parse_args_returns(_var: dict) -> list[dict]:
     # parse ARGS and RETURNS to TYPE, LOCATION, NAME
     # do interpolation only for ARGS and RETURNS
     # since information of ARGS and RETURNS are removed while parsing
-    if _var["ARGS"] and _var["RETURNS"] and _var["NAME"] is None:
+    if (_var["ARGS"] or _var["RETURNS"]) and _var["NAME"] is None:
         if _var["ARGS"]:
             _var["ARGS"]: list = list(map(str.strip, _var.get("ARGS").split(",")))
             # print(_var.get("ARGS")) # ['PoolKey memory key', 'uint24 newDynamicLPFee']
