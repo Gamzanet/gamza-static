@@ -35,6 +35,7 @@ function main() {
     pip install -U jmespath -q
     pip install -U PyYAML -q
     pip install -U pytest -q
+    pip install -U slither-analyzer -q
     pip freeze --require-virtualenv > requirements.txt
     echo "installed successfully"
 }
