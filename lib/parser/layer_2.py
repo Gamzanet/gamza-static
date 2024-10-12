@@ -71,13 +71,13 @@ def get_variables(_target_path="code/0xe8e23e97fa135823143d6b9cba9c699040d51f70.
     #    'log': '    function _accountPoolBalanceDelta(PoolKey memory key, BalanceDelta delta, address target) internal {',
     #    'rule': 'warning(info-variable)'
     # },]
-    # pprint(output)
     output = search("[*].data", output)
+    # print(output)
 
     processed: list[dict] = []
     for o in output:
-        processed.extend(pre_process_atomic_var(o))
-    # pprint(processed)
+        processed.extend(parse_args_returns(o))
+    # print(processed)
 
     res = {}
     for p in processed:
@@ -90,7 +90,7 @@ def get_variables(_target_path="code/0xe8e23e97fa135823143d6b9cba9c699040d51f70.
     return res
 
 
-def pre_process_atomic_var(_var: dict) -> list[dict]:
+def parse_args_returns(_var: dict) -> list[dict]:
     # _VAR
     # {'code': 'code/0xe8e23e97fa135823143d6b9cba9c699040d51f70.sol:147:5',
     #  'data': {'ARGS': 'PoolKey memory key,\n'
@@ -223,7 +223,7 @@ def classify_variables(_var: dict) -> dict:
         _base["SIG"] = _var["CONTRACT"]
         _base["SCOPE"] = "storage"  # TODO: implement 'inherited' in the next layer
         _base["LOCATION"] = _var["LOCATION"] if _var["LOCATION"] else "storage"
-        _base["VISIBLE"] = _var["VISIBLE"] if _var["VISIBLE"] else "internal",
+        _base["VISIBLE"] = _var["VISIBLE"] if _var["VISIBLE"] else "internal"
     return _base
 
 
