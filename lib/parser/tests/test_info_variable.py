@@ -152,3 +152,109 @@ def test_scope_function_calldata_immutable():
         'TYPE': 'bytes',
         'VISIBLE': None
     }
+
+
+def test_scope_global_duplicated_name_listing():
+    with open("tests/data/info-variable_code-0xe8e23e97fa135823143d6b9cba9c699040d51f70.sol.json", "r") as f:
+        _input: dict = json.load(f)["data"]
+    _input: list[dict] = search("[*].data[]", _input)
+
+    """ INPUT
+    {'ARGS': 'PoolKey memory key,\n'
+             '        IPoolManager.ModifyLiquidityParams memory params,\n'
+             '        bytes calldata hookData',
+     'CONTRACT': 'PoolManager',
+     'IMPL': None,
+     'LOCATION': None,
+     'MUTABLE': None,
+     'NAME': None,
+     'RETURNS': 'BalanceDelta callerDelta, BalanceDelta feesAccrued',
+     'SIG': 'modifyLiquidity',
+     'TYPE': None,
+     'VISIBLE': None}
+    """  # pprint(_input[5]
+    """ INPUT
+    {'ARGS': 'PoolKey memory key, IPoolManager.SwapParams memory params, bytes '
+             'calldata hookData',
+     'CONTRACT': 'PoolManager',
+     'IMPL': None,
+     'LOCATION': None,
+     'MUTABLE': None,
+     'NAME': None,
+     'RETURNS': 'BalanceDelta swapDelta',
+     'SIG': 'swap',
+     'TYPE': None,
+     'VISIBLE': None}
+    """  # pprint(_input[8])
+    """ INPUT
+    {'ARGS': 'PoolKey memory key, uint256 amount0, uint256 amount1, bytes calldata '
+             'hookData',
+     'CONTRACT': 'PoolManager',
+     'IMPL': None,
+     'LOCATION': None,
+     'MUTABLE': None,
+     'NAME': None,
+     'RETURNS': 'BalanceDelta delta',
+     'SIG': 'donate',
+     'TYPE': None,
+     'VISIBLE': None}
+    """  # pprint(_input[14])
+    """ INPUT
+    {'ARGS': 'PoolKey memory key, uint24 newDynamicLPFee',
+     'CONTRACT': 'PoolManager',
+     'IMPL': None,
+     'LOCATION': None,
+     'MUTABLE': None,
+     'NAME': None,
+     'RETURNS': None,
+     'SIG': 'updateDynamicLPFee',
+     'TYPE': None,
+     'VISIBLE': None}
+    """  # pprint(_input[22])
+    """ INPUT
+    {'ARGS': 'PoolKey memory key, BalanceDelta delta, address target',
+     'CONTRACT': 'PoolManager',
+     'IMPL': None,
+     'LOCATION': None,
+     'MUTABLE': None,
+     'NAME': None,
+     'RETURNS': None,
+     'SIG': '_accountPoolBalanceDelta',
+     'TYPE': None,
+     'VISIBLE': None}
+    """  # pprint(_input[25])
+
+    _output_5: list[dict] = parse_args_returns(_input[5])
+    _output_8: list[dict] = parse_args_returns(_input[8])
+    _output_14: list[dict] = parse_args_returns(_input[14])
+    _output_22: list[dict] = parse_args_returns(_input[22])
+    _output_25: list[dict] = parse_args_returns(_input[25])
+    assert len(_output_5) == 3 + 2  # 3 args, 2 returns
+    assert len(_output_8) == 3 + 1  # 3 args, 1 returns
+    assert len(_output_14) == 4 + 1  # 4 args, 1 returns
+    # assert len(_output_22) == 2 + 0  # 2 args, 0 returns
+    # assert len(_output_25) == 3 + 0  # 3 args, 0 returns
+
+    # _output_5_2: dict = _output_5[2]
+    #
+    # assert _output_5_2 == {
+    #     'CONTRACT': 'PoolManager',
+    #     'LOCATION': 'calldata',
+    #     'MUTABLE': None,
+    #     'NAME': 'hookData',
+    #     'SCOPE': 'args',
+    #     'SIG': 'modifyLiquidity',
+    #     'TYPE': 'bytes',
+    #     'VISIBLE': None
+    # }
+    #
+    # _result_5_2 = classify_variables(_output_5_2)
+    # assert _result_5_2 == {
+    #     'LOCATION': 'calldata',
+    #     'MUTABLE': 'immutable',
+    #     'NAME': 'hookData',
+    #     'SCOPE': 'args',
+    #     'SIG': 'PoolManager:modifyLiquidity',
+    #     'TYPE': 'bytes',
+    #     'VISIBLE': None
+    # }
