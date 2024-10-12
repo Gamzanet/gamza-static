@@ -56,21 +56,7 @@ def get_modifiers(_target_path="code/3.sol"):
 
 def get_variables(_target_path="code/0xe8e23e97fa135823143d6b9cba9c699040d51f70.sol"):
     output: list[dict] = get_semgrep_output("info-variable", _target_path)
-    # OUTPUT
-    # [{ 'code': 'code/0xe8e23e97fa135823143d6b9cba9c699040d51f70.sol:381:5',
-    #    'data': {'ARGS': 'PoolKey memory key, BalanceDelta delta, address target',
-    #              'CONTRACT': 'PoolManager',
-    #              'IMPL': None,
-    #              'LOCATION': None,
-    #              'MUTABLE': None,
-    #              'NAME': None,
-    #              'RETURNS': None,
-    #              'SIG': '_accountPoolBalanceDelta',
-    #              'TYPE': None,
-    #              'VISIBLE': None},
-    #    'log': '    function _accountPoolBalanceDelta(PoolKey memory key, BalanceDelta delta, address target) internal {',
-    #    'rule': 'warning(info-variable)'
-    # },]
+    # print(output)
     output = search("[*].data", output)
     # print(output)
 
@@ -93,17 +79,6 @@ def aggregate_result_variables(_processed: list[dict]) -> dict:
 
 
 def parse_args_returns(_var: dict) -> list[dict]:
-    # {'ARGS': 'PoolKey memory key, uint24 newDynamicLPFee',
-    #  'CONTRACT': 'PoolManager',
-    #  'IMPL': None,
-    #  'LOCATION': None,
-    #  'MUTABLE': None,
-    #  'NAME': None,
-    #  'RETURNS': None,
-    #  'SIG': 'updateDynamicLPFee',
-    #  'TYPE': None,
-    #  'VISIBLE': None}
-
     _res = []
     _base: dict = {
         "SCOPE": None,
@@ -163,27 +138,7 @@ def classify_variables(_var: dict) -> dict:
     }
     if _var["LOCATION"] == "calldata":
         _base["MUTABLE"] = "immutable"
-    # 'ARGS': PoolKey memory key, BalanceDelta delta, address target
-    # 'CONTRACT': 'ExampleHook',
-    # 'IMPL': None,
-    # 'LOCATION': None,
-    # 'MUTABLE': None,
-    # 'NAME': 'name',
-    # 'RETURNS': None,
-    # 'SIG': None,
-    # 'TYPE': 'string',
-    # 'VISIBLE': 'public'
-    # to
-    # { $NAME: [
-    #   {
-    #       "SIG": $CONTRACT:$SIG
-    #       "SCOPE": "function" | "storage" | "inherited",
-    #       "LOCATION": $LOCATION,
-    #       "VISIBLE" : $VISIBLE,
-    #       "TYPE": $TYPE,
-    #       "MUTABLE": "mutable" | "immutable" | "constant" | "transient"
-    #   },
-    # ]}
+
     if _var["SIG"]:
         _base["SIG"] = f"{_var['CONTRACT']}:{_var['SIG']}"
         _base["SCOPE"] = _var["SCOPE"] if _var["SCOPE"] else "function"
@@ -202,4 +157,4 @@ def classify_variables(_var: dict) -> dict:
 
 if __name__ == '__main__':
     _vars = get_variables("code/0xe8e23e97fa135823143d6b9cba9c699040d51f70.sol")
-    # pprint(_vars)
+    pprint(_vars)
