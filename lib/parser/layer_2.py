@@ -91,48 +91,6 @@ def get_variables(_target_path="code/0xe8e23e97fa135823143d6b9cba9c699040d51f70.
 
 
 def parse_args_returns(_var: dict) -> list[dict]:
-    # _VAR
-    # {'code': 'code/0xe8e23e97fa135823143d6b9cba9c699040d51f70.sol:147:5',
-    #  'data': {'ARGS': 'PoolKey memory key,\n'
-    #                   '        IPoolManager.ModifyLiquidityParams memory params,\n'
-    #                   '        bytes calldata hookData',
-    #           'CONTRACT': 'PoolManager',
-    #           'IMPL': None,
-    #           'LOCATION': None,
-    #           'MUTABLE': None,
-    #           'NAME': None,
-    #           'RETURNS': 'BalanceDelta callerDelta, BalanceDelta feesAccrued',
-    #           'SIG': 'modifyLiquidity',
-    #           'TYPE': None,
-    #           'VISIBLE': None},
-    #  'log': '    function modifyLiquidity(',
-    #  'rule': 'warning(info-variable)'},
-    # {'code': 'code/0xe8e23e97fa135823143d6b9cba9c699040d51f70.sol:159:13',
-    #  'data': {'ARGS': None,
-    #           'CONTRACT': 'PoolManager',
-    #           'IMPL': None,
-    #           'LOCATION': None,
-    #           'MUTABLE': None,
-    #           'NAME': 'principalDelta',
-    #           'RETURNS': None,
-    #           'SIG': 'modifyLiquidity',
-    #           'TYPE': 'BalanceDelta',
-    #           'VISIBLE': None},
-    #  'log': '            BalanceDelta principalDelta;',
-    #  'rule': 'warning(info-variable)'},
-    # {'code': 'code/0xe8e23e97fa135823143d6b9cba9c699040d51f70.sol:178:9',
-    #  'data': {'ARGS': None,
-    #           'CONTRACT': 'PoolManager',
-    #           'IMPL': None,
-    #           'LOCATION': None,
-    #           'MUTABLE': None,
-    #           'NAME': 'hookDelta',
-    #           'RETURNS': None,
-    #           'SIG': 'modifyLiquidity',
-    #           'TYPE': 'BalanceDelta',
-    #           'VISIBLE': None},
-    #  'log': '        BalanceDelta hookDelta;',
-    #  'rule': 'warning(info-variable)'},
     _res = []
     _base: dict = {
         "SCOPE": None,
@@ -190,7 +148,8 @@ def classify_variables(_var: dict) -> dict:
         "TYPE": _var["TYPE"],
         "MUTABLE": _var["MUTABLE"] if _var["MUTABLE"] else "mutable"
     }
-    print(_var)
+    if _var["LOCATION"] == "calldata":
+        _base["MUTABLE"] = "immutable"
     # 'ARGS': PoolKey memory key, BalanceDelta delta, address target
     # 'CONTRACT': 'ExampleHook',
     # 'IMPL': None,
@@ -224,6 +183,7 @@ def classify_variables(_var: dict) -> dict:
         _base["SCOPE"] = "storage"  # TODO: implement 'inherited' in the next layer
         _base["LOCATION"] = _var["LOCATION"] if _var["LOCATION"] else "storage"
         _base["VISIBLE"] = _var["VISIBLE"] if _var["VISIBLE"] else "internal"
+
     return _base
 
 
