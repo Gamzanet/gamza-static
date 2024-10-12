@@ -55,58 +55,106 @@ def get_modifiers(_target_path="code/3.sol"):
 
 
 def get_variables(_target_path="code/0xe8e23e97fa135823143d6b9cba9c699040d51f70.sol"):
-    output: list = get_semgrep_output("info-variable", _target_path)
-    pre_process_atomic_var(output)
-    pass
+    output: list[dict] = get_semgrep_output("info-variable", _target_path)
+    # print(output)
+    output = search("[*].data", output)
+    # print(output)
+
+    processed: list[dict] = []
+    for o in output:
+        processed.extend(parse_args_returns(o))
+    return aggregate_result_variables(processed)
 
 
-def pre_process_atomic_var(_vars: list[dict]) -> list:
+def aggregate_result_variables(_processed: list[dict]) -> dict:
+    res = {}
+    for p in _processed:
+        classified = classify_variables(p)
+        # print(classified)
+        _key = classified["NAME"]
+        if _key not in res.keys():
+            res[_key] = []
+        res[_key].append(classified)
+    return res
+
+
+def parse_args_returns(_var: dict) -> list[dict]:
     _res = []
-    for _var in _vars:
-        _var: dict = _var.get("data")
-        # {'CONTRACT': 'PoolManager', 'SIG': 'modifyLiquidity', 'ARGS': None, 'RETURNS': None, 'IMPL': None,
-        #  'TYPE': 'BalanceDelta', 'LOCATION': None, 'VISIBLE': None, 'MUTABLE': None, 'NAME': 'principalDelta'}
+    _base: dict = {
+        "SCOPE": None,
+        "CONTRACT": _var["CONTRACT"],
+        "SIG": _var["SIG"],
+        "LOCATION": _var["LOCATION"],
+        "VISIBLE": _var["VISIBLE"],
+        "TYPE": _var["TYPE"],
+        "MUTABLE": _var["MUTABLE"],
+        "NAME": _var["NAME"],
+    }
 
-        _var["ARGS"] = list(map(str.strip, _var.get("ARGS").split(","))) if _var.get("ARGS") else None
-        # print(_var.get("ARGS")) # ['PoolKey memory key', 'uint24 newDynamicLPFee']
-        _var["RETURNS"] = list(map(str.strip, _var.get("RETURNS").split(","))) if _var.get("RETURNS") else None
-        # print(_var.get("RETURNS")) # ['Pool.State storage']
+    # TODO: implement 'IMPL' in the next layer
 
+    # parse ARGS and RETURNS to TYPE, LOCATION, NAME
+    # do interpolation only for ARGS and RETURNS
+    # since information of ARGS and RETURNS are removed while parsing
+    if (_var["ARGS"] or _var["RETURNS"]) and _var["NAME"] is None:
+        if _var["ARGS"]:
+            _var["ARGS"]: list = list(map(str.strip, _var.get("ARGS").split(",")))
+            # print(_var.get("ARGS")) # ['PoolKey memory key', 'uint24 newDynamicLPFee']
+        if _var["RETURNS"]:
+            _var["RETURNS"]: list = list(map(str.strip, _var.get("RETURNS").split(",")))
+            # print(_var.get("RETURNS")) # ['Pool.State storage']
+        _type_loc_names = (_var["ARGS"] or []) + (_var["RETURNS"] or [])
 
-# return True if the variable is named variable
-def is_named_variable(_name: str) -> bool:
-    return False
+        for tln in _type_loc_names:
+            _split_tln = tln.split(" ")
+            is_named_variable = len(_split_tln) > 1
+            has_location = len(_split_tln) > 2
+            if is_named_variable:
+                _base["TYPE"] = _split_tln[0]
+                _base["LOCATION"] = _split_tln[1] if has_location else "memory"
+                _base["NAME"] = _split_tln[2] if has_location else _split_tln[1]
+                if _base["NAME"] in ["memory", "storage", "calldata"]:
+                    # TODO: ensure regex not to get the location as a variable name
+                    continue
+                if tln in _var["ARGS"]:
+                    _base["SCOPE"] = "args"
+                elif tln in _var["RETURNS"]:
+                    _base["SCOPE"] = "returns"
+                _res.append(_base.copy())
+    elif _base["NAME"] is not None:
+        _res.append(_base)
+    return _res
 
 
 def classify_variables(_var: dict) -> dict:
-    # 'ARGS': PoolKey memory key, BalanceDelta delta, address target
-    # 'CONTRACT': 'ExampleHook',
-    # 'IMPL': None,
-    # 'LOCATION': None,
-    # 'MUTABLE': None,
-    # 'NAME': 'name',
-    # 'RETURNS': None,
-    # 'SIG': None,
-    # 'TYPE': 'string',
-    # 'VISIBLE': 'public'
-    # to
-    # { $NAME: [
-    #   {
-    #       "SIG": $CONTRACT:$SIG
-    #       "SCOPE": "function:$LOCATION" | "storage:$VISIBLE" | "storage:inherited",
-    #       "TYPE": $TYPE,
-    #       "MUTABLE": "mutable" | "immutable" | "constant" | "transient"
-    #   },
-    # ]}
-    if _var["SIG"] or _var["ARGS"] or _var["RETURNS"] or _var["IMPL"]:
-        if _var["LOCATION"]:
-            return False
-    if _var["MUTABLE"] or _var["VISIBLE"]:
-        return False
-    if _var["TYPE"] or _var["CONTRACT"] or _var["NAME"]:
-        return False
-    return False
+    _base: dict = {
+        "NAME": _var["NAME"],
+        "SIG": _var["SIG"],
+        "SCOPE": None,
+        "LOCATION": _var["LOCATION"],
+        "VISIBLE": None,
+        "TYPE": _var["TYPE"],
+        "MUTABLE": _var["MUTABLE"] if _var["MUTABLE"] else "mutable"
+    }
+    if _var["LOCATION"] == "calldata":
+        _base["MUTABLE"] = "immutable"
+
+    if _var["SIG"]:
+        _base["SIG"] = f"{_var['CONTRACT']}:{_var['SIG']}"
+        _base["SCOPE"] = _var["SCOPE"] if _var["SCOPE"] else "function"
+        _base["LOCATION"] = _var["LOCATION"] if _var["LOCATION"] else "memory"
+    else:
+        # storage scope
+        # can be inherited scope, but currently regex finds only explicit declaration cases
+        # which means, the scope can be function or storage for now
+        _base["SIG"] = _var["CONTRACT"]
+        _base["SCOPE"] = "storage"  # TODO: implement 'inherited' in the next layer
+        _base["LOCATION"] = _var["LOCATION"] if _var["LOCATION"] else "storage"
+        _base["VISIBLE"] = _var["VISIBLE"] if _var["VISIBLE"] else "internal"
+
+    return _base
 
 
 if __name__ == '__main__':
-    get_variables()
+    _vars = get_variables("code/0xe8e23e97fa135823143d6b9cba9c699040d51f70.sol")
+    pprint(_vars)
