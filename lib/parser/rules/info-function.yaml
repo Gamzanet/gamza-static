@@ -3,7 +3,7 @@ rules:
     message: $CONTRACT | $SIG | $VIS | $PAY | $PURITY | $MOD | $OVER | $RETURN
     languages:
       - solidity
-    severity: WARNING
+    severity: INFO
     patterns:
       - pattern-inside: |
           contract $CONTRACT { ... ... ... }

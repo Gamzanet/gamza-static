@@ -1,6 +1,6 @@
 rules:
-  - id: info-variable
-    message: $CONTRACT | $SIG | $ARGS | $RETURNS | $IMPL | $TYPE | $LOCATION | $VISIBLE | $MUTABLE  | $NAME
+  - id: info-library
+    message: $CONTRACT | $LIBRARY | $FOR
     languages:
       - solidity
     severity: INFO
