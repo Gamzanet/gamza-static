@@ -91,30 +91,67 @@ def _fetch_contract_json_sepolia(_address: str) -> dict:
 
 # input: address
 # output: solidity source code
-def get_source_from_explorer(_network: str, _address: str, use_cache: bool = False) -> str | None:
+def get_source_from_explorer(
+    _network: str,
+    _address: str,
+    recursive: bool = False,
+    use_cache: bool = False
+) -> str | None:
     if use_cache:
         try:
             with open(f"code/{_network}_{_address}.sol", "r") as sol:
                 return sol.read()
         except FileNotFoundError:
             pass
-
     _json: dict = _fetch_contract_json(_network, _address)
-    print(type(_json))
+    # print(type(_json))
     print(_json.keys())
+    if recursive:
+        _src = parse_source_recursive_all(_network, _json)
+    else:
+        _src = parse_source_target_only(_network, _json)
+
+    if _src:
+        with open(f"code/{_network}_{_address}.sol", "w") as f:
+            f.write(_src)
+    return _src
+
+
+# additional_sources separately stored in the given path
+def parse_source_recursive_all(_network: str, _json: dict, ) -> str | None:
+    if _network == "unichain":
+        try:
+            _src = _json['source_code']
+            _additionals: list[dict] = _json['additional_sources']
+            print(_additionals[0].keys())
+        except KeyError:
+            return None
+    elif _network == "sepolia":
+        try:
+            # TODO: implement recursive search for sepolia
+            raise NotImplementedError
+        except KeyError:
+            return None
+    else:
+        raise ValueError("Invalid network")
+    return _src
+
+
+def parse_source_target_only(_network: str, _json: dict, ) -> str | None:
     if _network == "unichain":
         try:
             _src = _json['source_code']
         except KeyError:
             return None
     elif _network == "sepolia":
-        key: str = search("sources.keys(@)[0]", _json)
-        _src = _json['sources'][key]['content']
+        try:
+            key: str = search("sources.keys(@)[0]", _json)
+            _src = _json['sources'][key]['content']
+        except KeyError:
+            return None
     else:
         raise ValueError("Invalid network")
 
-    with open(f"code/{_network}_{_address}.sol", "w") as f:
-        f.write(_src)
     return _src
 
 
@@ -124,5 +161,5 @@ if __name__ == "__main__":
     print(len(src))
 
     address = "0x38EB8B22Df3Ae7fb21e92881151B365Df14ba967"  # Uniswap v4 PoolManager in unichain
-    src = get_source_from_explorer("unichain", address, )
+    src = get_source_from_explorer("unichain", address, recursive=True)
     print(len(src))
