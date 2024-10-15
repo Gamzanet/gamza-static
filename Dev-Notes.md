@@ -1,5 +1,9 @@
 ## TO-DO
 
+- [x]  Add Foundry Projects as modules
+    - `git submodule add https://github.com/ooMia/v4-template foundry/v4-template`
+    - `git submodule add https://github.com/ooMia/Upside_Cookie_Land foundry/cookie`
+
 - [ ]  Verify on-chain deployed Hook source
 - [ ]  RPC로 해당 address의 소스를 모두 저장
 - [ ]  forge fmt 포맷팅
