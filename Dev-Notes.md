@@ -26,14 +26,11 @@
 - [x] forge fmt 포맷팅
     - `lib/parser/layer0:format_code()`
 
-- [x] ~~소스 수준에서 Hook Source에 한해서만 solHint Linting~~
-
 - [x] 기본 [semgrep solidity rules](https://github.com/semgrep/semgrep-rules/tree/develop/solidity) & custom rule
-    - LLM 명제를 분해하여 rule로 추가
+    - LLM 명제를 분해하여 rule로 추가해야 함
 
-- [x] Slither 추가 → compile하여 linting 결과 → 규칙 형태로 관리
-
-- [x] ~~Hook validation without BaseHook~~
+- [x] Slither 추가
+- [ ] compiler_settings/remappings -> compile하여 linting 결과 → 규칙 형태로 관리
 
 - [ ] slither on Layer2 - call graph & contract dependency graph
 
