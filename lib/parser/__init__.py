@@ -1,4 +1,4 @@
-__all__ = ["run_semgrep", "layer_2"]
+__all__ = ["run_semgrep", "layer_0", "layer_2"]
 
 import os
 
