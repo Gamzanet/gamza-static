@@ -1,3 +1,7 @@
-[submodule "foundry"]
-	path = foundry
+[submodule "v4-template"]
+	path = foundry/v4-template
 	url = https://github.com/ooMia/v4-template
+
+[submodule "cookie"]
+    path = foundry/cookie
+    url = https://github.com/ooMia/Upside_Cookie_Land
