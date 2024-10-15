@@ -13,10 +13,10 @@ from etherscan.ether_api_call import get_source_from_explorer
 #    79228162514264337593543950336
 #    # bytes hookData
 #    0x
-def get_sources_by_pool_key(currency0: str, currency1: str, hook: str):
-    currency0_addr: HexAddress = to_hex_address(currency0)
-    currency1_addr: HexAddress = to_hex_address(currency1)
-    hook_addr: HexAddress = to_hex_address(hook)
+def get_sources_by_pool_key(_currency0: str, _currency1: str, _hook: str):
+    currency0_addr: HexAddress = to_hex_address(_currency0)
+    currency1_addr: HexAddress = to_hex_address(_currency1)
+    hook_addr: HexAddress = to_hex_address(_hook)
 
     currency0_src = get_source_from_explorer(_network="unichain", _address=currency0_addr, use_cache=True)
     currency1_src = get_source_from_explorer(_network="unichain", _address=currency1_addr, use_cache=True)
@@ -25,8 +25,8 @@ def get_sources_by_pool_key(currency0: str, currency1: str, hook: str):
     return currency0_src, currency1_src, hook_src
 
 
-def to_hex_address(currency0: str) -> HexAddress:
-    return HexAddress(HexStr(currency0))
+def to_hex_address(_addr: str) -> HexAddress:
+    return HexAddress(HexStr(_addr))
 
 
 if __name__ == "__main__":

@@ -14,7 +14,11 @@ from jmespath import search
 # & action = getsourcecode
 # & address = 0x64a736aa55958a41bc1b18590ab7dfcb78444dd1
 # & apikey = YourApiKeyToken
-def _fetch_contract_json(_network: str, _address: str, use_cache: bool = True) -> dict:
+def _fetch_contract_json(
+    _network: str,
+    _address: str,
+    use_cache: bool = True
+) -> dict:
     _file_path = f"code/json/{_address}.json"
 
     # set default caching to True
@@ -85,17 +89,6 @@ def _fetch_contract_json_sepolia(_address: str) -> dict:
     return json.loads(_res)
 
 
-
-
-
-
-
-
-
-
-
-
-
 # input: address
 # output: solidity source code
 def get_source_from_explorer(_network: str, _address: str, use_cache: bool = False) -> str | None:
@@ -119,7 +112,7 @@ def get_source_from_explorer(_network: str, _address: str, use_cache: bool = Fal
         _src = _json['sources'][key]['content']
     else:
         raise ValueError("Invalid network")
-    
+
     with open(f"code/{_network}_{_address}.sol", "w") as f:
         f.write(_src)
     return _src

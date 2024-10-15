@@ -22,6 +22,7 @@
 
 - [x] RPC로 해당 address의 소스를 모두 저장
     - `lib/etherscan/get_soucres_by_pool_key:get_sources_by_pool_key()` 참조
+- [ ] 컴파일 가능한 형태로 구성
 
 - [x] forge fmt 포맷팅
     - `lib/parser/layer0:format_code()`
