@@ -10,6 +10,7 @@ rules
 .idea
 .vscode
 __pycache__
+.DS_Store
 
 # modules
 node_modules
