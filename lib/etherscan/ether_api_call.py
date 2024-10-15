@@ -85,7 +85,7 @@ def _fetch_contract_json(_network: str, _address: str, use_cache: bool = True) -
 
 # input: address
 # output: solidity source code
-def get_source_from_explorer(_network: str, _address: str, use_cache: bool = False) -> str:
+def get_source_from_explorer(_network: str, _address: str, use_cache: bool = False) -> str | None:
     if use_cache:
         try:
             with open(f"code/{_network}_{_address}.sol", "r") as sol:
@@ -95,8 +95,12 @@ def get_source_from_explorer(_network: str, _address: str, use_cache: bool = Fal
 
     _json: dict = _fetch_contract_json(_network, _address)
     print(type(_json))
+    print(_json.keys())
     if _network == "unichain":
-        _src = _json['source_code']
+        try:
+            _src = _json['source_code']
+        except KeyError:
+            return None
     elif _network == "sepolia":
         key: str = search("sources.keys(@)[0]", _json)
         _src = _json['sources'][key]['content']

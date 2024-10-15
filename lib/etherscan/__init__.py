@@ -1,4 +1,4 @@
-__all__ = ["ether_api_call"]
+__all__ = ["ether_api_call", "verify_script", "get_sources_by_pool_key"]
 
 import os
 
