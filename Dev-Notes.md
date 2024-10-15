@@ -20,9 +20,8 @@
        0x
        ```
 
-- [x] RPC로 해당 address의 소스를 모두 저장
-    - `lib/etherscan/get_soucres_by_pool_key:get_sources_by_pool_key()` 참조
-- [ ] 컴파일 가능한 형태로 구성
+- [x] RPC로 해당 컨트랙트 및 의존성 소스를 모두 저장
+    - `lib/etherscan/unichain:store_all_dependencies()` 참조
 
 - [x] forge fmt 포맷팅
     - `lib/parser/layer0:format_code()`
@@ -32,7 +31,7 @@
 - [x] 기본 [semgrep solidity rules](https://github.com/semgrep/semgrep-rules/tree/develop/solidity) & custom rule
     - LLM 명제를 분해하여 rule로 추가
 
-- [ ] Slither 추가 → compile하여 linting 결과 → 규칙 형태로 관리
+- [x] Slither 추가 → compile하여 linting 결과 → 규칙 형태로 관리
 
 - [x] ~~Hook validation without BaseHook~~
 
