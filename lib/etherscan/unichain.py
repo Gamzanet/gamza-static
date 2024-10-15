@@ -1,3 +1,8 @@
+"""
+This module is used to fetch the source code of a contract from the Unichain network.
+The source code is fetched from the Unichain Blockscout API and stored in the code/unichain directory.
+"""
+
 import os.path
 from typing import TextIO
 
