@@ -15,19 +15,10 @@ from jmespath import search
 # & address = 0x64a736aa55958a41bc1b18590ab7dfcb78444dd1
 # & apikey = YourApiKeyToken
 def _fetch_contract_json(_network: str, _address: str, use_cache: bool = True) -> dict:
-    if _network == "unichain":
-        _api_endpoint = "https://unichain-sepolia.blockscout.com/api/v2/smart-contracts/"
-    elif _network == "sepolia":
-        _api_endpoint = "https://api-sepolia.etherscan.io/api"
-    else:
-        print(_network)
-        raise ValueError("Invalid network")
-
     _file_path = f"code/json/{_address}.json"
 
     # set default caching to True
     # since no need to fetch the same contract source code multiple times
-    # TODO: currently sepolia only. supports different networks too
     if use_cache:
         try:
             with open(_file_path, "r") as j:
@@ -37,51 +28,72 @@ def _fetch_contract_json(_network: str, _address: str, use_cache: bool = True) -
 
     _address = HexAddress(HexStr(_address))
 
-    if _network == "sepolia":
-        # export interface Result {
-        #   SourceCode: string
-        #   ABI: string
-        #   ContractName: string
-        #   CompilerVersion: string
-        #   OptimizationUsed: string
-        #   Runs: string
-        #   ConstructorArguments: string
-        #   EVMVersion: string
-        #   Library: string
-        #   LicenseType: string
-        #   Proxy: string
-        #   Implementation: string
-        #   SwarmSource: string
-        # }
-        r = requests.get(
-            _api_endpoint,
-            headers={"Content-Type": "application/json"},
-            params={
-                "module": "contract",
-                "action": "getsourcecode",
-                "address": _address.strip(),
-                "apikey": os.getenv("ETHERSCAN_API_KEY")
-            }).json()
-
-        # currently only interested in the source code
-        _res = r.get("result")[0].get("SourceCode")[1:-1]  # remove wrapping brackets {}
-        _res = json.loads(_res)
-    elif _network == "unichain":
-        # add user-agent Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko)
-        # Chrome/129.0.0.0 Safari/537.36
-        r = requests.get(
-            f"{_api_endpoint}{_address}",
-            headers={"Content-Type": "application/json",
-                     "User-Agent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, "
-                                   "like Gecko) Chrome/129.0.0.0 Safari/537.36"},
-        ).json()
-        _res = r
+    if _network == "unichain":
+        _res = _fetch_contract_json_unichain(_address)
+    elif _network == "sepolia":
+        _res = _fetch_contract_json_sepolia(_address)
     else:
+        print(_network)
         raise ValueError("Invalid network")
+
     # store the result in a JSON file
     with open(_file_path, "w") as j:
         json.dump(_res, j)
     return _res
+
+
+def _fetch_contract_json_unichain(_address: str) -> dict:
+    _api_endpoint = "https://unichain-sepolia.blockscout.com/api/v2/smart-contracts/"
+    _file_path = f"code/json/{_address}.json"
+    _address = HexAddress(HexStr(_address))
+    return requests.get(
+        f"{_api_endpoint}{_address}",
+        headers={"Content-Type": "application/json", },
+    ).json()
+
+
+def _fetch_contract_json_sepolia(_address: str) -> dict:
+    # export interface Result {
+    #   SourceCode: string
+    #   ABI: string
+    #   ContractName: string
+    #   CompilerVersion: string
+    #   OptimizationUsed: string
+    #   Runs: string
+    #   ConstructorArguments: string
+    #   EVMVersion: string
+    #   Library: string
+    #   LicenseType: string
+    #   Proxy: string
+    #   Implementation: string
+    #   SwarmSource: string
+    # }
+    _api_endpoint = "https://api-sepolia.etherscan.io/api"
+    _file_path = f"code/json/{_address}.json"
+    _address = HexAddress(HexStr(_address))
+
+    r = requests.get(
+        _api_endpoint,
+        headers={"Content-Type": "application/json"},
+        params={
+            "module": "contract",
+            "action": "getsourcecode",
+            "address": _address.strip(),
+            "apikey": os.getenv("ETHERSCAN_API_KEY")
+        }).json()
+    _res = r.get("result")[0].get("SourceCode")[1:-1]  # remove wrapping brackets {}
+    return json.loads(_res)
+
+
+
+
+
+
+
+
+
+
+
 
 
 # input: address
