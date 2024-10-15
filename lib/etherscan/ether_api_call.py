@@ -64,8 +64,8 @@ def _fetch_contract_json(_network: str, _address: str, use_cache: bool = True) -
             }).json()
 
         # currently only interested in the source code
-        res = r.get("result")[0].get("SourceCode")[1:-1]  # remove wrapping brackets {}
-        res = json.loads(res)
+        _res = r.get("result")[0].get("SourceCode")[1:-1]  # remove wrapping brackets {}
+        _res = json.loads(_res)
     elif _network == "unichain":
         # add user-agent Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko)
         # Chrome/129.0.0.0 Safari/537.36
@@ -75,12 +75,13 @@ def _fetch_contract_json(_network: str, _address: str, use_cache: bool = True) -
                      "User-Agent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, "
                                    "like Gecko) Chrome/129.0.0.0 Safari/537.36"},
         ).json()
-        res = r
-
+        _res = r
+    else:
+        raise ValueError("Invalid network")
     # store the result in a JSON file
     with open(_file_path, "w") as j:
-        json.dump(res, j)
-    return res
+        json.dump(_res, j)
+    return _res
 
 
 # input: address
