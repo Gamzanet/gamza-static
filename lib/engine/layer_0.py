@@ -35,17 +35,18 @@ def compile_slither(_path: str) -> list[str]:
     :param _path: The path to the contract to compile.
     :return: The output of the compilation.
     """
+    _cur_dir = os.getcwd()
     _base_dir = os.path.join("code", "unichain")
-    os.chdir(_base_dir)
-    # TODO: parse solc version from the contract
+    os.chdir(_base_dir)  # Change the working directory to the base directory
     _res = subprocess.run([
         "slither",
-        "lib/v4-core/src/PoolManager.sol",
+        _path,
         "--solc-remaps",
         "remappings.txt",
         "--solc-solcs-select",
-        "0.8.26"
+        "0.8.26"  # TODO: parse solc version from the contract
     ], capture_output=True, encoding="utf-8")
+    os.chdir(_cur_dir)  # Change the working directory back to the current directory
     return [_res.stderr, _res.stdout]
 
 
