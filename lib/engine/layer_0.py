@@ -1,7 +1,7 @@
 import os.path
 import subprocess
 
-import etherscan.unichain
+from etherscan.unichain import store_all_dependencies, store_remappings
 
 
 def run_cli(_command: str, capture_output=False) -> str | None:
@@ -24,8 +24,8 @@ def store_unichain_contract(_address: str) -> str:
     :param _address: The address to get the source unichain of.
     :return path where the target contract code is stored
     """
-    _paths = etherscan.unichain.store_all_dependencies(_address)
-    etherscan.unichain.store_remappings(_address)
+    _paths = store_all_dependencies(_address)
+    store_remappings(_address)
     return _paths[0]
 
 
@@ -40,9 +40,9 @@ def compile_slither(_path: str) -> list[str]:
     # TODO: parse solc version from the contract
     _res = subprocess.run([
         "slither",
-        os.path.join(_base_dir, _path),
+        "lib/v4-core/src/PoolManager.sol",
         "--solc-remaps",
-        os.path.join(_base_dir, "remappings.txt"),
+        "remappings.txt",
         "--solc-solcs-select",
         "0.8.26"
     ], capture_output=True, encoding="utf-8")
@@ -51,5 +51,8 @@ def compile_slither(_path: str) -> list[str]:
 
 if __name__ == "__main__":
     _address: str = "0x38EB8B22Df3Ae7fb21e92881151B365Df14ba967"
-    format_code(_address)
-    compile_slither(_address)
+    _path = store_unichain_contract(_address)
+    [_stdout, _stderr] = compile_slither(_path)
+    format_code(_path)
+    print(_stdout)
+    print(_stderr)

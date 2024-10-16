@@ -4,6 +4,7 @@ The source code is fetched from the Unichain Blockscout API and stored in the co
 """
 
 import os.path
+from json import JSONDecodeError
 from typing import TextIO
 
 from eth_typing import HexAddress, HexStr
@@ -49,7 +50,7 @@ def store_all_dependencies(_address: str) -> list[str]:
     try:
         with open(_file_path, "r") as j:
             _json = json.load(j)
-    except FileNotFoundError:
+    except (FileNotFoundError, JSONDecodeError):
         with open_with_mkdir(_file_path, "w") as j:
             _json = get_contract_json(_address)
             json.dump(_json, j)
