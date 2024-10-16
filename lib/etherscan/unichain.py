@@ -4,6 +4,7 @@ The source code is fetched from the Unichain Blockscout API and stored in the co
 """
 
 import os.path
+from json import JSONDecodeError
 from typing import TextIO
 
 from eth_typing import HexAddress, HexStr
@@ -49,7 +50,7 @@ def store_all_dependencies(_address: str) -> list[str]:
     try:
         with open(_file_path, "r") as j:
             _json = json.load(j)
-    except FileNotFoundError:
+    except (FileNotFoundError, JSONDecodeError):
         with open_with_mkdir(_file_path, "w") as j:
             _json = get_contract_json(_address)
             json.dump(_json, j)
@@ -72,6 +73,23 @@ def open_with_mkdir(file_path: str, mode: str) -> TextIO:
     os.makedirs(os.path.dirname(file_path), exist_ok=True)
     return open(file_path, mode)
 
+
+def store_remappings(_address: str) -> list[str]:
+    """
+    Store the remappings of a contract
+    :param _address: address of the contract
+    :return: remappings in list format
+    """
+    _address = to_hex_address(_address)
+    _file_path = os.path.join(_cache_base, "json", f"{_address}.json")
+
+    import json
+    with open(_file_path, "r") as j:
+        _json = json.load(j)
+        with open_with_mkdir(os.path.join(_cache_base, "remappings.txt"), "w") as f:
+            _remappings = str.join("\n", _json["compiler_settings"]["remappings"])
+            f.write(_remappings)
+            return _json["compiler_settings"]["remappings"]
 
 if __name__ == "__main__":
     address = "0x38EB8B22Df3Ae7fb21e92881151B365Df14ba967"  # Uniswap v4 PoolManager in unichain
