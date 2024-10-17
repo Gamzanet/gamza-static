@@ -9,5 +9,5 @@ def test_compile_slither():
     assert os.path.join("PoolManager.sol") in _path
 
     res: list[str] = compile_slither(_path)
-    print(res[1])  # stderr
-    assert len(res[0]) > 0
+    print(res[0])  # stderr
+    assert "INFO:Detectors:" in res[0]
