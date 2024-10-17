@@ -25,9 +25,9 @@ def to_hex_address(_str: str) -> HexAddress:
 
 def get_contract_json(_address: HexAddress) -> dict:
     """
-    Get the source code of a contract
+    Get the json object of a contract
     :param _address: address of the contract
-    :return: source code
+    :return: API JSON response
     """
     _api_endpoint = "https://unichain-sepolia.blockscout.com/api/v2/smart-contracts/"
     import requests
@@ -94,6 +94,24 @@ def store_remappings(_address: str) -> list[str]:
                 return _json["compiler_settings"]["remappings"]
         except KeyError:
             return []
+
+
+def store_foundry_toml() -> None:
+    """
+    Store the foundry toml
+    """
+    _toml_content: str = """
+    [profile.default]
+    src = "src"
+    out = "out"
+    libs = ["lib"]
+    evm-version = "cancun"
+    """
+    try:
+        with open_with_mkdir(os.path.join(_cache_base, "foundry.toml"), "x") as f:
+            f.write(_toml_content)
+    except FileExistsError:
+        pass
 
 
 if __name__ == "__main__":

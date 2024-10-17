@@ -1,7 +1,7 @@
 import os
 import subprocess
 
-from etherscan.unichain import store_all_dependencies, store_remappings, unichain_dir
+from etherscan.unichain import store_all_dependencies, store_remappings, unichain_dir, store_foundry_toml
 
 
 def run_cli(_command: str, capture_output=False) -> str | None:
@@ -12,10 +12,10 @@ def format_code(_path: str):
     res: str = run_cli(f"forge fmt {_path} --check", True)
     print(res)
     if len(res) > 0:
-        print("Code is not formatted properly")
-        run_cli(f"forge fmt {_path}.sol", False)
+        print("Code not formatted properly")
+        run_cli(f"forge fmt {_path}", False)
     else:
-        print("Code is formatted properly")
+        print("Code formatted properly")
 
 
 def store_unichain_contract(_address: str) -> str:
@@ -26,6 +26,7 @@ def store_unichain_contract(_address: str) -> str:
     """
     _paths = store_all_dependencies(_address)
     store_remappings(_address)
+    store_foundry_toml()
     return _paths[0]
 
 
