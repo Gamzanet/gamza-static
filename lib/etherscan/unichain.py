@@ -92,6 +92,8 @@ def store_remappings(_address: str) -> list[str]:
             return _json["compiler_settings"]["remappings"]
 
 if __name__ == "__main__":
-    address = "0x38EB8B22Df3Ae7fb21e92881151B365Df14ba967"  # Uniswap v4 PoolManager in unichain
+    # address = "0x38EB8B22Df3Ae7fb21e92881151B365Df14ba967"  # Uniswap v4 PoolManager in unichain
+    # TODO: recursively map implementation contracts if given address is a proxy contract
+    address = "0x2880aB155794e7179c9eE2e38200202908C17B43"  # Pyth proxy contract in unichain
     keys = store_all_dependencies(address)
     assert len(keys) > 0
