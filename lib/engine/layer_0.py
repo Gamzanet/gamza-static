@@ -13,7 +13,7 @@ def format_code(_path: str):
     print(res)
     if len(res) > 0:
         print("Code is not formatted properly")
-        run_cli("forge fmt code/0xe8e23e97fa135823143d6b9cba9c699040d51f70.sol", False)
+        run_cli(f"forge fmt {_path}.sol", False)
     else:
         print("Code is formatted properly")
 
@@ -22,7 +22,7 @@ def store_unichain_contract(_address: str) -> str:
     """
     Get the source unichain of an address.
     :param _address: The address to get the source unichain of.
-    :return path where the target contract code is stored
+    :return: path where the target contract code is stored
     """
     _paths = store_all_dependencies(_address)
     store_remappings(_address)
