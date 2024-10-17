@@ -1,12 +1,18 @@
-import json
+from rich.pretty import pprint
 
-from jmespath import search
+from parser.layer_2 import *
 
-from parser.layer_2 import parse_args_returns, classify_variables, aggregate_result_variables
+
+def test_get_variables():
+    res = get_variables(
+        _target_path="code/0xe8e23e97fa135823143d6b9cba9c699040d51f70.sol"
+    )
+    assert res != {}
+    pprint(res)
 
 
 def test_scope_storage():
-    with open("tests/data/info-variable_code-0xe8e23e97fa135823143d6b9cba9c699040d51f70.sol.json", "r") as f:
+    with open("code/json/info-variable_code-0xe8e23e97fa135823143d6b9cba9c699040d51f70.sol.json", "r") as f:
         _input: dict = json.load(f)["data"]
     _input: list[dict] = search("[*].data[]", _input)
 
@@ -63,7 +69,7 @@ def test_scope_storage():
 
 
 def test_scope_function_explicit_declaration():
-    with open("tests/data/info-variable_code-0xe8e23e97fa135823143d6b9cba9c699040d51f70.sol.json", "r") as f:
+    with open("code/json/info-variable_code-0xe8e23e97fa135823143d6b9cba9c699040d51f70.sol.json", "r") as f:
         _input: dict = json.load(f)["data"]
     _input: list[dict] = search("[*].data[]", _input)
 
@@ -108,7 +114,7 @@ def test_scope_function_explicit_declaration():
 
 
 def test_scope_function_calldata_immutable():
-    with open("tests/data/info-variable_code-0xe8e23e97fa135823143d6b9cba9c699040d51f70.sol.json", "r") as f:
+    with open("code/json/info-variable_code-0xe8e23e97fa135823143d6b9cba9c699040d51f70.sol.json", "r") as f:
         _input: dict = json.load(f)["data"]
     _input: list[dict] = search("[*].data[]", _input)
 
@@ -155,7 +161,7 @@ def test_scope_function_calldata_immutable():
 
 
 def test_scope_function_parsing_args_returns():
-    with open("tests/data/info-variable_code-0xe8e23e97fa135823143d6b9cba9c699040d51f70.sol.json", "r") as f:
+    with open("code/json/info-variable_code-0xe8e23e97fa135823143d6b9cba9c699040d51f70.sol.json", "r") as f:
         _input: dict = json.load(f)["data"]
     _input: list[dict] = search("[*].data[]", _input)
 
@@ -177,7 +183,7 @@ def test_scope_function_parsing_args_returns():
 
 
 def test_scope_global_duplicated_name_listing():
-    with open("tests/data/info-variable_code-0xe8e23e97fa135823143d6b9cba9c699040d51f70.sol.json", "r") as f:
+    with open("code/json/info-variable_code-0xe8e23e97fa135823143d6b9cba9c699040d51f70.sol.json", "r") as f:
         _input: dict = json.load(f)["data"]
     _input: list[dict] = search("[*].data[]", _input)
 
