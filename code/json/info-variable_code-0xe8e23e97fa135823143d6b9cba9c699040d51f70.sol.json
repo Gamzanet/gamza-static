@@ -1,7 +1,7 @@
 {
     "data": [
         {
-            "code": "code/0xe8e23e97fa135823143d6b9cba9c699040d51f70.sol:89:1",
+            "code": "code/0xe8e23e97fa135823143d6b9cba9c699040d51f70.sol:71:1",
             "rule": "warning(info-variable)",
             "log": "    int24 private constant MAX_TICK_SPACING = TickMath.MAX_TICK_SPACING;",
             "data": {
@@ -18,7 +18,7 @@
             }
         },
         {
-            "code": "code/0xe8e23e97fa135823143d6b9cba9c699040d51f70.sol:91:1",
+            "code": "code/0xe8e23e97fa135823143d6b9cba9c699040d51f70.sol:73:1",
             "rule": "warning(info-variable)",
             "log": "    int24 private constant MIN_TICK_SPACING = TickMath.MIN_TICK_SPACING;",
             "data": {
@@ -35,7 +35,7 @@
             }
         },
         {
-            "code": "code/0xe8e23e97fa135823143d6b9cba9c699040d51f70.sol:93:1",
+            "code": "code/0xe8e23e97fa135823143d6b9cba9c699040d51f70.sol:75:1",
             "rule": "warning(info-variable)",
             "log": "    mapping(PoolId id => Pool.State) internal _pools;",
             "data": {
@@ -52,7 +52,7 @@
             }
         },
         {
-            "code": "code/0xe8e23e97fa135823143d6b9cba9c699040d51f70.sol:102:5",
+            "code": "code/0xe8e23e97fa135823143d6b9cba9c699040d51f70.sol:84:5",
             "rule": "warning(info-variable)",
             "log": "    function unlock(bytes calldata data) external override returns (bytes memory result) {",
             "data": {
@@ -69,13 +69,13 @@
             }
         },
         {
-            "code": "code/0xe8e23e97fa135823143d6b9cba9c699040d51f70.sol:115:5",
+            "code": "code/0xe8e23e97fa135823143d6b9cba9c699040d51f70.sol:97:5",
             "rule": "warning(info-variable)",
-            "log": "    function initialize(PoolKey memory key, uint160 sqrtPriceX96, bytes calldata hookData)",
+            "log": "    function initialize(PoolKey memory key, uint160 sqrtPriceX96) external noDelegateCall returns (int24 tick) {",
             "data": {
                 "CONTRACT": "PoolManager",
                 "SIG": "initialize",
-                "ARGS": "PoolKey memory key, uint160 sqrtPriceX96, bytes calldata hookData",
+                "ARGS": "PoolKey memory key, uint160 sqrtPriceX96",
                 "RETURNS": "int24 tick",
                 "IMPL": null,
                 "TYPE": null,
@@ -86,7 +86,7 @@
             }
         },
         {
-            "code": "code/0xe8e23e97fa135823143d6b9cba9c699040d51f70.sol:147:5",
+            "code": "code/0xe8e23e97fa135823143d6b9cba9c699040d51f70.sol:124:5",
             "rule": "warning(info-variable)",
             "log": "    function modifyLiquidity(",
             "data": {
@@ -103,7 +103,7 @@
             }
         },
         {
-            "code": "code/0xe8e23e97fa135823143d6b9cba9c699040d51f70.sol:159:13",
+            "code": "code/0xe8e23e97fa135823143d6b9cba9c699040d51f70.sol:136:13",
             "rule": "warning(info-variable)",
             "log": "            BalanceDelta principalDelta;",
             "data": {
@@ -120,7 +120,7 @@
             }
         },
         {
-            "code": "code/0xe8e23e97fa135823143d6b9cba9c699040d51f70.sol:178:9",
+            "code": "code/0xe8e23e97fa135823143d6b9cba9c699040d51f70.sol:155:9",
             "rule": "warning(info-variable)",
             "log": "        BalanceDelta hookDelta;",
             "data": {
@@ -137,7 +137,7 @@
             }
         },
         {
-            "code": "code/0xe8e23e97fa135823143d6b9cba9c699040d51f70.sol:188:5",
+            "code": "code/0xe8e23e97fa135823143d6b9cba9c699040d51f70.sol:165:5",
             "rule": "warning(info-variable)",
             "log": "    function swap(PoolKey memory key, IPoolManager.SwapParams memory params, bytes calldata hookData)",
             "data": {
@@ -154,7 +154,7 @@
             }
         },
         {
-            "code": "code/0xe8e23e97fa135823143d6b9cba9c699040d51f70.sol:199:9",
+            "code": "code/0xe8e23e97fa135823143d6b9cba9c699040d51f70.sol:176:9",
             "rule": "warning(info-variable)",
             "log": "        BeforeSwapDelta beforeSwapDelta;",
             "data": {
@@ -171,7 +171,7 @@
             }
         },
         {
-            "code": "code/0xe8e23e97fa135823143d6b9cba9c699040d51f70.sol:201:13",
+            "code": "code/0xe8e23e97fa135823143d6b9cba9c699040d51f70.sol:178:13",
             "rule": "warning(info-variable)",
             "log": "            int256 amountToSwap;",
             "data": {
@@ -188,7 +188,7 @@
             }
         },
         {
-            "code": "code/0xe8e23e97fa135823143d6b9cba9c699040d51f70.sol:202:13",
+            "code": "code/0xe8e23e97fa135823143d6b9cba9c699040d51f70.sol:179:13",
             "rule": "warning(info-variable)",
             "log": "            uint24 lpFeeOverride;",
             "data": {
@@ -205,7 +205,7 @@
             }
         },
         {
-            "code": "code/0xe8e23e97fa135823143d6b9cba9c699040d51f70.sol:221:9",
+            "code": "code/0xe8e23e97fa135823143d6b9cba9c699040d51f70.sol:198:9",
             "rule": "warning(info-variable)",
             "log": "        BalanceDelta hookDelta;",
             "data": {
@@ -222,7 +222,7 @@
             }
         },
         {
-            "code": "code/0xe8e23e97fa135823143d6b9cba9c699040d51f70.sol:231:5",
+            "code": "code/0xe8e23e97fa135823143d6b9cba9c699040d51f70.sol:208:5",
             "rule": "warning(info-variable)",
             "log": "    function _swap(Pool.State storage pool, PoolId id, Pool.SwapParams memory params, Currency inputCurrency)",
             "data": {
@@ -239,7 +239,7 @@
             }
         },
         {
-            "code": "code/0xe8e23e97fa135823143d6b9cba9c699040d51f70.sol:257:5",
+            "code": "code/0xe8e23e97fa135823143d6b9cba9c699040d51f70.sol:234:5",
             "rule": "warning(info-variable)",
             "log": "    function donate(PoolKey memory key, uint256 amount0, uint256 amount1, bytes calldata hookData)",
             "data": {
@@ -256,7 +256,7 @@
             }
         },
         {
-            "code": "code/0xe8e23e97fa135823143d6b9cba9c699040d51f70.sol:280:5",
+            "code": "code/0xe8e23e97fa135823143d6b9cba9c699040d51f70.sol:257:5",
             "rule": "warning(info-variable)",
             "log": "    function sync(Currency currency) external onlyWhenUnlocked {",
             "data": {
@@ -273,7 +273,7 @@
             }
         },
         {
-            "code": "code/0xe8e23e97fa135823143d6b9cba9c699040d51f70.sol:292:5",
+            "code": "code/0xe8e23e97fa135823143d6b9cba9c699040d51f70.sol:269:5",
             "rule": "warning(info-variable)",
             "log": "    function take(Currency currency, address to, uint256 amount) external onlyWhenUnlocked {",
             "data": {
@@ -290,7 +290,7 @@
             }
         },
         {
-            "code": "code/0xe8e23e97fa135823143d6b9cba9c699040d51f70.sol:301:5",
+            "code": "code/0xe8e23e97fa135823143d6b9cba9c699040d51f70.sol:278:5",
             "rule": "warning(info-variable)",
             "log": "    function settle() external payable onlyWhenUnlocked returns (uint256) {",
             "data": {
@@ -307,7 +307,7 @@
             }
         },
         {
-            "code": "code/0xe8e23e97fa135823143d6b9cba9c699040d51f70.sol:306:5",
+            "code": "code/0xe8e23e97fa135823143d6b9cba9c699040d51f70.sol:283:5",
             "rule": "warning(info-variable)",
             "log": "    function settleFor(address recipient) external payable onlyWhenUnlocked returns (uint256) {",
             "data": {
@@ -324,7 +324,7 @@
             }
         },
         {
-            "code": "code/0xe8e23e97fa135823143d6b9cba9c699040d51f70.sol:311:5",
+            "code": "code/0xe8e23e97fa135823143d6b9cba9c699040d51f70.sol:288:5",
             "rule": "warning(info-variable)",
             "log": "    function clear(Currency currency, uint256 amount) external onlyWhenUnlocked {",
             "data": {
@@ -341,7 +341,7 @@
             }
         },
         {
-            "code": "code/0xe8e23e97fa135823143d6b9cba9c699040d51f70.sol:323:5",
+            "code": "code/0xe8e23e97fa135823143d6b9cba9c699040d51f70.sol:300:5",
             "rule": "warning(info-variable)",
             "log": "    function mint(address to, uint256 id, uint256 amount) external onlyWhenUnlocked {",
             "data": {
@@ -358,7 +358,7 @@
             }
         },
         {
-            "code": "code/0xe8e23e97fa135823143d6b9cba9c699040d51f70.sol:333:5",
+            "code": "code/0xe8e23e97fa135823143d6b9cba9c699040d51f70.sol:310:5",
             "rule": "warning(info-variable)",
             "log": "    function burn(address from, uint256 id, uint256 amount) external onlyWhenUnlocked {",
             "data": {
@@ -375,7 +375,7 @@
             }
         },
         {
-            "code": "code/0xe8e23e97fa135823143d6b9cba9c699040d51f70.sol:340:5",
+            "code": "code/0xe8e23e97fa135823143d6b9cba9c699040d51f70.sol:317:5",
             "rule": "warning(info-variable)",
             "log": "    function updateDynamicLPFee(PoolKey memory key, uint24 newDynamicLPFee) external {",
             "data": {
@@ -392,7 +392,7 @@
             }
         },
         {
-            "code": "code/0xe8e23e97fa135823143d6b9cba9c699040d51f70.sol:349:5",
+            "code": "code/0xe8e23e97fa135823143d6b9cba9c699040d51f70.sol:326:5",
             "rule": "warning(info-variable)",
             "log": "    function _settle(address recipient) internal returns (uint256 paid) {",
             "data": {
@@ -409,7 +409,7 @@
             }
         },
         {
-            "code": "code/0xe8e23e97fa135823143d6b9cba9c699040d51f70.sol:368:5",
+            "code": "code/0xe8e23e97fa135823143d6b9cba9c699040d51f70.sol:345:5",
             "rule": "warning(info-variable)",
             "log": "    function _accountDelta(Currency currency, int128 delta, address target) internal {",
             "data": {
@@ -426,7 +426,7 @@
             }
         },
         {
-            "code": "code/0xe8e23e97fa135823143d6b9cba9c699040d51f70.sol:381:5",
+            "code": "code/0xe8e23e97fa135823143d6b9cba9c699040d51f70.sol:358:5",
             "rule": "warning(info-variable)",
             "log": "    function _accountPoolBalanceDelta(PoolKey memory key, BalanceDelta delta, address target) internal {",
             "data": {
@@ -443,7 +443,7 @@
             }
         },
         {
-            "code": "code/0xe8e23e97fa135823143d6b9cba9c699040d51f70.sol:387:5",
+            "code": "code/0xe8e23e97fa135823143d6b9cba9c699040d51f70.sol:364:5",
             "rule": "warning(info-variable)",
             "log": "    function _getPool(PoolId id) internal view override returns (Pool.State storage) {",
             "data": {

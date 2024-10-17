@@ -1,6 +1,5 @@
 # out
 out
-rules
 
 # Dotenv file
 .venv
@@ -10,6 +9,7 @@ rules
 .idea
 .vscode
 __pycache__
+.DS_Store
 
 # modules
 node_modules

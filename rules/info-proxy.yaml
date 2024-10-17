@@ -3,7 +3,7 @@ rules:
     message: $CONTRACT | $SIG | $ARGS | $RETURNS | $IMPL | $TYPE | $LOCATION | $VISIBLE | $MUTABLE  | $NAME
     languages:
       - solidity
-    severity: WARNING
+    severity: INFO
     pattern-either:
       - patterns: # storage: declarations(;)
           - pattern-inside: contract $CONTRACT { ... ... ... }

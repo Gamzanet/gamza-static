@@ -1,12 +1,18 @@
-import json
+from rich.pretty import pprint
 
-from jmespath import search
+from parser.layer_2 import *
 
-from parser.layer_2 import parse_args_returns, classify_variables, aggregate_result_variables
+
+def test_get_variables():
+    res = get_variables(
+        _target_path="code/0xe8e23e97fa135823143d6b9cba9c699040d51f70.sol"
+    )
+    assert res != {}
+    pprint(res)
 
 
 def test_scope_storage():
-    with open("tests/data/info-variable_code-0xe8e23e97fa135823143d6b9cba9c699040d51f70.sol.json", "r") as f:
+    with open("code/json/info-variable_code-0xe8e23e97fa135823143d6b9cba9c699040d51f70.sol.json", "r") as f:
         _input: dict = json.load(f)["data"]
     _input: list[dict] = search("[*].data[]", _input)
 
@@ -63,7 +69,7 @@ def test_scope_storage():
 
 
 def test_scope_function_explicit_declaration():
-    with open("tests/data/info-variable_code-0xe8e23e97fa135823143d6b9cba9c699040d51f70.sol.json", "r") as f:
+    with open("code/json/info-variable_code-0xe8e23e97fa135823143d6b9cba9c699040d51f70.sol.json", "r") as f:
         _input: dict = json.load(f)["data"]
     _input: list[dict] = search("[*].data[]", _input)
 
@@ -108,7 +114,7 @@ def test_scope_function_explicit_declaration():
 
 
 def test_scope_function_calldata_immutable():
-    with open("tests/data/info-variable_code-0xe8e23e97fa135823143d6b9cba9c699040d51f70.sol.json", "r") as f:
+    with open("code/json/info-variable_code-0xe8e23e97fa135823143d6b9cba9c699040d51f70.sol.json", "r") as f:
         _input: dict = json.load(f)["data"]
     _input: list[dict] = search("[*].data[]", _input)
 
@@ -155,7 +161,7 @@ def test_scope_function_calldata_immutable():
 
 
 def test_scope_function_parsing_args_returns():
-    with open("tests/data/info-variable_code-0xe8e23e97fa135823143d6b9cba9c699040d51f70.sol.json", "r") as f:
+    with open("code/json/info-variable_code-0xe8e23e97fa135823143d6b9cba9c699040d51f70.sol.json", "r") as f:
         _input: dict = json.load(f)["data"]
     _input: list[dict] = search("[*].data[]", _input)
 
@@ -177,10 +183,22 @@ def test_scope_function_parsing_args_returns():
 
 
 def test_scope_global_duplicated_name_listing():
-    with open("tests/data/info-variable_code-0xe8e23e97fa135823143d6b9cba9c699040d51f70.sol.json", "r") as f:
+    with open("code/json/info-variable_code-0xe8e23e97fa135823143d6b9cba9c699040d51f70.sol.json", "r") as f:
         _input: dict = json.load(f)["data"]
     _input: list[dict] = search("[*].data[]", _input)
 
+    """ INPUT
+    {'ARGS': 'PoolKey memory key, uint160 sqrtPriceX96',
+     'CONTRACT': 'PoolManager',
+     'IMPL': None,
+     'LOCATION': None,
+     'MUTABLE': None,
+     'NAME': None,
+     'RETURNS': 'int24 tick',
+     'SIG': 'initialize',
+     'TYPE': None,
+     'VISIBLE': None}
+    """  # pprint(_input[4])
     """ INPUT
     {'ARGS': 'PoolKey memory key,\n'
              '        IPoolManager.ModifyLiquidityParams memory params,\n'
@@ -246,29 +264,32 @@ def test_scope_global_duplicated_name_listing():
      'VISIBLE': None}
     """  # pprint(_input[25])
 
+    _output_4: list[dict] = parse_args_returns(_input[4])
     _output_5: list[dict] = parse_args_returns(_input[5])
     _output_8: list[dict] = parse_args_returns(_input[8])
     _output_14: list[dict] = parse_args_returns(_input[14])
     _output_22: list[dict] = parse_args_returns(_input[22])
     _output_25: list[dict] = parse_args_returns(_input[25])
+
+    assert len(_output_4) == 2 + 1  # 2 args, 1 returns
     assert len(_output_5) == 3 + 2  # 3 args, 2 returns
     assert len(_output_8) == 3 + 1  # 3 args, 1 returns
     assert len(_output_14) == 4 + 1  # 4 args, 1 returns
     assert len(_output_22) == 2 + 0  # 2 args, 0 returns
     assert len(_output_25) == 3 + 0  # 3 args, 0 returns
 
-    _outputs_key: list[dict] = _output_5 + _output_8 + _output_14 + _output_22 + _output_25
-    _unique_names = set(search("[*].NAME", _outputs_key))
-    # 19 variable usage in total where
-    #     variable name `key` is duplicated for 5 times
+    _outputs_key: list[dict] = _output_4 + _output_5 + _output_8 + _output_14 + _output_22 + _output_25
+    _unique_names = list(search("[*].NAME", _outputs_key))
+    # 22 variable usage in total where
+    #     variable name `key` is duplicated for 6 times
     #     variable name `hookData` is duplicated for 3 times
     #     variable name `params` is duplicated for 2 times
     #     variable name `delta` is duplicated for 2 times
-    # which makes 11 unique names
+    # which makes 13 unique names
 
     _result_key = aggregate_result_variables(_outputs_key)
-    assert len(_result_key) == 19 - 4 - 2 - 1 - 1
-    assert len(_result_key["key"]) == 5
+    assert len(_result_key) == 22 - 5 - 2 - 1 - 1
+    assert len(_result_key["key"]) == 6
     assert len(_result_key["hookData"]) == 3
     assert len(_result_key["params"]) == 2
     assert len(_result_key["delta"]) == 2
