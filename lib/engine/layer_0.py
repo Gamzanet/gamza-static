@@ -1,7 +1,7 @@
-import os.path
+import os
 import subprocess
 
-from etherscan.unichain import store_all_dependencies, store_remappings
+from etherscan.unichain import store_all_dependencies, store_remappings, _unichain_dir
 
 
 def run_cli(_command: str, capture_output=False) -> str | None:
@@ -35,18 +35,13 @@ def compile_slither(_path: str) -> list[str]:
     :param _path: The path to the contract to compile.
     :return: The output of the compilation.
     """
-    _cur_dir = os.getcwd()
-    _base_dir = os.path.join("code", "unichain")
-    os.chdir(_base_dir)  # Change the working directory to the base directory
+    _origin_dir = os.getcwd()
+    os.chdir(_unichain_dir)
     _res = subprocess.run([
         "slither",
         _path,
-        "--solc-remaps",
-        "remappings.txt",
-        "--solc-solcs-select",
-        "0.8.26"  # TODO: parse solc version from the contract
     ], capture_output=True, encoding="utf-8")
-    os.chdir(_cur_dir)  # Change the working directory back to the current directory
+    os.chdir(_origin_dir)
     return [_res.stderr, _res.stdout]
 
 
