@@ -11,7 +11,7 @@ from eth_typing import HexAddress, HexStr
 
 _network = "unichain"
 _cache_base = os.path.join("code", _network)
-_unichain_dir: str = os.path.join("code", "unichain")
+unichain_dir: str = os.path.join("code", "unichain")
 
 def to_hex_address(_str: str) -> HexAddress:
     """

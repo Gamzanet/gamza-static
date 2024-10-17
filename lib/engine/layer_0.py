@@ -1,7 +1,7 @@
 import os
 import subprocess
 
-from etherscan.unichain import store_all_dependencies, store_remappings, _unichain_dir
+from etherscan.unichain import store_all_dependencies, store_remappings, unichain_dir
 
 
 def run_cli(_command: str, capture_output=False) -> str | None:
@@ -36,7 +36,7 @@ def compile_slither(_path: str) -> list[str]:
     :return: The output of the compilation.
     """
     _origin_dir = os.getcwd()
-    os.chdir(_unichain_dir)
+    os.chdir(unichain_dir)
     _res = subprocess.run([
         "slither",
         _path,
