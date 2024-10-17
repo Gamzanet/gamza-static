@@ -13,6 +13,7 @@ _network = "unichain"
 _cache_base = os.path.join("code", _network)
 unichain_dir: str = os.path.join("code", "unichain")
 
+
 def to_hex_address(_str: str) -> HexAddress:
     """
     Convert a string to a hex address
@@ -86,10 +87,14 @@ def store_remappings(_address: str) -> list[str]:
     import json
     with open(_file_path, "r") as j:
         _json = json.load(j)
-        with open_with_mkdir(os.path.join(_cache_base, "remappings.txt"), "w") as f:
+        try:
             _remappings = str.join("\n", _json["compiler_settings"]["remappings"])
-            f.write(_remappings)
-            return _json["compiler_settings"]["remappings"]
+            with open_with_mkdir(os.path.join(_cache_base, "remappings.txt"), "w") as f:
+                f.write(_remappings)
+                return _json["compiler_settings"]["remappings"]
+        except KeyError:
+            return []
+
 
 if __name__ == "__main__":
     # address = "0x38EB8B22Df3Ae7fb21e92881151B365Df14ba967"  # Uniswap v4 PoolManager in unichain

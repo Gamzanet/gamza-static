@@ -1,1 +1,4 @@
-lib
+*
+!foundry.toml
+!remappings.txt
+!json
