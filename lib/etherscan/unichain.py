@@ -56,7 +56,12 @@ def store_all_dependencies(_address: str) -> list[str]:
             _json = get_contract_json(_address)
             json.dump(_json, j)
 
-    _keys = [_json["file_path"]]
+    try:
+        _keys = [_json["file_path"]]
+    except KeyError:
+        os.remove(_file_path)
+        raise KeyError("Server returned invalid JSON")
+
     _sources = [_json["source_code"]]
     for s in _json["additional_sources"]:
         _keys.append(s["file_path"])
