@@ -8,15 +8,15 @@ def run_cli(_command: str, capture_output=False) -> str | None:
     return subprocess.run(_command, shell=True, capture_output=capture_output, text=True).stdout
 
 
-def format_code(_path: str):
-    res: str = run_cli(f"forge fmt {_path} --check", True)
-    print(res)
-    if len(res) > 0:
+def format_code(_path: str) -> str:
+    diff: str = run_cli(f"forge fmt {_path} --check", True)
+    # print(diff)
+    if len(diff) > 0:
         print("Code not formatted properly")
         run_cli(f"forge fmt {_path}", False)
     else:
         print("Code formatted properly")
-
+    return diff
 
 def store_unichain_contract(_address: str) -> str:
     """

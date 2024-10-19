@@ -1,6 +1,5 @@
 import os
 import sys
-from pprint import pprint
 
 _path_lib = os.path.abspath(os.path.join(os.path.dirname(__file__), "lib"))
 sys.path.append(_path_lib)
@@ -19,11 +18,12 @@ def test_integration():
     store_remappings(_address)
     store_foundry_toml()
 
-    layer_0.format_code(unichain_dir)  # "code/unichain" directory
+    _diff = layer_0.format_code(unichain_dir)  # "code/unichain" directory
+    # print(_diff)
 
     # linting the target contract recursively lints all dependencies
-    res: list[str] = layer_0.compile_slither(_paths[0])
-    print(res)
+    _res: list[str] = layer_0.compile_slither(_paths[0])
+    # print(res)
 
     # to run semgrep rules,
     # path needs to start with "code"
@@ -34,17 +34,18 @@ def test_integration():
         _target_path,
         False
     )
-    pprint(_output_l)
+    # pprint(_output_l)
 
     _output_l: list = get_semgrep_output(
         "info-variable",
         _target_path,
         False
     )
-    pprint(_output_l)
+    # pprint(_output_l)
 
     _output_d: dict = get_variables(_target_path)
-    pprint(_output_d)
+    # pprint(_output_d)
+
 
 if __name__ == "__main__":
     test_integration()
