@@ -1,5 +1,9 @@
-import os.path
+import os
+import sys
 from pprint import pprint
+
+_path_lib = os.path.abspath(os.path.join(os.path.dirname(__file__), "lib"))
+sys.path.append(_path_lib)
 
 from engine import layer_0
 from etherscan.unichain import store_foundry_toml, store_remappings, store_all_dependencies, unichain_dir
@@ -41,3 +45,6 @@ def test_integration():
 
     _output_d: dict = get_variables(_target_path)
     pprint(_output_d)
+
+if __name__ == "__main__":
+    test_integration()
