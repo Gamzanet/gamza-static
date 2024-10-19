@@ -1,15 +1,6 @@
 pragma solidity 0.6.12;
 
-import {Ownable} from "../foundry/lib/v4-core/lib/openzeppelin-contracts/contracts/access/Ownable.sol";
-import {Ownable} from "../foundry/lib/v4-periphery/lib/permit2/lib/openzeppelin-contracts/contracts/access/Ownable.sol";
-import {Ownable} from "../foundry/lib/v4-periphery/lib/v4-core/lib/openzeppelin-contracts/contracts/access/Ownable.sol";
-import {Ownable} from "../lib/parser/code/arbitrary-low-level-call.sol";
-import {Ownable} from "../lib/parser/code/erc20-public-burn.sol";
-import {CFTokenCallbackSinglePool, CFToken} from "../lib/parser/code/erc20-public-transfer.sol";
-import {Ownable} from "../lib/parser/code/erc677-reentrancy.sol";
-import {Ownable} from "../lib/parser/code/erc721-arbitrary-transferfrom.sol";
-import {Ownable} from "../lib/parser/code/redacted-cartel-custom-approval-bug.sol";
-import {Ownable} from "../lib/parser/code/unrestricted-transferownership.sol";
+import {Ownable} from "../../.venv/lib/python3.12/site-packages/ethpm/assets/simple-registry/contracts/Ownable.sol";
 import {Ownable} from "./arbitrary-low-level-call.sol";
 import {Ownable} from "./erc20-public-burn.sol";
 import {CFTokenCallbackSinglePool} from "./erc20-public-transfer.sol";

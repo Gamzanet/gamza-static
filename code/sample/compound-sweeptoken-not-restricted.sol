@@ -1,6 +1,6 @@
 pragma solidity ^0.5.16;
 
-import {EIP20Interface, EIP20NonStandardInterface} from "./compound-borrowfresh-reentrancy.sol";
+import {CTokenStorage, EIP20Interface, EIP20NonStandardInterface, CTokenAdminStorage} from "./compound-borrowfresh-reentrancy.sol";
 
 interface CompLike {
     function delegate(address delegatee) external;

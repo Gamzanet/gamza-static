@@ -3,16 +3,7 @@
 // (c) Gearbox Holdings, 2021
 pragma solidity ^0.7.4;
 
-import {ReentrancyGuard} from "../foundry/lib/v4-core/lib/openzeppelin-contracts/contracts/utils/ReentrancyGuard.sol";
-import {ReentrancyGuard} from "../foundry/lib/v4-core/lib/solmate/src/utils/ReentrancyGuard.sol";
-import {ReentrancyGuard} from "../foundry/lib/v4-periphery/lib/permit2/lib/openzeppelin-contracts/contracts/security/ReentrancyGuard.sol";
-import {ReentrancyGuard} from "../foundry/lib/v4-periphery/lib/permit2/lib/solmate/src/utils/ReentrancyGuard.sol";
-import {ReentrancyGuard} from "../foundry/lib/v4-periphery/lib/v4-core/lib/openzeppelin-contracts/contracts/utils/ReentrancyGuard.sol";
-import {ReentrancyGuard} from "../foundry/lib/v4-periphery/lib/v4-core/lib/solmate/src/utils/ReentrancyGuard.sol";
-import {ReentrancyGuard} from "../lib/parser/code/erc721-arbitrary-transferfrom.sol";
-import {ReentrancyGuard} from "../lib/parser/code/rigoblock-missing-access-control.sol";
 import {ReentrancyGuard} from "./erc721-arbitrary-transferfrom.sol";
-import {ReentrancyGuard} from "./rigoblock-missing-access-control.sol";
 
 pragma abicoder v2;
 

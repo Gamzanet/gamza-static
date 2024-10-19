@@ -18,6 +18,7 @@ def format_code(_path: str) -> str:
         print("Code formatted properly")
     return diff
 
+
 def store_unichain_contract(_address: str) -> str:
     """
     Get the source unichain of an address.
