@@ -31,7 +31,7 @@ def store_unichain_contract(_address: str) -> str:
     return _paths[0]
 
 
-def compile_slither(_path: str) -> list[str]:
+def lint_code(_path: str) -> list[str]:
     """
     Compile the contract using slither.
     :param _path: The path to the contract to compile.
@@ -50,7 +50,7 @@ def compile_slither(_path: str) -> list[str]:
 if __name__ == "__main__":
     _address: str = "0x38EB8B22Df3Ae7fb21e92881151B365Df14ba967"
     _path = store_unichain_contract(_address)
-    [_stdout, _stderr] = compile_slither(_path)
+    [_stdout, _stderr] = lint_code(_path)
     format_code(_path)
     print(_stdout)
     print(_stderr)

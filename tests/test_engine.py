@@ -12,7 +12,7 @@ def test_compile_slither():
     layer_0.store_remappings(_address)
     layer_0.store_foundry_toml()
 
-    res: list[str] = layer_0.compile_slither(_path)
+    res: list[str] = layer_0.lint_code(_path)
     print(res[0])  # stderr
     assert "INFO:Detectors:" in res[0]
 

@@ -22,7 +22,7 @@ def test_integration():
     # print(_diff)
 
     # linting the target contract recursively lints all dependencies
-    _res: list[str] = layer_0.compile_slither(_paths[0])
+    _res: list[str] = layer_0.lint_code(_paths[0])
     # print(res)
 
     # to run semgrep rules,

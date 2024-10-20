@@ -74,12 +74,6 @@ def emacs_tuple_to_dict(_tuple: tuple, _msg_schema: list):
     # log:      'contract ExampleHook is BaseHook {',
     # message:  'ExampleHook | $SIG | $IMPL')
     _key = _msg_schema
-    # _value = map(str.strip, _tuple[3].split("|"))
-    # _value = re.findall(r"([\S\s]+?)\s+\|", _tuple[3], flags=re.MULTILINE)
-    # print("tuple[0]:", _tuple[0])
-    # print("tuple[1]:", _tuple[1])
-    # print("tuple[2]:", _tuple[2])
-    # print("tuple[3]:", _tuple[3])
 
     _value = re.split(r"\|\s+", _tuple[3], flags=re.MULTILINE)
     _value = map(str.strip, _value)
