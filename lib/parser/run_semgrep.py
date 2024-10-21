@@ -30,14 +30,19 @@ def parse_message_schema(_msg_schema: str):
 
 
 # CLI: npm run case2
-def run_semgrep(_rule_name: str, _target_path: str = "code") -> str:
+def run_semgrep(_rule_name: str, _target_path: str = "code") -> list[tuple]:
+
     # semgrep scan -f rules/misconfigured-Hook.yaml code --emacs
-    print(_rule_name, _target_path)
-    res = subprocess.run(["semgrep", "scan", "-f", f"rules/{_rule_name}.yaml", _target_path, "--emacs"],
-                         capture_output=True)
-    res = res.stdout.decode("utf-8")
-    # print(res)
-    return res
+    res = subprocess.run(
+        ["semgrep", "scan", "-f", f"rules/{_rule_name}.yaml", _target_path, "--emacs"],
+        capture_output=True
+    ).stdout.decode("utf-8")
+
+    parsed = re.findall(
+        r"(code[\w+/]+\w+.sol:\d+:\d+):(\S+):([ \S]+):([\w(),.$=> |\n]*)(?=code)\b",
+        res, flags=re.MULTILINE)
+
+    return parsed
 
 
 def get_semgrep_output(_rule_name: str, _target_path: str = "code", use_cache: bool = False) -> list:
@@ -51,17 +56,13 @@ def get_semgrep_output(_rule_name: str, _target_path: str = "code", use_cache: b
         except FileNotFoundError:
             pass
 
-    _output = []
-    res = run_semgrep(_rule_name, _target_path)
-    # print("_res:", res)
-    res = re.findall(r"(code[\w+/]+\w+.sol:\d+:\d+):(\S+):([ \S]+):([\w(),.$=> |\n]*)(?=code)\b", res,
-                     flags=re.MULTILINE)
+    res: list[tuple] = run_semgrep(_rule_name, _target_path)
 
     _msg_raw_schema = read_message_schema_by_rule_name(_rule_name)
     _msg_schema = parse_message_schema(_msg_raw_schema)
 
+    _output = []
     for r in res:
-        # r = list(map(str.strip, r))
         _output.append(emacs_tuple_to_dict(r, _msg_schema))
 
     json.dump(
