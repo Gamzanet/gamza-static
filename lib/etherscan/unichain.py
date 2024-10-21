@@ -12,7 +12,7 @@ from paths.directory import open_with_mkdir
 
 _network = "unichain"
 _cache_base = os.path.join("code", _network)
-unichain_dir: str = os.path.join("code", "unichain")
+foundry_dir: str = os.path.join("code", "unichain")
 
 
 def to_hex_address(_str: str) -> HexAddress:
