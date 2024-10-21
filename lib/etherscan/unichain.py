@@ -8,7 +8,7 @@ import os.path
 
 from eth_typing import HexAddress, HexStr
 
-from paths.directory import open_with_mkdir
+from utils.paths import open_with_mkdir
 
 _network = "unichain"
 _cache_base = os.path.join("code", _network)

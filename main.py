@@ -5,6 +5,7 @@ import sys
 _path_lib = os.path.abspath(os.path.join(os.path.dirname(__file__), "lib"))
 sys.path.append(_path_lib)
 
+from utils.paths import rule_rel_path_by_name
 from engine import layer_0
 from etherscan.unichain import store_foundry_toml, store_remappings, store_all_dependencies, foundry_dir
 from parser.layer_2 import get_variables
@@ -30,15 +31,15 @@ def test_integration():
     # path needs to start with "code"
     _target_path = os.path.join(foundry_dir, _paths[0])
 
-    _output_l: list = get_semgrep_output(
-        "best-practice/misconfigured-Hook",
+    _output_l1: list = get_semgrep_output(
+        rule_rel_path_by_name("misconfigured-Hook"),
         _target_path,
         False
     )
     # pprint(_output_l)
 
-    _output_l: list = get_semgrep_output(
-        "info/info-variable",
+    _output_l2: list = get_semgrep_output(
+        rule_rel_path_by_name("info-variable"),
         _target_path,
         False
     )
@@ -46,6 +47,10 @@ def test_integration():
 
     _output_d: dict = get_variables(_target_path)
     # pprint(_output_d)
+
+    assert len(_output_l1) > 0
+    assert len(_output_l2) > 0
+    assert _output_d != {}
 
 
 if __name__ == "__main__":

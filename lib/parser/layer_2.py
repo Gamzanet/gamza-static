@@ -4,6 +4,7 @@ from pprint import pprint
 from jmespath import search
 
 from parser.run_semgrep import get_semgrep_output
+from utils.paths import rule_rel_path_by_name
 
 
 def is_valid_hook(_target_path="code/1.sol"):
@@ -55,7 +56,9 @@ def get_modifiers(_target_path="code/3.sol"):
 
 
 def get_variables(_target_path="code/0xe8e23e97fa135823143d6b9cba9c699040d51f70.sol"):
-    output: list[dict] = get_semgrep_output("info/info-variable", _target_path)
+    output: list[dict] = get_semgrep_output(
+        rule_rel_path_by_name("info-variable"),
+        _target_path)
     # print(output)
     output = search("[*].data", output)
     # print(output)
@@ -153,8 +156,3 @@ def classify_variables(_var: dict) -> dict:
         _base["VISIBLE"] = _var["VISIBLE"] if _var["VISIBLE"] else "internal"
 
     return _base
-
-
-if __name__ == '__main__':
-    _vars = get_variables("code/0xe8e23e97fa135823143d6b9cba9c699040d51f70.sol")
-    pprint(_vars)
