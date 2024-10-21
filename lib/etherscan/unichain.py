@@ -5,9 +5,10 @@ The source code is fetched from the Unichain Blockscout API and stored in the co
 
 import os.path
 from json import JSONDecodeError
-from typing import TextIO
 
 from eth_typing import HexAddress, HexStr
+
+from paths.directory import open_with_mkdir
 
 _network = "unichain"
 _cache_base = os.path.join("code", _network)
@@ -75,11 +76,6 @@ def store_all_dependencies(_address: str) -> list[str]:
     return _keys
 
 
-def open_with_mkdir(file_path: str, mode: str) -> TextIO:
-    os.makedirs(os.path.dirname(file_path), exist_ok=True)
-    return open(file_path, mode)
-
-
 def store_remappings(_address: str) -> list[str]:
     """
     Store the remappings of a contract
@@ -117,11 +113,3 @@ def store_foundry_toml() -> None:
             f.write(_toml_content)
     except FileExistsError:
         pass
-
-
-if __name__ == "__main__":
-    # address = "0x38EB8B22Df3Ae7fb21e92881151B365Df14ba967"  # Uniswap v4 PoolManager in unichain
-    # TODO: recursively map implementation contracts if given address is a proxy contract
-    address = "0x2880aB155794e7179c9eE2e38200202908C17B43"  # Pyth proxy contract in unichain
-    keys = store_all_dependencies(address)
-    assert len(keys) > 0

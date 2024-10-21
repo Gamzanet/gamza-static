@@ -5,6 +5,8 @@ import subprocess
 import yaml
 from jmespath import search
 
+from paths.directory import open_with_mkdir
+
 
 # save variable context
 # rule should be in the `rules` directory
@@ -14,7 +16,7 @@ def read_message_schema_by_rule_name(_rule_name: str):
             file = f.read()
             res = yaml.safe_load(file)
             res = search("rules[0].message", res)
-            print("read_message_schema_by_rule_name:", res)
+            # print("read_message_schema_by_rule_name:", res)
             return res
     except FileNotFoundError:
         raise FileNotFoundError(f"rules/{_rule_name}.yaml not found")
@@ -62,8 +64,10 @@ def get_semgrep_output(_rule_name: str, _target_path: str = "code", use_cache: b
         # r = list(map(str.strip, r))
         _output.append(emacs_tuple_to_dict(r, _msg_schema))
 
-    with open(f"out/{_json_file_name}", "w") as f:
-        json.dump({"data": _output}, f)
+    json.dump(
+        {"data": _output},
+        open_with_mkdir(f"out/{_json_file_name}", "w")
+    )
 
     return _output
 
@@ -91,7 +95,7 @@ def emacs_tuple_to_dict(_tuple: tuple, _msg_schema: list):
 
 
 if __name__ == "__main__":
-    output = get_semgrep_output("info-variable",
+    output = get_semgrep_output("info/info-variable",
                                 "code/0xe8e23e97fa135823143d6b9cba9c699040d51f70.sol",
                                 use_cache=False)  # get the output of the semgrep analysis
     # for e in output:
