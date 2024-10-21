@@ -1,0 +1,7 @@
+{
+    "root": "processed",
+    "class": {
+        "misconfigured-Hook": "best-practice",
+        "missing-poolManager": "security"
+    }
+}
