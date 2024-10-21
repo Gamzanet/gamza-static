@@ -55,7 +55,7 @@ def get_modifiers(_target_path="code/3.sol"):
 
 
 def get_variables(_target_path="code/0xe8e23e97fa135823143d6b9cba9c699040d51f70.sol"):
-    output: list[dict] = get_semgrep_output("info-variable", _target_path)
+    output: list[dict] = get_semgrep_output("info/info-variable", _target_path)
     # print(output)
     output = search("[*].data", output)
     # print(output)

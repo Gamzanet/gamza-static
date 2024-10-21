@@ -7,7 +7,10 @@ def test_misconfigured_hook():
     _cur_dir = os.getcwd()
     os.chdir(os.path.dirname(os.path.dirname(__file__)))
     # TODO: supports absolute path file reference
-    output: list = get_semgrep_output("misconfigured-Hook", "code/0xe8e23e97fa135823143d6b9cba9c699040d51f70.sol")
+    output: list = get_semgrep_output(
+        "security/misconfigured-Hook",
+        "code/0xe8e23e97fa135823143d6b9cba9c699040d51f70.sol"
+    )
     print(output)
     os.chdir(_cur_dir)
     assert len(output) >= 1
@@ -18,7 +21,7 @@ def test_basic():
     os.chdir(os.path.dirname(os.path.dirname(__file__)))
 
     _input: list[dict] = get_semgrep_output(
-        "info-variable",
+        "info/info-variable",
         "code/0xe8e23e97fa135823143d6b9cba9c699040d51f70.sol",
         use_cache=False
     )
