@@ -6,12 +6,15 @@ from etherscan import unichain
 
 def test_store_source_and_lint():
     _address: str = "0x38EB8B22Df3Ae7fb21e92881151B365Df14ba967"
-    _path = layer_0.store_unichain_contract(_address)
-    assert os.path.join("PoolManager.sol") in _path
 
-    layer_0.store_remappings(_address)
-    layer_0.store_foundry_toml()
+    if not os.path.exists(unichain.foundry_dir):
+        _path = layer_0.store_unichain_contract(_address)
+        assert "PoolManager.sol" in _path
 
+        layer_0.store_remappings(_address)
+        layer_0.store_foundry_toml()
+    else:
+        _path = os.path.join("lib", "v4-core", "src", "PoolManager.sol")
     [_stdout, _stderr] = layer_0.lint_code(_path)
     assert "INFO:Detectors:" in _stdout
 

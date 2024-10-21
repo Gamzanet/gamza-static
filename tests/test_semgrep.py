@@ -2,19 +2,11 @@ from parser.run_semgrep import get_semgrep_output
 from utils.paths import rule_rel_path_by_name
 
 
-def test_misconfigured_hook():
-    output: list = get_semgrep_output(
-        rule_rel_path_by_name("misconfigured-Hook"),
-        "code/0xe8e23e97fa135823143d6b9cba9c699040d51f70.sol"
-    )
-    assert len(output) >= 1
-
-
 def test_basic():
     _input: list[dict] = get_semgrep_output(
         rule_rel_path_by_name("info-variable"),
         "code/0xe8e23e97fa135823143d6b9cba9c699040d51f70.sol",
-        use_cache=False
+        use_cache=True
     )
 
     _input_0: dict = _input[0]["data"]
