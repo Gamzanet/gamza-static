@@ -8,7 +8,7 @@ def test_misconfigured_hook():
     os.chdir(os.path.dirname(os.path.dirname(__file__)))
     # TODO: supports absolute path file reference
     output: list = get_semgrep_output(
-        "security/misconfigured-Hook",
+        "best-practice/misconfigured-Hook",
         "code/0xe8e23e97fa135823143d6b9cba9c699040d51f70.sol"
     )
     print(output)

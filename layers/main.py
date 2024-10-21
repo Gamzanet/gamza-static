@@ -31,14 +31,14 @@ def test_integration():
     _target_path = os.path.join(foundry_dir, _paths[0])
 
     _output_l: list = get_semgrep_output(
-        "misconfigured-Hook",
+        "best-practice/misconfigured-Hook",
         _target_path,
         False
     )
     # pprint(_output_l)
 
     _output_l: list = get_semgrep_output(
-        "info-variable",
+        "info/info-variable",
         _target_path,
         False
     )
