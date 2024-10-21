@@ -3,8 +3,8 @@ This module is used to fetch the source code of a contract from the Unichain net
 The source code is fetched from the Unichain Blockscout API and stored in the code/unichain directory.
 """
 
+import json
 import os.path
-from json import JSONDecodeError
 
 from eth_typing import HexAddress, HexStr
 
@@ -24,18 +24,28 @@ def to_hex_address(_str: str) -> HexAddress:
     return HexAddress(HexStr(_str))
 
 
-def get_contract_json(_address: HexAddress) -> dict:
+def get_contract_json(_address: HexAddress | str) -> dict:
     """
     Get the json object of a contract
     :param _address: address of the contract
     :return: API JSON response
     """
-    _api_endpoint = "https://unichain-sepolia.blockscout.com/api/v2/smart-contracts/"
-    import requests
-    return requests.get(
-        f"{_api_endpoint}{_address}",
-        headers={"Content-Type": "application/json", "Cache-Control": "public"},
-    ).json()
+    _address: HexAddress = to_hex_address(_address)
+    _file_path = os.path.join(_cache_base, "json", f"{_address}.json")
+    try:
+        # force cache, since no need to fetch the same contract source code multiple times
+        with open(_file_path, "r") as j:
+            _json = json.load(j)
+    except (FileNotFoundError, json.JSONDecodeError):
+        with open_with_mkdir(_file_path, "w") as j:
+            _api_endpoint = "https://unichain-sepolia.blockscout.com/api/v2/smart-contracts/"
+            import requests
+            _json = requests.get(
+                f"{_api_endpoint}{_address}",
+                headers={"Content-Type": "application/json", "Cache-Control": "public"},
+            ).json()
+            json.dump(_json, j)
+    return _json
 
 
 def store_all_dependencies(_address: str) -> list[str]:
@@ -44,18 +54,9 @@ def store_all_dependencies(_address: str) -> list[str]:
     :param _address: address of the contract
     :return: paths where the source code is stored
     """
-    _address = to_hex_address(_address)
+    _address: HexAddress = to_hex_address(_address)
     _file_path = os.path.join(_cache_base, "json", f"{_address}.json")
-
-    # force cache, since no need to fetch the same contract source code multiple times
-    import json
-    try:
-        with open(_file_path, "r") as j:
-            _json = json.load(j)
-    except (FileNotFoundError, JSONDecodeError):
-        with open_with_mkdir(_file_path, "w") as j:
-            _json = get_contract_json(_address)
-            json.dump(_json, j)
+    _json = get_contract_json(_address)
 
     try:
         _keys = [_json["file_path"]]
