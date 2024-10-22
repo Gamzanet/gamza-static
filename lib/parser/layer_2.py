@@ -55,13 +55,16 @@ def get_modifiers(_target_path="code/3.sol"):
     return res
 
 
-def get_variables(_target_path="code/0xe8e23e97fa135823143d6b9cba9c699040d51f70.sol"):
+def get_variables(_target_path="code/0xe8e23e97fa135823143d6b9cba9c699040d51f70.sol") -> dict[str, list[dict]]:
+    """
+    Get the variables of the contract.
+    :rtype: dict[str, list[dict]]
+    :returns: { $variableName: [{ 'NAME', 'SIG', 'SCOPE', 'LOCATION', 'VISIBLE', 'TYPE', 'MUTABLE' }, ...], ... }
+    """
     output: list[dict] = get_semgrep_output(
         rule_rel_path_by_name("info-variable"),
         _target_path, use_cache=True)
-    # print(output)
     output = search("[*].data", output)
-    # print(output)
 
     processed: list[dict] = []
     for o in output:
@@ -156,3 +159,49 @@ def classify_variables(_var: dict) -> dict:
         _base["VISIBLE"] = _var["VISIBLE"] if _var["VISIBLE"] else "internal"
 
     return _base
+
+
+# ---------- END OF GET_VARIABLES() RELATED FUNCTIONS ---------- #
+# TODO: encapsulate customized Layer-2 rules into a class
+
+def detect_storage_overwrite_in_multi_pool_initialization(
+    _target_path="code/4.sol"
+) -> dict:
+    _target_functions = {"beforeInitialize", "afterInitialize"}
+    _storage_candidates = dict()
+
+    # 1. add candidates from info-variables
+    variables: dict[str, list[dict]] = get_variables(_target_path)
+    # out = search("@.*[].{NAME:NAME}", variables) # TODO: use JMESPath
+    # pprint(out)
+    for name, usages in variables.items():
+        for usage in usages:
+            # mutable storage variables
+            # add type to the key for later validation
+            if usage["LOCATION"] == "storage" or usage["SCOPE"] == "storage":
+                if usage["MUTABLE"] == "mutable":
+                    key = f"{usage['SIG']}:{usage['NAME']}"
+                    _storage_candidates[key] = usage["TYPE"]
+
+    # TODO: Refactor the following code to a function
+    # 2. get info-layer2-assignee
+    output: list = get_semgrep_output(
+        rule_rel_path_by_name("info-layer2-assignee"),
+        _target_path, use_cache=True)
+    output = search("[*].data", output)
+    for o in output:
+        if o["SIG"] in _target_functions:
+            key = f"{o['CONTRACT']}:{o['LVALUE']}"
+            if key in _storage_candidates.keys():
+                _type = _storage_candidates[key]
+                # TODO: type_check discussion
+                for type_check in ["PoolId", "mapping"]:
+                    if type_check in _type:
+                        continue
+                return {
+                    "CONTRACT": o["CONTRACT"],
+                    "LVALUE": o["LVALUE"],
+                    "TYPE": _type,
+                    "SIG": o["SIG"],
+                }
+    return {}
