@@ -1,0 +1,30 @@
+rules:
+  - id: info-access-control
+    languages:
+      - solidity
+    severity: ERROR
+    message: $CONTRACT |&| $SIG |&| $METHOD |&| $COND |;|
+    pattern-either:
+      - patterns:
+          - pattern-inside: contract $CONTRACT { ... ... ... }
+          - pattern-inside: function $SIG ( ... ) { ... ... ... }
+          - pattern-not-inside: if ( ... ) { ... ... ... }
+          - pattern-either:
+              - pattern-regex: |-
+                  (?P<METHOD>assert)\s*\((?P<COND>[\S ]+?)\);
+              - pattern-regex: |-
+                  (?<METHOD>require)\s*\((?<COND>[\S\s]+?)[,\);]
+              - pattern-regex: |-
+                  (?P<METHOD>revert)\s*\((?:[\S ]+?)\);
+      - patterns:
+          - pattern-inside: contract $CONTRACT { ... ... ... }
+          - pattern-inside: function $SIG ( ... ) { ... ... ... }
+          - pattern-inside: if ( ... ) { ... ... ... }
+          - pattern-regex: |-
+              if\s+\((?<COND>[\S\s]+?)\)\s*\{[\s\S]+?\}
+          - pattern-regex: |-
+              (?P<METHOD>revert)\(
+    metadata:
+      category: maintainability
+      technology:
+        - solidity

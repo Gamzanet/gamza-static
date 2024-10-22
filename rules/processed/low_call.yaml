@@ -1,0 +1,26 @@
+rules:
+  - id: low_call
+    message: low call detected | $FUNC_NAME | $TARGET
+    metadata:
+      category: security
+      technology:
+        - solidity
+      cwe: "CWE-841: Improper Enforcement of Behavioral Workflow"
+      confidence: HIGH
+      likelihood: HIGH
+      impact: HIGH
+      subcategory:
+        - audit
+      references:
+        - https://swcregistry.io/docs/SWC-107
+        - https://consensys.github.io/smart-contract-best-practices/attacks/reentrancy/
+    patterns:
+      - pattern-inside: function $TARGET(...) { ... }
+      - pattern-either:
+          - pattern: address(...).call(abi.encodeWithSignature($FUNC_NAME));
+          - pattern: address(...).call(abi.encodeWithSelector(this.$FUNC_NAME.selector));
+          - pattern: address(...).delegatecall(abi.encodeWithSignature($FUNC_NAME))
+          - pattern: address(...).delegatecall(abi.encodeWithSelector(this.$FUNC_NAME.selector))
+    languages:
+      - solidity
+    severity: WARNING

@@ -1,6 +1,6 @@
 rules:
   - id: misconfigured-Hook
-    message: $CONTRACT | $SIG | $IMPL
+    message: $CONTRACT |&| $SIG |&| $IMPL |;|
     languages:
       - solidity
     severity: WARNING

@@ -1,6 +1,6 @@
 rules:
   - id: info-library
-    message: $CONTRACT | $LIBRARY | $FOR
+    message: $CONTRACT |&| $LIBRARY |&| $FOR |;|
     languages:
       - solidity
     severity: INFO

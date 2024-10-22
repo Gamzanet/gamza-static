@@ -1,6 +1,6 @@
 rules:
   - id: info-inheritance
-    message: $CONTRACT | $INHERIT
+    message: $CONTRACT |&| $INHERIT |;|
     languages:
       - solidity
     severity: INFO
