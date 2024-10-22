@@ -7,8 +7,8 @@
         "test": "pytest",
         "case1": "semgrep scan -f rules/misconfigured-Hook.yaml .",
         "case2": "semgrep scan -f rules/misconfigured-Hook.yaml code --emacs",
-        "case3": "semgrep scan -f rules/missing-poolManagerOnly-modifier.yaml .",
-        "case4": "semgrep scan -f rules/missing-poolManagerOnly-modifier.yaml code",
+        "case3": "semgrep scan -f rules/processed/info/info-layer2-assignee.yaml code/4.sol",
+        "case4": "semgrep scan -f rules/processed/info/info-variable.yaml code/4.sol",
         "case5": "semgrep scan -f rules/info-function.yaml code/0xe8e23e97fa135823143d6b9cba9c699040d51f70.sol",
         "case6": "semgrep scan -f rules/info-variable.yaml code/0xe8e23e97fa135823143d6b9cba9c699040d51f70.sol",
         "prepare": "husky"
