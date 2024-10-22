@@ -1,35 +1,45 @@
 import os
 
 from engine import layer_0
-from etherscan.unichain import unichain_dir
+from etherscan import unichain
 
 
-def test_compile_slither():
+def test_store_source_and_lint():
     _address: str = "0x38EB8B22Df3Ae7fb21e92881151B365Df14ba967"
-    _path = layer_0.store_unichain_contract(_address)
-    assert os.path.join("PoolManager.sol") in _path
 
-    layer_0.store_remappings(_address)
-    layer_0.store_foundry_toml()
+    if not os.path.exists(unichain.foundry_dir):
+        _path = layer_0.store_unichain_contract(_address)
+        assert "PoolManager.sol" in _path
 
-    res: list[str] = layer_0.compile_slither(_path)
-    print(res[0])  # stderr
-    assert "INFO:Detectors:" in res[0]
+        layer_0.store_remappings(_address)
+        layer_0.store_foundry_toml()
+    else:
+        _path = os.path.join("lib", "v4-core", "src", "PoolManager.sol")
+    [_stdout, _stderr] = layer_0.lint_code(_path)
+    assert "INFO:Detectors:" in _stdout
 
 
 def test_format():
-    _address = "0x2880aB155794e7179c9eE2e38200202908C17B43"  # Pyth proxy contract in unichain
-    # get contract dependencies
-    _path = layer_0.store_unichain_contract(_address)
-    print()
-    print(_path)
-
-    _file = os.path.join(unichain_dir, _path)
-    assert open(_file).read()  # check if the source code successfully stored
+    dirty_code = """// SPDX-License-Identifier: MIT
+    pragma solidity ^0.8.0;contract ExampleHook is BaseHook,
+    someOtherContract {function getHookPermissions()public pure
+    override returns (Hooks.Permissions memory){return
+    Hooks.Permissions({beforeInitialize: true,afterInitialize: true,
+    beforeSwap: false,afterSwap: true,beforeAddLiquidity: true,
+    afterAddLiquidity: true,beforeRemoveLiquidity: true,
+    afterRemoveLiquidity: true,beforeDonate: true,afterDonate: true
+    });}}"""
+    _file = "ExampleHook.sol"
+    _path = os.path.join(unichain.foundry_dir, _file)
+    with open(_path, "w") as f:
+        f.write(dirty_code)
 
     # check if the source code not formatted
-    layer_0.format_code(_file)
+    diff = layer_0.format_code(_path)
+    assert diff  # check if the source code successfully formatted
 
-    # format the source code
-    # check if the source code formatted
-    assert True
+
+def test_forge_clone():
+    # _address = "0x2880aB155794e7179c9eE2e38200202908C17B43"  # Pyth proxy contract in unichain
+    # get contract dependencies
+    pass
