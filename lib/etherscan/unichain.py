@@ -102,13 +102,12 @@ def store_foundry_toml() -> None:
     """
     Store the foundry toml
     """
-    _toml_content: str = """
-    [profile.default]
-    src = "src"
-    out = "out"
-    libs = ["lib"]
-    evm-version = "cancun"
-    """
+    _toml_content: str = """[profile.default]
+src = "src"
+out = "out"
+libs = ["lib"]
+evm-version = "cancun"
+"""
     try:
         with open_with_mkdir(os.path.join(_cache_base, "foundry.toml"), "x") as f:
             f.write(_toml_content)

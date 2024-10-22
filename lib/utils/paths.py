@@ -1,5 +1,6 @@
 import json
 import os
+import subprocess
 from typing import TextIO
 
 from utils import project_root_abs
@@ -16,6 +17,18 @@ def rule_rel_path_by_name(rule_name: str) -> str:
         rules = json.load(f)
         class_name = "info" if "info-" in rule_name else rules["class"][rule_name]
         return str(os.path.join(rules["root"], class_name, f"{rule_name}.yaml"))
+
+
+def run_cli_must_succeed(_command: str, capture_output=False) -> str:
+    out = subprocess.run(_command, shell=True, capture_output=capture_output, text=True)
+    if out.returncode != 0:
+        raise RuntimeError(f"Command failed: {_command} with {out.returncode}")
+    return out.stdout
+
+
+def run_cli_can_failed(_command: str) -> tuple[str, str]:
+    out = subprocess.run(_command, shell=True, capture_output=True, text=True)
+    return out.stdout, out.stderr
 
 
 if __name__ == "__main__":

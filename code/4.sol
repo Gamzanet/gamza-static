@@ -1,37 +1,63 @@
-// SPDX-License-Identifier: MIT
-pragma solidity ^0.8.0;
+// SPDX-License-Identifier: UNLICENSED
+pragma solidity ^0.8.13;
 
-contract ExampleHook is someOtherContract, BaseHook, someOtherContract {
-    // State variables
-    string public name;
-    uint256 public value;
+contract DoubleInitHook is BaseHook {
 
-    // Constructor
-    constructor(string memory _name, uint256 _value) {
-        name = _name;
-        value = _value;
-    }
+    address public hookOperator;
+    uint256 public maxSwapCounter;
+    mapping(PoolId => uint256) public swapCounter;
 
-    function beforeSwap(address, PoolKey calldata, IPoolManager.SwapParams calldata, bytes calldata)
-    external
-    override
-    returns (bytes4, BeforeSwapDelta, uint24)
-    {
-        return (bytes4(0), BeforeSwapDelta(0, 0), 0);
-    }
+    constructor(IPoolManager _manager) BaseHook(_manager) {}
 
-    function getHookPermissions() public pure override returns (Hooks.Permissions memory){
+    function getHookPermissions() public pure override returns (Hooks.Permissions memory) {
         return Hooks.Permissions({
             beforeInitialize: true,
-            afterInitialize: true,
-            beforeSwap: true, // ok: misconfigured-Hook
-            afterSwap: true,
-            beforeAddLiquidity: true,
-            afterAddLiquidity: true,
-            beforeRemoveLiquidity: true,
-            afterRemoveLiquidity: true,
-            beforeDonate: true,
-            afterDonate: true
+            afterInitialize: false,
+            beforeAddLiquidity: false,
+            afterAddLiquidity: false,
+            beforeRemoveLiquidity: false,
+            afterRemoveLiquidity: false,
+            beforeSwap: true,
+            afterSwap: false,
+            beforeDonate: false,
+            afterDonate: false,
+            beforeSwapReturnDelta: false,
+            afterSwapReturnDelta: false,
+            afterAddLiquidityReturnDelta: false,
+            afterRemoveLiquidityReturnDelta: false
         });
     }
+
+    function beforeInitialize(
+        address sender, /* sender **/
+        PoolKey calldata, /* key **/
+        uint160, /* sqrtPriceX96 **/
+        bytes calldata /* hookData **/
+    ) external override returns (bytes4) {
+        hookOperator = sender;
+        return this.beforeInitialize.selector;
+    }
+
+    function beforeSwap(
+        address, /* sender **/
+        PoolKey calldata key, /* key **/
+        IPoolManager.SwapParams calldata, /* params **/
+        bytes calldata /* hookData **/
+    ) external override returns (bytes4, BeforeSwapDelta, uint24) {
+        swapCounter[key.toId()] += 1;
+        if (swapCounter[key.toId()] > maxSwapCounter) {
+            maxSwapCounter = swapCounter[key.toId()];
+        }
+        return (this.beforeSwap.selector, BeforeSwapDeltaLibrary.ZERO_DELTA, 0);
+    }
+
+
+    function withdrawAll() external payable {
+        require(msg.sender == hookOperator, "DoubleInitHook: not operator");
+        (bool success,) = payable(hookOperator).call{value: address(this).balance}("");
+        require(success, "DoubleInitHook: withdraw failed");
+    }
+
+    receive() external payable {}
+
 }

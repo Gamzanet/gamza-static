@@ -1,0 +1,17 @@
+rules:
+  - id: info-layer2-assignee
+    message: $CONTRACT |&| $SIG |&| $LVALUE |&| $RVALUE |;|
+    languages:
+      - solidity
+    severity: INFO
+    pattern-either:
+      - patterns: # function: assignee(l-value of =) in impl
+          - pattern-inside: contract $CONTRACT { ... ... ... }
+          - pattern-inside: function $SIG(...) { ... ... ... }
+          - pattern-regex: |- # line includes " = " which assume formatting
+              (?<LVALUE>[\w_]+) = (?<RVALUE>[\s\S]+?);
+
+# = 말고도 +=, -=, *=, /=, %=, <<=, >>=, &=, ^=, 등 다양한 assignee가 있음
+# 논리 연산자 >=, <=, ==, != 가 아니라면, =를 포함하는 assignee 고려
+# 이를 위한 패턴 추가 필요
+# 또한 storage 상태 변경을 내포하는 함수의 호출도 동일한 의미를 갖는다

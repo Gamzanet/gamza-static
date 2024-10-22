@@ -6,7 +6,7 @@ import subprocess
 import yaml
 from jmespath import search
 
-from utils.paths import open_with_mkdir
+from utils.paths import open_with_mkdir, run_cli_must_succeed
 
 
 # save variable context
@@ -24,33 +24,36 @@ def read_message_schema_by_rule_name(_rule_path: str):
         raise FileNotFoundError(f"rules/{_rule_path} not found")
 
 
-# input: $CONTRACT | $SIG | $VIS | $PAY | $PURITY | $MOD | $OVER | $RETURN
-# output: ['CONTRACT', 'SIG', 'VIS', 'PAY', 'PURITY', 'MOD', 'OVER', 'RETURN']
-def parse_message_schema(_msg_schema: str):
-    res = re.findall(r"\$(\w+)", _msg_schema, flags=re.MULTILINE)
-    return res
+# input: $CONTRACT |&| $SIG |&| $LVALUE |&| $RVALUE |;|
+# output: ['CONTRACT', 'SIG', 'LVALUE', 'RVALUE']
+def parse_message_schema(_msg_schema: str) -> list[str]:
+    return re.findall(r"\$(\w+)", _msg_schema, flags=re.MULTILINE)
 
 
 # CLI: npm run case2
 def run_semgrep_one(_rule_path: str, _target_path: str = "code") -> list[dict]:
-    # semgrep scan -f rules/misconfigured-Hook.yaml code --emacs
-    res = subprocess.run(
-        ["semgrep", "scan", "-f", f"rules/{_rule_path}", _target_path, "--emacs"],
-        capture_output=True
-    ).stdout.decode("utf-8")
-
-    parsed = re.findall(
-        r"(code[\w+/]+\w+.sol:\d+:\d+):(\S+):([ \S]+):([\w(),.$=> |\n]*)(?=code)\b",
-        res, flags=re.MULTILINE)
-
     _msg_raw_schema = read_message_schema_by_rule_name(_rule_path)
     _msg_schema = parse_message_schema(_msg_raw_schema)
+
+    arg = f"semgrep scan -f rules/{_rule_path} {_target_path} --emacs"
+    res = run_cli_must_succeed(arg, capture_output=True)
+    parsed = parse_emacs_output(res)
 
     _output = []
     for r in parsed:
         _output.append(emacs_tuple_to_dict_with_schema(r, _msg_schema))
-
     return _output
+
+
+def parse_emacs_output(_emacs: str):
+    """
+    Parse the output of the semgrep command.
+    :param _emacs: The output of the semgrep command.
+    :return: A list of tuples in sequence: (code, severity, rule, log, message)
+    """
+    return re.findall(
+        r"(^code[\S\s]+?.sol:\d+:\d+):(\S+)\((\S+)\):\s*([\S ]+):([\s\S]+?)\|;\|",
+        _emacs, flags=re.MULTILINE)
 
 
 def run_semgrep_raw_msg(_target_path: str = "code") -> list[tuple]:
@@ -90,12 +93,13 @@ def get_semgrep_output(_rule_name: str, _target_path: str = "code", use_cache: b
 
 def emacs_tuple_to_dict_with_schema(_tuple: tuple, _msg_schema: list) -> dict:
     # code:   ('code/1.sol:6:1',
-    # rule:     'warning(misconfigured-Hook-2)',
+    # severity: 'warning',
+    # rule:     'misconfigured-Hook-2',
     # log:      'contract ExampleHook is BaseHook {',
     # message:  'ExampleHook | $SIG | $IMPL')
     _key = _msg_schema
 
-    _value = re.split(r"\|\s+", _tuple[3], flags=re.MULTILINE)
+    _value = re.split(r"\s*\|&\|\s*", _tuple[4], flags=re.MULTILINE)
     _value = map(str.strip, _value)
     _data = dict(zip(_key, _value))
     # if value == ${KEY}, then replace with the value to None
@@ -104,8 +108,9 @@ def emacs_tuple_to_dict_with_schema(_tuple: tuple, _msg_schema: list) -> dict:
             _data[k] = None
     return {
         "code": _tuple[0],
-        "rule": _tuple[1],
-        "log": _tuple[2],
+        "severity": _tuple[1],
+        "rule": _tuple[2],
+        "log": _tuple[3],
         "data": _data
     }
 

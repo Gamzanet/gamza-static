@@ -1,23 +1,14 @@
 import os
 import re
-import subprocess
 
 from etherscan.unichain import store_all_dependencies, store_remappings, foundry_dir, store_foundry_toml
-
-
-def run_cli(_command: str, capture_output=False) -> str | None:
-    return subprocess.run(_command, shell=True, capture_output=capture_output, text=True).stdout
+from utils.paths import run_cli_must_succeed, run_cli_can_failed
 
 
 def format_code(_path: str) -> str:
-    diff: str = run_cli(f"forge fmt {_path} --check", True)
-    # print(diff)
-    if len(diff) > 0:
-        # print("Code not formatted properly")
-        run_cli(f"forge fmt {_path}", False)
-    else:
-        # print("Code formatted properly")
-        pass
+    diff = run_cli_can_failed(f"forge fmt {_path} --check")[0]
+    if diff:
+        run_cli_must_succeed(f"forge fmt {_path}")
     return diff
 
 
@@ -33,7 +24,7 @@ def store_unichain_contract(_address: str) -> str:
     return _paths[0]
 
 
-def lint_code(_rel_path: str) -> list[str]:
+def lint_code(_rel_path: str) -> tuple[str, str]:
     """
     Compile the contract using slither.
     :param _rel_path: The relative path to the contract to compile.
@@ -42,12 +33,9 @@ def lint_code(_rel_path: str) -> list[str]:
     _origin_dir = os.getcwd()
     os.chdir(foundry_dir)
     set_solc_version_by_sol(_rel_path)
-    _res = subprocess.run([
-        "slither",
-        _rel_path,
-    ], capture_output=True, encoding="utf-8")
+    _res = run_cli_can_failed(f"slither {_rel_path}")
     os.chdir(_origin_dir)
-    return [_res.stderr, _res.stdout]
+    return _res
 
 
 def set_solc_version_by_sol(_path: str) -> str:
@@ -58,16 +46,20 @@ def set_solc_version_by_sol(_path: str) -> str:
     """
     with open(_path, "r") as f:
         _content = f.read()
-        _version = re.search(r"pragma\s+solidity\s+(?:\W+)?([\d.]+);", _content).group(1)
-        set_solc_version(_version)
-        return _version
+    return set_solc_version_by_content(_content)
+
+
+def set_solc_version_by_content(_content: str) -> str:
+    _version = re.search(r"pragma\s+solidity\s+(?:\W+)?([\d.]+);", _content).group(1)
+    set_solc_version(_version)
+    return _version
 
 
 def set_solc_version(_version: str) -> None:
-    is_installed = re.search(_version, run_cli(
+    is_installed = re.search(_version, run_cli_must_succeed(
         "solc-select versions",
         capture_output=True
     ))
     if not is_installed:
-        run_cli(f"solc-select install {_version}")
-    run_cli(f"solc-select use {_version}")
+        run_cli_must_succeed(f"solc-select install {_version}")
+    run_cli_must_succeed(f"solc-select use {_version}")

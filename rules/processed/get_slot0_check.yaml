@@ -1,0 +1,16 @@
+rules:
+  - id: get_slot0_check
+    message: using getSlot0 | $OBJ | $TARGET
+    metadata:
+      category: security
+      technology:
+        - solidity
+      subcategory:
+        - audit
+    patterns:
+      - pattern-inside: function $TARGET(...) { ... }
+      - pattern-either:
+          - pattern: $OBJ.getSlot0(...)
+    languages:
+      - solidity
+    severity: INFO
