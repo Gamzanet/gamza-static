@@ -16,7 +16,8 @@ def test_store_source_and_lint():
     else:
         _path = os.path.join("lib", "v4-core", "src", "PoolManager.sol")
     [_stdout, _stderr] = layer_0.lint_code(_path)
-    assert "INFO:Detectors:" in _stdout
+    assert "INFO:Detectors:" in _stderr
+    print(_stdout, _stderr)
 
 
 def test_format():
@@ -43,3 +44,14 @@ def test_forge_clone():
     # _address = "0x2880aB155794e7179c9eE2e38200202908C17B43"  # Pyth proxy contract in unichain
     # get contract dependencies
     pass
+
+
+def test_set_solc_version():
+    _expect = "0.8.28"
+    _content = f"""// SPDX-License-Identifier: UNLICENSED
+    pragma solidity >={_expect}; contract DoubleInitHook is BaseHook {{}}"""
+    _version = layer_0.set_solc_version_by_content(_content)
+    assert _version == _expect
+    layer_0.set_solc_version(_version)
+    _out = layer_0.run_cli_must_succeed("solc-select versions", capture_output=True)
+    assert f"{_expect} (current, set by" in _out
