@@ -1,23 +1,14 @@
 import os
 import re
-import subprocess
 
 from etherscan.unichain import store_all_dependencies, store_remappings, foundry_dir, store_foundry_toml
-
-
-def run_cli(_command: str, capture_output=False) -> str | None:
-    return subprocess.run(_command, shell=True, capture_output=capture_output, text=True).stdout
+from utils.paths import run_cli_must_succeed, run_cli_can_failed
 
 
 def format_code(_path: str) -> str:
-    diff: str = run_cli(f"forge fmt {_path} --check", True)
-    # print(diff)
-    if len(diff) > 0:
-        # print("Code not formatted properly")
-        run_cli(f"forge fmt {_path}", False)
-    else:
-        # print("Code formatted properly")
-        pass
+    diff = run_cli_can_failed(f"forge fmt {_path} --check")[0]
+    if diff:
+        run_cli_must_succeed(f"forge fmt {_path}")
     return diff
 
 
