@@ -1,4 +1,5 @@
 import os
+import re
 import subprocess
 
 from etherscan.unichain import store_all_dependencies, store_remappings, foundry_dir, store_foundry_toml
@@ -32,17 +33,41 @@ def store_unichain_contract(_address: str) -> str:
     return _paths[0]
 
 
-def lint_code(_path: str) -> list[str]:
+def lint_code(_rel_path: str) -> list[str]:
     """
     Compile the contract using slither.
-    :param _path: The path to the contract to compile.
+    :param _rel_path: The relative path to the contract to compile.
     :return: The output of the compilation.
     """
     _origin_dir = os.getcwd()
     os.chdir(foundry_dir)
+    set_solc_version_by_sol(_rel_path)
     _res = subprocess.run([
         "slither",
-        _path,
+        _rel_path,
     ], capture_output=True, encoding="utf-8")
     os.chdir(_origin_dir)
     return [_res.stderr, _res.stdout]
+
+
+def set_solc_version_by_sol(_path: str) -> str:
+    """
+    Set the solc version from the solidity file.
+    :param _path: The path to the solidity file.
+    :return: The version of the solidity file.
+    """
+    with open(_path, "r") as f:
+        _content = f.read()
+        _version = re.search(r"pragma\s+solidity\s+(?:\W+)?([\d.]+);", _content).group(1)
+        set_solc_version(_version)
+        return _version
+
+
+def set_solc_version(_version: str) -> None:
+    is_installed = re.search(_version, run_cli(
+        "solc-select versions",
+        capture_output=True
+    ))
+    if not is_installed:
+        run_cli(f"solc-select install {_version}")
+    run_cli(f"solc-select use {_version}")
