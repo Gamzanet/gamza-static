@@ -28,3 +28,6 @@ rules:
       category: maintainability
       technology:
         - solidity
+
+# TODO: modifier detection
+# 함수랑 연결시켜서 ACL 정보 정리하기

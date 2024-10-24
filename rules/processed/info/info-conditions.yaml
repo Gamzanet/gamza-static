@@ -1,0 +1,23 @@
+rules:
+  - id: info-function
+    message: $CONTRACT |&| $SIG |&| $METHOD |&| $COND |&| $IMPL |;|
+    languages:
+      - solidity
+    severity: INFO
+    pattern-either:
+      - patterns:
+          - pattern-inside: |
+              contract $CONTRACT { ... ... ... }
+          - pattern-inside: |
+              function $SIG ( ... ) { ... ... ... }
+          - pattern-inside: |
+              if (...) { ... ... ... }
+          - pattern-regex: |-
+              (?P<METHOD>else|if)\s*\((?P<COND>[\S\s]+?)\)\s*(?P<IMPL>\{[\s\S]+?\})
+      - patterns:
+          - pattern-inside: |
+              contract $CONTRACT { ... ... ... }
+          - pattern-inside: |
+              function $SIG ( ... ) { ... ... ... }
+          - pattern-regex: |-
+              (?P<METHOD>else)\s*\{(?P<IMPL>[\s\S]+?)\}
