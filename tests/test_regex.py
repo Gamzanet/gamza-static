@@ -29,17 +29,18 @@ def test_parse_if_else():
         .replace("assert", "$asrt$")
         .replace("revert()", "$revX$")
         .replace("revert", "$rev$")
-        # .replace("()", "")
     )
 
     pattern = r"\$\w+\$\s*\([\s\S]+?\)\;|[\{\}]|\$\w+\$"
     _given = "\n".join(re.findall(pattern, _given))
     _given = re.sub(r"\$rev\$[\s\S]+?;", "$revX$;", _given)
+    _given = re.sub(r",\s*\"[\w ]+\"", "", _given)
 
-    print(_given)
+    # print(_given)
 
     _given = (
         _given
+        .replace(";", "")
         .replace("$req$", "\nrequire\n")
         .replace("$asrt$", "\nassert\n")
         .replace("$rev$", "\nrevert\n")
@@ -58,7 +59,7 @@ def test_parse_if_else():
     stack = ConditionStack()
     for line in _given:
         if line != "":
-            print(line)
+            # print(line)
             stack_dump = stack.__str__()
             stack.push(line.strip())
             if stack_dump != stack.__str__():
@@ -89,7 +90,7 @@ class ConditionStack:
         if item == "{":
             if not self.is_condition(self.peek()) and self.peek() != "else":
                 return False
-        if item == "}" and self.is_empty():
+        if item == "}" and (self.is_empty() or self.peek() != "{"):
             return False
         if "else" in item and len(self.cur.peers) == 0:
             return False
