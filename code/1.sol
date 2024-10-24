@@ -12,18 +12,21 @@ contract ExampleHook is BaseHook {
         value = _value;
     }
 
-    function getHookPermissions() public pure override returns (Hooks.Permissions memory){
-        return Hooks.Permissions({
-            beforeInitialize: false,
-            afterInitialize: false,
-            beforeSwap: true,
-            afterSwap: false,
-            beforeAddLiquidity: false,
-            afterAddLiquidity: false,
-            beforeRemoveLiquidity: false,
-            afterRemoveLiquidity: false,
-            beforeDonate: false,
-            afterDonate: false
-        });
+    function iterativeIfElse(uint256 x) public pure returns (uint256) {
+        if (x == 0) {
+            return 0;
+        } else if (x == 1) {
+            return 1;
+        } else if (x >= 2) {
+            if (x == 3) {
+                return 3;
+            } else if (x == 4) {
+                return 4;
+            } else {
+                return 2;
+            }
+        } else {
+            return 5;
+        }
     }
 }
