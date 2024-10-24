@@ -5,51 +5,65 @@ from tests.test_eval import Logic, LogicNode, add_child
 
 def test_parse_if_else():
     print()
-    _given = """
-        {
-            if (x > 0) {
-                if (y > 0) {
-                // do nothing
-                }
-            }
-        }
-        if (x > 0) {
-            revert();
-            for (int i = 0; i < 10; i++) {
-                if (i == 0) {
-                    revert();
-                } else if (i == 1) {
-                    assert(y > 0);
-                }
-            }        
-        x > 0;
-        if (y > 0) {
-            revert();
-        } else if (z > 0) {
-            assert(y > 0);
-        } else {
-            require(y > 0 or z > 0);
-        }
-    }
-    """
-    # _given = open("code/1.sol", "r").read()
+    _given = open("code/1.sol", "r").read()
 
-    _given = (_given
-              .replace("{", "\n{")
-              .replace("}", "}\n")
-              .replace("(", "\n(")
-              .replace(")", ")\n")).splitlines()
+    # TODO: <temp> focus on contract scope
+    _given = re.search(r"contract\s+[\s\S]+}", _given).group(0)
+
+    # remove comments
+    _given = re.sub(r"//[\S ]+", "", _given)
+
+    # # remove library
+    # _given = re.sub(r"using\s+[\s\S]+?;", "", _given)
+
+    # all kinds of spaces to single space
+    _given = re.sub(r"\s+", " ", _given)
+
+    # tokenize
+    _given = (
+        _given
+        .replace("else if", "$elf$")
+        .replace("if", "$if$")
+        .replace("else", "$els$")
+        .replace("require", "$req$")
+        .replace("assert", "$asrt$")
+        .replace("revert()", "$revX$")
+        .replace("revert", "$rev$")
+        # .replace("()", "")
+    )
+
+    pattern = r"\$\w+\$\s*\([\s\S]+?\)\;|[\{\}]|\$\w+\$"
+    _given = "\n".join(re.findall(pattern, _given))
+    _given = re.sub(r"\$rev\$[\s\S]+?;", "$revX$;", _given)
+
+    print(_given)
+
+    _given = (
+        _given
+        .replace("$req$", "\nrequire\n")
+        .replace("$asrt$", "\nassert\n")
+        .replace("$rev$", "\nrevert\n")
+        .replace("$revX$", "\nrevert\n()\n")
+        .replace("$if$", "\nif\n")
+        .replace("$els$", "\nelse\n")
+        .replace("$elf$", "\nelse if\n")
+        .replace("{", "\n{\n")
+        .replace("}", "}\n")
+        .replace(";", " ")
+    )
+
+    _given = _given.splitlines()
     _given = list(map(str.strip, _given))
-    for line in _given:
-        print(line)
-    print()
+
     stack = ConditionStack()
     for line in _given:
-        if line:
+        if line != "":
+            print(line)
             stack_dump = stack.__str__()
-            stack.push(line)
+            stack.push(line.strip())
             if stack_dump != stack.__str__():
-                print(stack)
+                # print(stack)
+                pass
 
 
 class ConditionStack:
@@ -58,10 +72,6 @@ class ConditionStack:
         self.stack = []
         self.keywords = ["if", "else", "else if", "require", "assert", "revert"]
         self.leaf_keywords = ["require", "assert", "revert"]
-
-    def reset(self):
-        self.cur = LogicNode(Logic(""), None)
-        self.stack = []
 
     @staticmethod
     def is_condition(item):
@@ -76,8 +86,9 @@ class ConditionStack:
             return False
         if self.is_condition(item) and self.peek() in ["else"]:
             return False
-        if item == "{" and not self.is_condition(self.peek()):
-            return False
+        if item == "{":
+            if not self.is_condition(self.peek()) and self.peek() != "else":
+                return False
         if item == "}" and self.is_empty():
             return False
         if "else" in item and len(self.cur.peers) == 0:
@@ -87,52 +98,42 @@ class ConditionStack:
     def push(self, item):
         if not self.is_valid(item):
             return
-        if self.is_condition(item) and self.peek() in self.keywords:
-            assert self.peek() != "else"  # else already filtered
+
+        if self.is_empty():
+            self.stack.append(item)
+            if self.peek() == "if":
+                self.cur = LogicNode(Logic(""), None)
+            return
+
+        if self.is_condition(item) and self.peek() in self.leaf_keywords:
             _unwrapped = item[1:-1]
-            if self.peek() in self.leaf_keywords:
-                # print(self.cur.parent.logic)
-                print(f"{self.pop()}:{self.cur.logic & Logic(_unwrapped)}")
-                return
-            if self.cur.parent is None:
-                self.cur = add_child(self.cur, _unwrapped)
+            print(f"{self.pop()}:{self.cur.logic & Logic(_unwrapped)}")
+            return
 
-            self.cur = add_child(self.cur, _unwrapped)
+        # TODO: currently, if-else block should use brackets
 
-        #
-        # if self.is_condition(item) and self.peek in self.leaf_keywords:
-        #     print("leaf", item,)
-        #     return
-        # if self.is_condition(item) and self.peek() == "if":
-        #     self.cur =  add_child(self.cur, item)
-        # if item == "{":
-        #     self.cur = add_child(self.cur, self.peek()[1:-1])
-        #     # print(self.cur)
-
-        # if self.peek() == "if":
-        # # new node will be a child of the current node
-        #
-        # else:
-        #     # new node will be a peer of the current node
-        #     self.cur = add_child(self.cur.parent, _unwrapped)
-
-        # finish current depth
         if item == "}":
+            assert self.pop() == "{"
+            while not self.is_empty():
+                _tmp = self.pop()
+                if _tmp == "{":
+                    self.stack.append(_tmp)
+                    break
             self.cur = self.cur.parent
-            # print(self.cur)
-            while True:
-                self.pop()
-                if self.is_empty():
-                    self.reset()
-                    return
-                elif self.peek() == "{":
-                    return
-        self.stack.append(item)
+            return
 
-        # if item == "if":
-        #     self.stack.append(self.cur)
-        # if re.match(r"\(.+\)", item):
-        # self.cur = add_child(self.cur, item)
+        if item == "{":
+            if self.peek() == "else":
+                self.cur = add_child(self.cur.parent, "")
+                self.stack.append(item)
+                return
+
+            _cond = self.pop()
+            _key = self.peek()
+            self.stack.append(_cond)
+            self.cur = add_child(self.cur, _cond)
+
+        self.stack.append(item)
 
     def pop(self):
         return self.stack.pop()

@@ -14,12 +14,12 @@ class Logic:
     def __or__(self, other: "Logic"):
         if self == "" or other == "":
             return Logic(f"{self}{other}")
-        return Logic(f"({self} or {other})")
+        return Logic(f"(({self}) or ({other}))")
 
     def __and__(self, other: "Logic"):
         if self == "" or other == "":
             return Logic(f"{self}{other}")
-        return Logic(f"({self} and {other})")
+        return Logic(f"(({self}) and ({other}))")
 
     def __invert__(self):
         if self == "" or self is None:
@@ -31,8 +31,8 @@ class LogicNode:
     def __init__(self, logic: "Logic", parent: "LogicNode" = None):
         self.logic = logic
         self._parent: LogicNode = self if parent is None else parent
-        if parent is not None:
-            print("parent", parent, "cur", self)
+        # if parent is not None:
+        #     print("parent", parent, "cur", self)
         self.children: list[LogicNode] = []
 
     @property
@@ -55,11 +55,12 @@ class LogicNode:
         return ~_children[-1].logic  # else
 
 
-def add_child(parent: LogicNode, condition: str = None) -> LogicNode:
+def add_child(parent: LogicNode, condition: str = "") -> LogicNode:
     child_node = LogicNode(
         parent.logic &
         parent.concat_previous_children(condition)
         , parent)
+    # print("child", child_node)
     parent.children.append(child_node)
     return child_node
 
@@ -73,10 +74,10 @@ def test_logic_operations():
     _logic_z = Logic("z > 0")
     assert _logic_x == "x > 0"
     assert ~_logic_x == "not(x > 0)"
-    assert _logic_x | _logic_y == "(x > 0 or y > 0)"
-    assert _logic_x & _logic_y == "(x > 0 and y > 0)"
-    assert _logic_x | _logic_y | _logic_z == "((x > 0 or y > 0) or z > 0)"
-    assert _logic_x & _logic_y & _logic_z == "((x > 0 and y > 0) and z > 0)"
+    assert _logic_x | _logic_y == "((x > 0) or (y > 0))"
+    assert _logic_x & _logic_y == "((x > 0) and (y > 0))"
+    assert _logic_x | _logic_y | _logic_z == "((((x > 0) or (y > 0))) or (z > 0))"
+    assert _logic_x & _logic_y & _logic_z == "((((x > 0) and (y > 0))) and (z > 0))"
 
 
 def test_layer1_else_if():
@@ -86,7 +87,7 @@ def test_layer1_else_if():
     n0 = add_child(root, _expect[0])  # add first child
     n1 = add_child(root, _expect[1])  # add second child in the same level
     assert n0.logic == "x > 0"
-    assert n1.logic == "(y > 0 and not(x > 0))"
+    assert n1.logic == "((y > 0) and (not(x > 0)))"
 
 
 def test_layer1_else():
@@ -97,8 +98,8 @@ def test_layer1_else():
     n1 = add_child(root, _expect[1])  # add second else-if in the same level
     n2 = add_child(root)  # add third else in the same level
     assert n0.logic == "x > 0"
-    assert n1.logic == "(y > 0 and not(x > 0))"
-    assert n2.logic == "not((y > 0 and not(x > 0)))"
+    assert n1.logic == "((y > 0) and (not(x > 0)))"
+    assert n2.logic == "not(((y > 0) and (not(x > 0))))"
 
 
 def test_layer2_if():
@@ -108,7 +109,7 @@ def test_layer2_if():
     n0 = add_child(root, _expect[0])  # add first if
     n1 = add_child(n0, _expect[1][0])  # add second if in the first if
     assert str(n0) == "x > 0"
-    assert str(n1) == "(x > 0 and y > 0)"
+    assert str(n1) == "((x > 0) and (y > 0))"
 
 
 def test_layer2_else_if():
@@ -119,5 +120,5 @@ def test_layer2_else_if():
     n1 = add_child(n0, _expect[1][0])  # add second if in the first if
     n2 = add_child(n0, _expect[1][1])  # add second else-if in the first if
     assert str(n0) == "x > 0"
-    assert str(n1) == "(x > 0 and y > 0)"
-    assert str(n2) == "(x > 0 and (z > 0 and not((x > 0 and y > 0))))"
+    assert str(n1) == "((x > 0) and (y > 0))"
+    assert str(n2) == "((x > 0) and (((z > 0) and (not(((x > 0) and (y > 0)))))))"
