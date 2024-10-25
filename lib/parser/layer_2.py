@@ -51,7 +51,8 @@ def get_modifiers(_target_path="code/3.sol"):
                 inline = ''.join(re.split(r"(?<=[,()])\s+|\s+(?=\))", e['SIG'], flags=re.MULTILINE))
                 contract_sig = f"{e['CONTRACT']}:{inline}"
                 res[mod].append(contract_sig)
-    json.dump(res, open("out/modifiers.json", "w"))
+    with open("out/modifiers.json", "w") as f:
+        json.dump(res, f)
     return res
 
 
