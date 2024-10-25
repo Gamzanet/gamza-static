@@ -16,13 +16,13 @@ def read_message_schema_by_rule_name(_rule_path: str):
     try:
         with open(f"rules/{_rule_path}", "r") as f:
             file = f.read()
-            res = yaml.safe_load(file)
-            res = search("rules[0].message", res)
-            # print("read_message_schema_by_rule_name:", res)
-            return res
     except FileNotFoundError:
-        raise FileNotFoundError(f"rules/{_rule_path} not found")
-
+        with open(_rule_path, "r") as f:
+            file = f.read()
+    res = yaml.safe_load(file)
+    res = search("rules[0].message", res)
+    # print("read_message_schema_by_rule_name:", res)
+    return res
 
 # input: $CONTRACT |&| $SIG |&| $LVALUE |&| $RVALUE |;|
 # output: ['CONTRACT', 'SIG', 'LVALUE', 'RVALUE']
