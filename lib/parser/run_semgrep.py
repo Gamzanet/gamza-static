@@ -52,7 +52,7 @@ def parse_emacs_output(_emacs: str):
     :return: A list of tuples in sequence: (code, severity, rule, log, message)
     """
     return re.findall(
-        r"(^code[\S\s]+?.sol:\d+:\d+):(\S+)\((\S+)\):\s*([\S ]+):([\s\S]+?)\|;\|",
+        r"(\S+.sol:\d+:\d+):(\S+)\((\S+)\):\s*([\S ]*):([\s\S]+?)\|;\|",
         _emacs, flags=re.MULTILINE)
 
 
