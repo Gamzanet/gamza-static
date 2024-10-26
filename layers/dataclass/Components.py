@@ -1,6 +1,6 @@
 from dataclasses import dataclass
 
-from layers.dataclass.Attributes import Location, Visibility, Scope, Mutability
+from layers.dataclass.Attributes import Location, Visibility, Scope, Mutability, Purity
 
 
 # TODO: consider using slither classes
@@ -29,25 +29,25 @@ class Metadata(dict):
     # ... etc
 
 
-# TODO: consider using slither classes
-
 @dataclass
 class Function(dict):
-    name: str
-    parameters: list[Variable]
-    visibility: str
+    name: str | None
+    parameters: list[str]
+    visibility: Visibility
     modifiers: list[str]
     is_override: bool
-    mutability: str
-    returns: list[Variable]
+    payable: bool
+    purity: Purity | None
+    returns: list[str] | None
     body: str
-    _has_low_level_call: bool
+
+    # _has_low_level_call: bool
 
     def has_low_level_call(self):
         raise NotImplementedError
 
-
-# TODO: consider using slither classes
+    def items(self):
+        return self.__dict__.items()
 
 
 @dataclass(
@@ -61,35 +61,8 @@ class Contract(dict):
     inheritance: list[str]
     library: list[str]
 
-    # modifier: list[str]
-    # variable: list[Variable]
-    # license: str
-    # events: list[str]
-    # structs: list[dict[str]]
-
     def is_valid_hook(self):
         raise NotImplementedError
 
     def __hash__(self):
         return hash(f"{self.name}:{self.version}")
-
-
-    @staticmethod
-    def to_instance(data: dict) -> 'Contract':
-        def skip_key_error(_key: str) -> any:
-            try:
-                return data.get(_key)
-            except KeyError:
-                return None
-
-        return Contract(
-            raw_code=skip_key_error('raw_code'),
-            formatted_code=skip_key_error('formatted_code'),
-            version=skip_key_error('version'),
-            name=skip_key_error('name'),
-            inheritance=skip_key_error('inheritance'),
-            library=skip_key_error('library'),
-            functions=skip_key_error('function'),
-            modifier=skip_key_error('modifier'),
-            variable=skip_key_error('variable'),
-        )
