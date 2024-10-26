@@ -11,6 +11,8 @@ rules:
           - pattern-not-inside: modifier $_(...) { ... ... ... }
           - pattern-not-regex: |- # not using library
               using\s+\w+\s+for\s+[\s\S]+?;
+          - pattern-not-regex: |- # not using error
+              error\s+\w+\([\s\S]+?\);
           - pattern-regex: |- # line ends with ; or ' = '
               (?:(?P<TYPE>[\S ]*?) (?P<VISIBLE>private\s+|internal\s+|public\s+|external\s+|)(?P<MUTABLE>immutable\s+|constant\s+|transient\s+|)(?P<NAME>\S+)\s*)(?: = |;)
 
