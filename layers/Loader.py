@@ -2,6 +2,7 @@ import hashlib
 import os.path
 from os.path import join
 
+from engine import layer_0
 from etherscan.unichain import get_contract_json
 from main import project_root
 from utils.paths import open_with_mkdir
@@ -74,16 +75,24 @@ class Loader:
             file.write(content)
 
     @staticmethod
-    def get_key(content: str) -> str:
+    def get_cache_key(content: str) -> str:
         return hashlib.sha3_256(content.encode()).hexdigest()
+
+    def get_cache_path(self, content: str, extension: str) -> str:
+        _key = Loader.get_cache_key(content)
+        return join(self.path_abs_output, f"{_key}.{extension}")
 
     def cache_content(self, content: str, extension: str) -> str:
         """
         Cache content and return the path
         :param content: writable content
+        :param extension: file extension
         :return: path to cached file
         """
-        _key = Loader.get_key(content)
-        _path = join(self.path_abs_output, f"{_key}.{extension}")
+        _path = self.get_cache_path(content, extension)
         Loader.overwrite(_path, content)
         return _path
+
+    @staticmethod
+    def format(_path):
+        layer_0.format_code(_path)
