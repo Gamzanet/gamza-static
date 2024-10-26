@@ -9,7 +9,8 @@ import lib.parser
 from etherscan.unichain import get_contract_json, foundry_dir
 from layers.dataclass.Components import Contract, Metadata, Function, Variable
 from main import project_root
-from parser.run_semgrep import run_semgrep_one, get_semgrep_output
+from parser.layer_2 import get_inheritance, get_library
+from parser.run_semgrep import get_semgrep_output
 from utils.paths import open_with_mkdir
 
 
@@ -29,6 +30,9 @@ class BuildResult(dict):
     metadata: Metadata
     contract: Contract
     functions: list[Function]
+
+    def items(self):
+        return self.__dict__.items()
 
 
 class Builder:
@@ -54,27 +58,11 @@ class Builder:
         raw_code: str = self.target_code
         formatted_code: str = lib.engine.layer_0.format_code(self.target_abs_path)
         version: str = lib.engine.layer_0.set_solc_version_by_content(raw_code)
-
-        def get_inheritance():
-            res = []
-            info_inheritance: list[dict] = run_semgrep_one("info-inheritance", self.target_abs_path)
-            for e in info_inheritance:  # $CONTRACT |&| $INHERIT |;|
-                res.append(e["INHERIT"])
-            return res
-
-        inheritance: list[str] = get_inheritance()
-
-        def get_library():
-            res = []
-            info_library: list[dict] = run_semgrep_one("info-library", self.target_abs_path)
-            for e in info_library:
-                res.append(e["LIBRARY"])
-            return res
-
-        library: list[str] = get_library()
+        inheritance: list[str] = get_inheritance(self.target_abs_path)
+        library: list[str] = get_library(self.target_abs_path)
 
         # $CONTRACT |&| $SIG |&| $VIS |&| $PAY |&| $PURITY |&| $MOD |&| $OVER |&| $RETURN |;|
-        info_function = run_semgrep_one("info-function", self.target_abs_path)
+        info_function = get_semgrep_output("info-function", self.target_abs_path)
         name: str = search("[0].data.CONTRACT", info_function)
 
         variable: list[Variable]
@@ -90,9 +78,9 @@ class Builder:
     def functions(self) -> list[Function]:
         functions: list[Function] = []
         # $CONTRACT |&| $SIG |&| $VIS |&| $PAY |&| $PURITY |&| $MOD |&| $OVER |&| $RETURN |;|
-        info_function = run_semgrep_one("info-function", self.target_abs_path)
+        info_function = get_semgrep_output("info-function", self.target_abs_path)
         # $CONTRACT |&| $SIG |&| $ARGS |&| $RETURNS |&| $IMPL |&| $TYPE |&| $LOCATION |&| $VISIBLE |&| $MUTABLE |&| $NAME |;|
-        info_variable = run_semgrep_one("info-variable", self.target_abs_path)
+        info_variable = get_semgrep_output("info-variable", self.target_abs_path)
         for f, v in zip(info_function, info_variable):
             continue
             functions.append(
@@ -168,26 +156,22 @@ def test_is_none():
 def test_builder():
     builder = Builder(Option(
         target_code="""// SPDX-License-Identifier: MIT
-        pragma solidity ^0.8.0;contract ComplexChecks { uint256 public value; error ValueTooLow(uint256 provided, uint256 required);constructor(uint256 _initialValue) {      value = _initialValue;}function setValue(uint256 _value) public {require(_value > 0, "Value must be greater than zero"); assert(value != _value); require(isEven(_value), "Value must be even"); if (_value < 10) {revert ValueTooLow({provided: _value, required: 10});} revert();     revert("This is a revert without a custom error"); value = _value;}function isEven(uint256 _value) internal pure returns (bool) {return _value % 2 == 0;}}""",
+        pragma solidity ^0.8.0;contract ComplexChecks is A, B { using aa for *; uint256 public value; error ValueTooLow(uint256 provided, uint256 required);constructor(uint256 _initialValue) {      value = _initialValue;}function setValue(uint256 _value) public {require(_value > 0, "Value must be greater than zero"); assert(value != _value); require(isEven(_value), "Value must be even"); if (_value < 10) {revert ValueTooLow({provided: _value, required: 10});} revert();     revert("This is a revert without a custom error"); value = _value;}function isEven(uint256 _value) internal pure returns (bool) {return _value % 2 == 0;}}""",
         lint_code=True,
         address="0x38EB8B22Df3Ae7fb21e92881151B365Df14ba967"
     ))
     assert builder.target_code != ""
-    # print(builder.foundry_abs_path)
 
-    # builder.code_ready()
+    # metadata: Metadata
+    # contract: Contract
+    # functions: list[Function]
     res = builder.build()
-    for k0, v0 in res.items():
-        print(k0)
-        for k1, v1 in v0.items():
-            print(k1, v1)
-
-
-def test_info_inheritance():
-    _code_rel_path = "code/2.sol"
-    res = get_semgrep_output(
-        "info-inheritance",
-        _code_rel_path
-    )
-    assert (search("[*].data.INHERIT", res)
-            == ["BaseHook", "someOtherContract"])
+    assert res.metadata.chain == "unichain"
+    assert res.metadata.evm_version == "cancun"
+    assert res.contract.raw_code != ""
+    assert res.contract.formatted_code != ""
+    assert res.contract.version == "0.8.0"
+    assert res.contract.name == "ComplexChecks"
+    assert res.contract.inheritance == ["A", "B"]
+    assert res.contract.library == ["aa"]
+    # assert res.functions != []

@@ -205,3 +205,17 @@ def detect_storage_overwrite_in_multi_pool_initialization(
                     "SIG": o["SIG"],
                 }
     return {}
+
+
+def get_inheritance(target_abs_path: str) -> list[str]:
+    if not target_abs_path:
+        raise ValueError("target_abs_path is required")
+    info_inheritance: list[dict] = get_semgrep_output("info-inheritance", target_abs_path)
+    return search("[*].data.INHERIT", info_inheritance)
+
+
+def get_library(target_abs_path: str) -> list[str]:
+    if not target_abs_path:
+        raise ValueError("target_abs_path is required")
+    info_library: list[dict] = get_semgrep_output("info-library", target_abs_path)
+    return search("[*].data.LIBRARY", info_library)
