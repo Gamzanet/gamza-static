@@ -1,6 +1,6 @@
 {
     "name": "gamza-static",
-    "version": "1.7.0",
+    "version": "1.8.0",
     "scripts": {
         "preinstall": "corepack enable",
         "install": "bash install.sh",
