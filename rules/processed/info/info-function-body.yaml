@@ -1,0 +1,12 @@
+rules:
+  - id: info-function-body
+    message: $CONTRACT |&| $SIG |&| $BODY |;|
+    languages:
+      - solidity
+    severity: INFO
+    pattern-either:
+      - patterns:
+          - pattern-inside: |
+              contract $CONTRACT { ... ... ... }
+          - pattern-regex: |-
+              (?<BODY>function\s+(?<SIG>[\s\S]+?)\{[\s\S]+?\})
