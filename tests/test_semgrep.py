@@ -1,11 +1,11 @@
 from parser.run_semgrep import get_semgrep_output, parse_emacs_output, parse_message_schema, \
     emacs_tuple_to_dict_with_schema
-from utils.paths import rule_rel_path_by_name, run_cli_must_succeed
+from utils.paths import rule_rel_path_by_name, run_cli_must_succeed, open_with_mkdir
 
 
 def test_basic():
     _input: list[dict] = get_semgrep_output(
-        rule_rel_path_by_name("info-variable"),
+        "info-variable",
         "code/0xe8e23e97fa135823143d6b9cba9c699040d51f70.sol",
         use_cache=True
     )
@@ -46,7 +46,7 @@ def test_parse_result():
     assert len(_parsed) == 2
     for p in _parsed:
         assert len(p) == 5  # (code, severity, rule, log, message)
-    with open("out/emacs_parsed.txt", "w") as f:
+    with open_with_mkdir("out/emacs_parsed.txt", "w") as f:
         f.write(str(_parsed))
 
 

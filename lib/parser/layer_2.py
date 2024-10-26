@@ -1,10 +1,12 @@
 import json
+import re
 from pprint import pprint
 
 from jmespath import search
 
+from layers.dataclass.Attributes import Purity, Visibility
+from layers.dataclass.Components import Function
 from parser.run_semgrep import get_semgrep_output
-from utils.paths import rule_rel_path_by_name
 
 
 def is_valid_hook(_target_path="code/1.sol"):
@@ -51,18 +53,55 @@ def get_modifiers(_target_path="code/3.sol"):
                 inline = ''.join(re.split(r"(?<=[,()])\s+|\s+(?=\))", e['SIG'], flags=re.MULTILINE))
                 contract_sig = f"{e['CONTRACT']}:{inline}"
                 res[mod].append(contract_sig)
-    json.dump(res, open("out/modifiers.json", "w"))
+    with open("out/modifiers.json", "w") as f:
+        json.dump(res, f)
+    return res
+
+
+# currently source code should include single contract
+def get_functions(_target_path="code/3.sol") -> list[Function]:
+    body: list[dict] = get_semgrep_output("info-function-body", _target_path)
+    body = search("[*].data[]", body)
+    body.sort(key=lambda x: (x["CONTRACT"], x["SIG"]))
+
+    output = get_semgrep_output("info-function", _target_path)
+    output = search("[*].data[]", output)
+    output.sort(key=lambda x: (x["CONTRACT"], x["SIG"]))
+
+    res = []
+
+    for _output, _body in zip(output, body):
+        name = ''.join(re.split(r"(?<=[,()])\s+|\s+(?=\))", _output['SIG'], flags=re.MULTILINE)) if _output[
+            "SIG"] else None
+        modifiers = list(map(str.strip, re.split(r"\s", _output["MOD"]))) if _output["MOD"] else []
+        parameters = list(map(str.strip, re.search(r"\((.*)\)", _output["SIG"]).group(0).split(","))) if _output[
+            "SIG"] else []
+
+        # TODO: delegate data processing to Builder
+
+        res.append(Function(
+            name=name,
+            parameters=parameters,
+            visibility=Visibility.from_str(_output["VIS"]),
+            payable=_output["PAY"],
+            modifiers=modifiers,
+            purity=Purity.from_str(_output["PURITY"]),
+            is_override="override" == _output["OVER"],
+            returns=_output["RETURN"],
+            body=_body["BODY"],
+        ))
     return res
 
 
 def get_variables(_target_path="code/0xe8e23e97fa135823143d6b9cba9c699040d51f70.sol") -> dict[str, list[dict]]:
     """
     Get the variables of the contract.
+    Code should be formatted by the Loader before calling this function.
     :rtype: dict[str, list[dict]]
     :returns: { $variableName: [{ 'NAME', 'SIG', 'SCOPE', 'LOCATION', 'VISIBLE', 'TYPE', 'MUTABLE' }, ...], ... }
     """
     output: list[dict] = get_semgrep_output(
-        rule_rel_path_by_name("info-variable"),
+        "info-variable",
         _target_path, use_cache=True)
     output = search("[*].data", output)
 
@@ -186,7 +225,7 @@ def detect_storage_overwrite_in_multi_pool_initialization(
     # TODO: Refactor the following code to a function
     # 2. get info-layer2-assignee
     output: list = get_semgrep_output(
-        rule_rel_path_by_name("info-layer2-assignee"),
+        "info-layer2-assignee",
         _target_path, use_cache=True)
     output = search("[*].data", output)
     for o in output:
@@ -205,3 +244,21 @@ def detect_storage_overwrite_in_multi_pool_initialization(
                     "SIG": o["SIG"],
                 }
     return {}
+
+
+def get_contract_name(_code: str) -> str:
+    return re.search(r"contract\s+(\w+)[\s\S]+?{", _code).group(1)
+
+
+def get_inheritance(target_abs_path: str) -> list[str]:
+    if not target_abs_path:
+        raise ValueError
+    info_inheritance: list[dict] = get_semgrep_output("info-inheritance", target_abs_path)
+    return search("[*].data.INHERIT", info_inheritance)
+
+
+def get_library(target_abs_path: str) -> list[str]:
+    if not target_abs_path:
+        raise ValueError
+    info_library: list[dict] = get_semgrep_output("info-library", target_abs_path)
+    return search("[*].data.LIBRARY", info_library)

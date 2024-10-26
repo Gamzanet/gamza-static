@@ -30,7 +30,3 @@ def run_cli_can_failed(_command: str) -> tuple[str, str]:
     out = subprocess.run(_command, shell=True, capture_output=True, text=True)
     return out.stdout, out.stderr
 
-
-if __name__ == "__main__":
-    print(rule_rel_path_by_name("misconfigured-Hook"))
-    print(rule_rel_path_by_name("info-variable"))

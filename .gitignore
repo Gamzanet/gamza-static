@@ -1,6 +1,7 @@
 # out
 out
-code
+code/*
+.coverage
 
 # Dotenv file
 .venv
@@ -9,6 +10,8 @@ code
 # IDE
 .idea
 .vscode
+
+# Cache
 __pycache__
 .DS_Store
 

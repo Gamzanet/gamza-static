@@ -1,10 +1,11 @@
 {
     "name": "gamza-static",
-    "version": "1.7.0",
+    "version": "1.8.0",
     "scripts": {
         "preinstall": "corepack enable",
         "install": "bash install.sh",
-        "test": "pytest",
+        "test": "pytest --sw",
+        "coverage": "pytest --cov=.",
         "case1": "semgrep scan -f rules/misconfigured-Hook.yaml .",
         "case2": "semgrep scan -f rules/misconfigured-Hook.yaml code --emacs",
         "case3": "semgrep scan -f rules/processed/info/info-conditions.yaml code/1.sol --emacs",
