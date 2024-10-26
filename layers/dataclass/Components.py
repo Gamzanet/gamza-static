@@ -54,8 +54,7 @@ class Function(dict):
     eq=True,
 )
 class Contract(dict):
-    raw_code: str
-    formatted_code: str
+    target_code: str
     version: str  # solc version # TODO: git commit hash if possible
     name: str
     inheritance: list[str]
