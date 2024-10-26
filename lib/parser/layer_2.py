@@ -4,7 +4,6 @@ from pprint import pprint
 from jmespath import search
 
 from parser.run_semgrep import get_semgrep_output
-from utils.paths import rule_rel_path_by_name
 
 
 def is_valid_hook(_target_path="code/1.sol"):
@@ -63,7 +62,7 @@ def get_variables(_target_path="code/0xe8e23e97fa135823143d6b9cba9c699040d51f70.
     :returns: { $variableName: [{ 'NAME', 'SIG', 'SCOPE', 'LOCATION', 'VISIBLE', 'TYPE', 'MUTABLE' }, ...], ... }
     """
     output: list[dict] = get_semgrep_output(
-        rule_rel_path_by_name("info-variable"),
+        "info-variable",
         _target_path, use_cache=True)
     output = search("[*].data", output)
 
@@ -187,7 +186,7 @@ def detect_storage_overwrite_in_multi_pool_initialization(
     # TODO: Refactor the following code to a function
     # 2. get info-layer2-assignee
     output: list = get_semgrep_output(
-        rule_rel_path_by_name("info-layer2-assignee"),
+        "info-layer2-assignee",
         _target_path, use_cache=True)
     output = search("[*].data", output)
     for o in output:

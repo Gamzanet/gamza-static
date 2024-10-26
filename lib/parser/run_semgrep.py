@@ -1,28 +1,27 @@
 import json
-import os
 import re
 import subprocess
 
 import yaml
 from jmespath import search
 
-from utils.paths import open_with_mkdir, run_cli_must_succeed
+from utils.paths import open_with_mkdir, run_cli_must_succeed, rule_rel_path_by_name
 
 
 # save variable context
 # rule should be in the `rules` directory
-def read_message_schema_by_rule_name(_rule_path: str):
-    print(os.getcwd())
+def read_message_schema_by_rule_name(_rule_name: str):
     try:
-        with open(f"rules/{_rule_path}", "r") as f:
+        with open(f"rules/{rule_rel_path_by_name(_rule_name)}", "r") as f:
             file = f.read()
     except FileNotFoundError:
-        with open(_rule_path, "r") as f:
+        with open(f"rules/{_rule_name}", "r") as f:
             file = f.read()
     res = yaml.safe_load(file)
     res = search("rules[0].message", res)
     # print("read_message_schema_by_rule_name:", res)
     return res
+
 
 # input: $CONTRACT |&| $SIG |&| $LVALUE |&| $RVALUE |;|
 # output: ['CONTRACT', 'SIG', 'LVALUE', 'RVALUE']
@@ -31,14 +30,13 @@ def parse_message_schema(_msg_schema: str) -> list[str]:
 
 
 # CLI: npm run case2
-def run_semgrep_one(_rule_path: str, _target_path: str = "code") -> list[dict]:
-    _msg_raw_schema = read_message_schema_by_rule_name(_rule_path)
+def run_semgrep_one(_rule_name: str, _target_path: str = "code") -> list[dict]:
+    _msg_raw_schema = read_message_schema_by_rule_name(_rule_name)
     _msg_schema = parse_message_schema(_msg_raw_schema)
 
-    arg = f"semgrep scan -f rules/{_rule_path} {_target_path} --emacs"
+    arg = f"semgrep scan -f rules/{rule_rel_path_by_name(_rule_name)} {_target_path} --emacs"
     res = run_cli_must_succeed(arg, capture_output=True)
     parsed = parse_emacs_output(res)
-
     _output = []
     for r in parsed:
         _output.append(emacs_tuple_to_dict_with_schema(r, _msg_schema))
