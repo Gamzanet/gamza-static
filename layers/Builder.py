@@ -1,11 +1,12 @@
 import os.path
+import re
 from typing import Generic, TypeVar
 
 from engine.layer_0 import set_solc_version_by_content
 from layers.Loader import Loader
 from layers.dataclass.Attributes import Mutability, Scope, Location, Visibility
 from layers.dataclass.Components import Contract, Function, Variable
-from parser.layer_2 import get_inheritance, get_library, get_contract_name, get_variables
+from parser.layer_2 import get_inheritance, get_library, get_contract_name, get_variables, get_functions
 
 Buildable = TypeVar('Buildable', Contract, Function, Variable)
 
@@ -33,7 +34,7 @@ class ContractBuilder(BaseBuilder[Contract]):
         return Contract(
             target_code=_code,
             version=_version,
-            name=get_contract_name(_path),
+            name=get_contract_name(_code),
             inheritance=get_inheritance(_path),
             library=get_library(_path)
         )
@@ -45,44 +46,26 @@ class FunctionBuilder(BaseBuilder[Function]):
 
     def build(self, _code) -> list[Function]:
         _path = super().build(_code)
-        return FunctionBuilder.mock()
+        # 1. Parser should extract the functions
+        _parsed: list[Function] = get_functions(_path)
+
+        # 2. Builder should build the functions
+        for _function in _parsed:
+            _function.name = _function.name.split("(")[0]
+            _function.parameters = self.search_small_bracket_and_parse(str(_function.parameters))
+            _function.payable = _function.payable == "payable"
+            _function.returns = self.search_small_bracket_and_parse(str(_function.returns))
+            _function.modifiers = _function.modifiers if _function.modifiers else []
+        return _parsed
 
     @staticmethod
-    def mock() -> list[Function]:
-        return [
-            Function(
-                name="setValue",
-                parameters=[],
-                visibility="public",
-                modifiers=["aa", "b(this)"],
-                is_override=True,
-                mutability="",
-                returns=[],
-                body="""
-                    require(_value > 0, "Value must be greater than zero");
-                    assert(value != _value);
-                    require(isEven(_value), "Value must be even");
-                    if (_value < 10) {
-                        revert ValueTooLow({provided: _value, required: 10});
-                    }
-                    revert();
-                    revert("This is a revert without a custom error");
-                    value = _value;""".strip(),
-                _has_low_level_call=True
-            ),
-            Function(
-                name="isEven",
-                parameters=[],
-                visibility="internal",
-                modifiers=[],
-                is_override=False,
-                mutability="pure",
-                returns=[],
-                body="return _value % 2 == 0;",
-                _has_low_level_call=False
-            )
-        ]
-
+    def search_small_bracket_and_parse(_target: str, _seperator: str = ",") -> list[str]:
+        try:
+            _search = re.search(r"\((.*)\)", _target).group(1)
+            _parse = list(map(str.strip, re.split(_seperator, _search)))
+        except AttributeError:
+            _parse = []
+        return _parse
 
 class VariableBuilder(BaseBuilder[Variable]):
     def __init__(self):
