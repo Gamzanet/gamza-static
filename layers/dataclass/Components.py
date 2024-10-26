@@ -11,7 +11,8 @@ class Variable(dict):
     signature: str  # contract:(function)
     type: str
     location: Location  # memory, storage, calldata, transient
-    visibility: Visibility  # external, public, internal, private
+    visibility: Visibility | None  # external, public, internal, private
+    # visibility is None only if a variable implicitly defined in args and returns
     scope: Scope  # function, storage, args, returns, inherited
     mutability: Mutability  # mutable, immutable, constant, transient
 
