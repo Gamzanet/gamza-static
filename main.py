@@ -1,8 +1,15 @@
 import os
 import sys
 
+
+def base_paths(x: str) -> str:
+    return os.path.abspath(os.path.join(os.path.dirname(__file__), x))
+
+
 # to run `python main.py` in root dir, add path of library to sys.path
-_path_lib = os.path.abspath(os.path.join(os.path.dirname(__file__), "lib"))
+project_root = base_paths(".")
+_path_lib = base_paths("lib")
+_path_code = base_paths("code")
 sys.path.append(_path_lib)
 
 from utils.paths import rule_rel_path_by_name
@@ -24,7 +31,7 @@ def test_integration():
     # print(_diff)
 
     # linting the target contract recursively lints all dependencies
-    _res: list[str] = layer_0.lint_code(_paths[0])
+    _res: tuple[str, str] = layer_0.lint_code(_paths[0])
     # print(res)
 
     # to run semgrep rules,
@@ -54,4 +61,5 @@ def test_integration():
 
 
 if __name__ == "__main__":
-    test_integration()
+    # test_integration()
+    print(project_root)
