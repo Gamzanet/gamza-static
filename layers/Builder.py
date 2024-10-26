@@ -6,27 +6,26 @@ from jmespath import search
 
 import lib.engine.layer_0
 import lib.parser
-from etherscan.unichain import foundry_dir, get_contract_json
+from etherscan.unichain import get_contract_json, foundry_dir
 from layers.dataclass.Components import Contract, Metadata, Function, Variable
 from main import project_root
 from parser.run_semgrep import run_semgrep_one, get_semgrep_output
 from utils.paths import open_with_mkdir
 
 
-@dataclass
-class Option:
-    target_code: str
-    lint_code: bool
-    address: str = None  # optional
-
-    def items(self):
-        return self.__dict__.items()
+@dataclass(
+    init=True,
+)
+class Option(dict):
+    target_code: str | None = None
+    address: str | None = None
+    lint_code: bool = False
 
 
 @dataclass(
     init=True,
 )
-class BuildResult:
+class BuildResult(dict):
     metadata: Metadata
     contract: Contract
     functions: list[Function]
@@ -35,17 +34,14 @@ class BuildResult:
 class Builder:
     def __init__(self, config: Option):
         # mutable options
-        self.address = None
-        self.target_code: str = ""
+        self.address = config.address
+        self.target_code: str = config.target_code
         self.foundry_abs_path: str = os.path.join(project_root, foundry_dir)
-        self.target_abs_path: str = ""
-        self.lint_code: bool = False
-        for k, v in config.items():
-            setattr(self, k, v)
+        self.target_abs_path: str = os.path.join(self.foundry_abs_path, "raw.sol")
 
     @staticmethod
-    def is_none(option: str) -> bool:
-        return str(option).strip() in ["", None]
+    def is_none(arg: str | None) -> bool:
+        return arg is None or str(arg).strip() in ["", None]
 
     @staticmethod
     def metadata() -> Metadata:
@@ -123,7 +119,7 @@ class Builder:
                 )
             )
 
-        return self.contract().functions
+        return functions
 
     def build(self) -> BuildResult:
         # 0. load remote code if not ready and store
@@ -147,7 +143,9 @@ class Builder:
     def get_remote_code(self) -> str:
         if not self.is_none(self.address):
             if self.metadata().chain == "unichain":
-                return get_contract_json(self.address)["source_code"]
+                _json = get_contract_json(self.address)
+
+                return _json["source_code"]
             raise NotImplementedError
         raise ValueError("No address provided")
 
@@ -160,17 +158,29 @@ class Builder:
         raise NotImplementedError
 
 
+def test_is_none():
+    assert Builder.is_none("") is True
+    assert Builder.is_none(None) is True
+    assert Builder.is_none(" ") is True
+    assert Builder.is_none("a") is False
+
+
 def test_builder():
     builder = Builder(Option(
         target_code="""// SPDX-License-Identifier: MIT
         pragma solidity ^0.8.0;contract ComplexChecks { uint256 public value; error ValueTooLow(uint256 provided, uint256 required);constructor(uint256 _initialValue) {      value = _initialValue;}function setValue(uint256 _value) public {require(_value > 0, "Value must be greater than zero"); assert(value != _value); require(isEven(_value), "Value must be even"); if (_value < 10) {revert ValueTooLow({provided: _value, required: 10});} revert();     revert("This is a revert without a custom error"); value = _value;}function isEven(uint256 _value) internal pure returns (bool) {return _value % 2 == 0;}}""",
         lint_code=True,
+        address="0x38EB8B22Df3Ae7fb21e92881151B365Df14ba967"
     ))
+    assert builder.target_code != ""
     # print(builder.foundry_abs_path)
 
     # builder.code_ready()
     res = builder.build()
-    print(res)
+    for k0, v0 in res.items():
+        print(k0)
+        for k1, v1 in v0.items():
+            print(k1, v1)
 
 
 def test_info_inheritance():

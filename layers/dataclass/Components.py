@@ -6,7 +6,7 @@ from layers.dataclass.Attributes import Location, Visibility, Scope, Mutability
 # TODO: consider using slither classes
 
 @dataclass
-class Variable:
+class Variable(dict):
     name: str
     signature: str  # contract:(function)
     type: str
@@ -22,7 +22,7 @@ class Variable:
     init=True,
     frozen=True,
 )
-class Metadata:
+class Metadata(dict):
     chain: str
     evm_version: str
     # ... etc
@@ -31,7 +31,7 @@ class Metadata:
 # TODO: consider using slither classes
 
 @dataclass
-class Function:
+class Function(dict):
     name: str
     parameters: list[Variable]
     visibility: str
@@ -45,9 +45,6 @@ class Function:
     def has_low_level_call(self):
         raise NotImplementedError
 
-    def key(self):
-        return self.__dict__.keys()
-
 
 # TODO: consider using slither classes
 
@@ -56,14 +53,13 @@ class Function:
     init=True,
     eq=True,
 )
-class Contract:
+class Contract(dict):
     raw_code: str
     formatted_code: str
     version: str  # solc version # TODO: git commit hash if possible
     name: str
     inheritance: list[str]
     library: list[str]
-    functions: list[Function] = ()
 
     # modifier: list[str]
     # variable: list[Variable]
@@ -77,8 +73,6 @@ class Contract:
     def __hash__(self):
         return hash(f"{self.name}:{self.version}")
 
-    def key(self):
-        return self.__dict__.keys()
 
     @staticmethod
     def to_instance(data: dict) -> 'Contract':
