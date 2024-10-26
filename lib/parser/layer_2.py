@@ -58,6 +58,7 @@ def get_modifiers(_target_path="code/3.sol"):
 def get_variables(_target_path="code/0xe8e23e97fa135823143d6b9cba9c699040d51f70.sol") -> dict[str, list[dict]]:
     """
     Get the variables of the contract.
+    Code should be formatted by the Loader before calling this function.
     :rtype: dict[str, list[dict]]
     :returns: { $variableName: [{ 'NAME', 'SIG', 'SCOPE', 'LOCATION', 'VISIBLE', 'TYPE', 'MUTABLE' }, ...], ... }
     """

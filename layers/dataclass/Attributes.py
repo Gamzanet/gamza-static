@@ -2,29 +2,78 @@ import enum
 
 
 class Visibility(enum.Enum):
-    PUBLIC = 1
-    EXTERNAL = 2
-    INTERNAL = 3
-    PRIVATE = 4
+    PUBLIC = "public"
+    EXTERNAL = "external"
+    INTERNAL = "internal"
+    PRIVATE = "private"
+
+    @staticmethod
+    def from_str(value: str):
+        if value is None:
+            return None
+        mapping = {
+            "public": Visibility.PUBLIC,
+            "external": Visibility.EXTERNAL,
+            "internal": Visibility.INTERNAL,
+            "private": Visibility.PRIVATE
+        }
+        return mapping.get(value.lower())
 
 
 class Mutability(enum.Enum):
-    MUTABLE = 1
-    IMMUTABLE = 2
-    CONSTANT = 3
-    TRANSIENT = 4
+    MUTABLE = "mutable"
+    IMMUTABLE = "immutable"
+    CONSTANT = "constant"
+    TRANSIENT = "transient"
+
+    @staticmethod
+    def from_str(value: str):
+        if value is None:
+            return None
+        mapping = {
+            "mutable": Mutability.MUTABLE,
+            "immutable": Mutability.IMMUTABLE,
+            "constant": Mutability.CONSTANT,
+            "transient": Mutability.TRANSIENT
+        }
+        return mapping.get(value.lower())
 
 
 class Scope(enum.Enum):
-    FUNCTION = 1
-    STORAGE = 2
-    ARGS = 3
-    RETURNS = 4
-    INHERITED = 5  # TODO: classify 'INHERITED'
+    FUNCTION = "function"
+    STORAGE = "storage"
+    ARGS = "args"
+    RETURNS = "returns"
+    INHERITED = "inherited"  # TODO: classify 'INHERITED'
+
+    @staticmethod
+    def from_str(value: str):
+        if value is None:
+            return None
+        mapping = {
+            "function": Scope.FUNCTION,
+            "storage": Scope.STORAGE,
+            "args": Scope.ARGS,
+            "returns": Scope.RETURNS,
+            "inherited": Scope.INHERITED
+        }
+        return mapping.get(value.lower())
 
 
 class Location(enum.Enum):
-    CALLDATA = 1
-    MEMORY = 2
-    STORAGE = 3
-    TRANSIENT = 4  # TODO: classify 'TRANSIENT'
+    CALLDATA = "calldata"
+    MEMORY = "memory"
+    STORAGE = "storage"
+    TRANSIENT = "transient"  # TODO: classify 'TRANSIENT'
+
+    @staticmethod
+    def from_str(value: str):
+        if value is None:
+            return None
+        mapping = {
+            "calldata": Location.CALLDATA,
+            "memory": Location.MEMORY,
+            "storage": Location.STORAGE,
+            "transient": Location.TRANSIENT
+        }
+        return mapping.get(value.lower())
