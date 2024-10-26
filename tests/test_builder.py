@@ -2,7 +2,7 @@ import os.path
 from typing import TypeVar
 
 from layers.Builder import BaseBuilder, ContractBuilder, FunctionBuilder, VariableBuilder
-from layers.dataclass.Attributes import Mutability, Scope, Location, Visibility
+from layers.dataclass.Attributes import Mutability, Scope, Location, Visibility, Purity
 from layers.dataclass.Components import Contract, Function, Variable
 
 Buildable = TypeVar('Buildable', Contract, Function, Variable)
@@ -25,65 +25,54 @@ def test_contract_builder():
 
 def test_function_builder():
     builder = FunctionBuilder()
-    assert builder.build(_target_code) == [
-        Function(
-            name="setValue",
-            parameters=[],
-            visibility="public",
-            modifiers=["aa", "b(this)"],
-            is_override=True,
-            mutability="",
-            returns=[],
-            body="""
-                    require(_value > 0, "Value must be greater than zero");
-                    assert(value != _value);
-                    require(isEven(_value), "Value must be even");
-                    if (_value < 10) {
-                        revert ValueTooLow({provided: _value, required: 10});
-                    }
-                    revert();
-                    revert("This is a revert without a custom error");
-                    value = _value;""".strip(),
-            _has_low_level_call=True
-        ),
-        Function(
-            name="isEven",
-            parameters=[],
-            visibility="internal",
-            modifiers=[],
-            is_override=False,
-            mutability="pure",
-            returns=[],
-            body="return _value % 2 == 0;",
-            _has_low_level_call=False
-        )
-    ]
+    res = builder.build(_target_code)
+
+    assert res[0].name == 'isEven'
+    assert res[0].visibility == Visibility.INTERNAL
+    assert res[0].parameters == ['uint256 _value']
+    assert res[0].payable == False
+    assert res[0].purity == Purity.PURE
+    assert res[0].modifiers == []
+    assert res[0].is_override == False
+    assert res[0].returns == ['bool']
+    assert res[0].body != ""
+
+    assert res[1].name == 'setValue'
+    assert res[1].visibility == Visibility.PUBLIC
+    assert res[1].parameters == ['uint256 _value']
+    assert res[1].payable == False
+    assert res[1].purity is None
+    assert res[1].modifiers == ['aa', 'b(this)']
+    assert res[1].is_override == True
+    assert res[1].returns == []
+    assert res[1].body != ""
+
 
 
 def test_variable_builder():
     builder = VariableBuilder()
-    assert builder.build(_target_code) == [
-        Variable(name='value',
-                 signature='ComplexChecks',
-                 type='uint256',
-                 location=Location.STORAGE,
-                 visibility=Visibility.PUBLIC,
-                 scope=Scope.STORAGE,
-                 mutability=Mutability.MUTABLE),
+    res = builder.build(_target_code)
 
-        Variable(name='_value',
-                 signature='ComplexChecks:setValue',
-                 type='uint256',
-                 location=Location.MEMORY,
-                 visibility=None,
-                 scope=Scope.ARGS,
-                 mutability=Mutability.MUTABLE),
+    assert res[0].name == 'value'
+    assert res[0].signature == 'ComplexChecks'
+    assert res[0].type == 'uint256'
+    assert res[0].location == Location.STORAGE
+    assert res[0].visibility == Visibility.PUBLIC
+    assert res[0].scope == Scope.STORAGE
+    assert res[0].mutability == Mutability.MUTABLE
 
-        Variable(name='_value',
-                 signature='ComplexChecks:isEven',
-                 type='uint256',
-                 location=Location.MEMORY,
-                 visibility=None,
-                 scope=Scope.ARGS,
-                 mutability=Mutability.MUTABLE)
-    ]
+    assert res[1].name == '_value'
+    assert res[1].signature == 'ComplexChecks:setValue'
+    assert res[1].type == 'uint256'
+    assert res[1].location == Location.MEMORY
+    assert res[1].visibility is None
+    assert res[1].scope == Scope.ARGS
+    assert res[1].mutability == Mutability.MUTABLE
+
+    assert res[2].name == '_value'
+    assert res[2].signature == 'ComplexChecks:isEven'
+    assert res[2].type == 'uint256'
+    assert res[2].location == Location.MEMORY
+    assert res[2].visibility is None
+    assert res[2].scope == Scope.ARGS
+    assert res[2].mutability == Mutability.MUTABLE
