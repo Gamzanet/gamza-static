@@ -18,15 +18,16 @@ def read_message_schema_by_rule_name(_rule_name: str):
         with open(f"rules/{_rule_name}", "r") as f:
             file = f.read()
     res = yaml.safe_load(file)
-    res = search("rules[0].message", res)
-    # print("read_message_schema_by_rule_name:", res)
-    return res
+    return search("rules[0].message", res)
 
 
 # input: $CONTRACT |&| $SIG |&| $LVALUE |&| $RVALUE |;|
 # output: ['CONTRACT', 'SIG', 'LVALUE', 'RVALUE']
 def parse_message_schema(_msg_schema: str) -> list[str]:
-    return re.findall(r"\$(\w+)", _msg_schema, flags=re.MULTILINE)
+    if not _msg_schema:
+        raise ValueError("Message schema is empty")
+    res = re.findall(r"\$(\w+)", _msg_schema, flags=re.MULTILINE)
+    return res
 
 
 # CLI: npm run case2
@@ -70,7 +71,9 @@ def run_semgrep_raw_msg(_target_path: str = "code") -> list[tuple]:
 
 def get_semgrep_output(_rule_name: str, _target_path: str = "code", use_cache: bool = False) -> list:
     # try read json output
-    _json_file_name = f"{_rule_name}_{_target_path.replace("/", "-")}.json"
+    _json_file_name = (f"{_rule_name}_{_target_path}"
+                       .replace("/", "-")
+                       .replace(".sol", ".json"))
 
     if use_cache:
         try:
@@ -80,12 +83,10 @@ def get_semgrep_output(_rule_name: str, _target_path: str = "code", use_cache: b
             pass
 
     _output: list[dict] = run_semgrep_one(_rule_name, _target_path)
-
     json.dump(
         {"data": _output},
         open_with_mkdir(f"out/{_json_file_name}", "w")
     )
-
     return _output
 
 
