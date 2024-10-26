@@ -1,6 +1,22 @@
 import enum
 
 
+class Purity(enum.Enum):
+    PURE = "pure"
+    VIEW = "view"
+
+    @staticmethod
+    def from_str(value: str):
+        if value is None:
+            return None
+        mapping = {
+            "pure": Purity.PURE,
+            "view": Purity.VIEW
+        }
+        return mapping.get(value.lower())
+
+
+
 class Visibility(enum.Enum):
     PUBLIC = "public"
     EXTERNAL = "external"
