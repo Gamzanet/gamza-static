@@ -4,7 +4,7 @@
     "scripts": {
         "preinstall": "corepack enable",
         "install": "bash install.sh",
-        "test": "pytest",
+        "test": "pytest --sw",
         "coverage": "pytest --cov=.",
         "case1": "semgrep scan -f rules/misconfigured-Hook.yaml .",
         "case2": "semgrep scan -f rules/misconfigured-Hook.yaml code --emacs",
