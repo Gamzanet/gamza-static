@@ -73,10 +73,9 @@ def get_functions(_target_path="code/3.sol") -> list[Function]:
     for _output, _body in zip(output, body):
         name = ''.join(re.split(r"(?<=[,()])\s+|\s+(?=\))", _output['SIG'], flags=re.MULTILINE)) if _output[
             "SIG"] else None
-        modifiers = list(map(str.strip, re.split(r"\s", _output["MOD"]))) if _output["MOD"] else []
         _has_params = re.search(r"\((.*)\)", _output["SIG"])
         parameters = list(map(str.strip, _has_params.group(1).split(","))) if _has_params else []
-
+        modifiers = _output["MOD"].split(" ") if _output["MOD"] else []
         # TODO: delegate data processing to Builder
 
         res.append(Function(
