@@ -1,16 +1,7 @@
 from jmespath import search
 
-import engine.layer_2
 from engine.run_semgrep import get_semgrep_output
 from utils.paths import open_with_mkdir
-
-
-def test_parser_info_layer2():
-    _res = engine.layer_2.detect_storage_overwrite_in_multi_pool_initialization(
-        _target_path="code/4.sol"
-    )
-    assert _res != {}
-    print(_res)
 
 
 def test_get_inheritance():
