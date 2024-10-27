@@ -52,8 +52,11 @@ def set_solc_version_by_sol(_path: str) -> str:
     return set_solc_version_by_content(_content)
 
 
+def get_solc_version(_content: str) -> str:
+    return re.search(r"pragma\s+solidity\s+(?:\W+)?([\d.]+);", _content).group(1)
+
 def set_solc_version_by_content(_content: str) -> str:
-    _version = re.search(r"pragma\s+solidity\s+(?:\W+)?([\d.]+);", _content).group(1)
+    _version = get_solc_version(_content)
     set_solc_version(_version)
     return _version
 
@@ -84,3 +87,7 @@ def get_library(target_abs_path: str) -> list[str]:
         raise ValueError
     info_library: list[dict] = get_semgrep_output("info-library", target_abs_path)
     return search("[*].data.LIBRARY", info_library)
+
+
+def get_license(_code: str) -> str:
+    return re.search(r"//\s*SPDX-License-Identifier:\s*(.*)", _code).group(1)

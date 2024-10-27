@@ -2,11 +2,12 @@ import os.path
 import re
 from typing import Generic, TypeVar
 
-from engine.layer_0 import set_solc_version_by_content
+from engine.layer_0 import get_contract_name, get_inheritance, get_library, get_license, \
+    get_solc_version
 from layers.Loader import Loader
 from layers.dataclass.Attributes import Mutability, Scope, Location, Visibility
-from layers.dataclass.Components import Contract, Function, Variable
-from parser.layer_2 import get_inheritance, get_library, get_contract_name, get_variables, get_functions
+from layers.dataclass.Components import Contract, Function, Variable, Metadata
+from parser.layer_2 import get_variables, get_functions
 
 Buildable = TypeVar('Buildable', Contract, Function, Variable)
 
@@ -16,12 +17,26 @@ class BaseBuilder(Generic[Buildable]):
         self.loader = Loader()
 
     def build(self, _code) -> str:
-        _path = self.loader.cache_content(_code, "sol")
+        _path = self.loader.get_cache_path(_code, "sol")
         if not os.path.exists(_path):
-            _path = self.loader.cache_content(_code, "sol")
+            self.loader.overwrite(_path, _code)
         self.loader.format(_path)
         return _path
 
+
+class MetadataBuilder(BaseBuilder[Metadata]):
+    def __init__(self):
+        super().__init__()
+
+    def build(self, _code) -> Metadata:
+        _path = super().build(_code)
+        _code = self.loader.read_code(_path)
+        return Metadata(
+            chain="unichain",
+            evm_version="cancun",
+            license=get_license(_code),
+            solc_version=get_solc_version(_code)
+        )
 
 class ContractBuilder(BaseBuilder[Contract]):
     def __init__(self):
@@ -30,10 +45,10 @@ class ContractBuilder(BaseBuilder[Contract]):
     def build(self, _code) -> Contract:
         _path = super().build(_code)
         _code = self.loader.read_code(_path)
-        _version = set_solc_version_by_content(_code)
         return Contract(
             target_code=_code,
-            version=_version,
+            inline_code=self.loader.inline_code(_code),
+            version=get_solc_version(_code),
             name=get_contract_name(_code),
             inheritance=get_inheritance(_path),
             library=get_library(_path)

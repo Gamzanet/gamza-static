@@ -1,7 +1,7 @@
 import os.path
 from typing import TypeVar
 
-from layers.Builder import BaseBuilder, ContractBuilder, FunctionBuilder, VariableBuilder
+from layers.Builder import BaseBuilder, ContractBuilder, FunctionBuilder, VariableBuilder, MetadataBuilder
 from layers.dataclass.Attributes import Mutability, Scope, Location, Visibility, Purity
 from layers.dataclass.Components import Contract, Function, Variable
 
@@ -12,15 +12,25 @@ _cached = "49cd11d435ac68a380b5c14dd54b9720fa27bbd4250adb9b1136c7fa4673e784.sol"
 _cached_path = BaseBuilder().loader.as_abs_path(os.path.join("out", _cached))
 
 
+def test_metadata_builder():
+    builder = MetadataBuilder()
+    res = builder.build(_target_code)
+
+    assert res.chain == "unichain"
+    assert res.evm_version == "cancun"
+    assert res.license == "MIT"
+    assert res.solc_version == "0.8.0"
+
 def test_contract_builder():
     builder = ContractBuilder()
-    assert builder.build(_target_code) == Contract(
-        target_code=open(_cached_path, "r").read(),
-        version="0.8.0",
-        name="ComplexChecks",
-        inheritance=["A", "B"],
-        library=["aa"]
-    )
+    res = builder.build(_target_code)
+
+    assert res.target_code == open(_cached_path, "r").read()
+    assert res.inline_code != ""
+    assert res.version == "0.8.0"
+    assert res.name == "ComplexChecks"
+    assert res.inheritance == ["A", "B"]
+    assert res.library == ["aa"]
 
 
 def test_function_builder():
