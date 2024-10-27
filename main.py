@@ -1,8 +1,6 @@
 import os
 import sys
-
-import engine.foundry
-import engine.slither
+from os.path import join as _join
 
 
 def base_paths(x: str) -> str:
@@ -15,11 +13,16 @@ _path_lib = base_paths("lib")
 _path_code = base_paths("code")
 sys.path.append(_path_lib)
 
-from utils.paths import rule_rel_path_by_name
+os.chdir(project_root)
+sys.path.append(_join(project_root, "lib"))
+
+import engine.foundry
+import engine.slither
+from layers.Aggregator import Aggregator
+from layers.Loader import Loader
+
 from utils.unichain import store_foundry_toml, store_remappings, store_all_dependencies
 from utils import foundry_dir
-from engine.layer_2 import get_variables
-from engine.run_semgrep import get_semgrep_output
 
 
 def test_integration():
@@ -37,32 +40,21 @@ def test_integration():
     _res: tuple[str, str] = engine.slither.lint_code(_paths[0])
     # print(res)
 
-    # to run semgrep rules,
-    # path needs to start with "code"
-    _target_path = os.path.join(foundry_dir, _paths[0])
+    # code in "code/*" dir can simply be read by Loader
+    file_name = "DoubleInitHook"
+    code = Loader().read_code(f"{file_name}.sol")
+    assert len(code) > 0
 
-    _output_l1: list = get_semgrep_output(
-        rule_rel_path_by_name("misconfigured-Hook"),
-        _target_path,
-        False
-    )
-    # pprint(_output_l)
+    # can also read code from absolute path
+    file_path = os.path.join(project_root, "code", "DoubleInitHook.sol")
+    code = Loader().read_code(file_path)
+    assert len(code) > 0
 
-    _output_l2: list = get_semgrep_output(
-        rule_rel_path_by_name("info-variable"),
-        _target_path,
-        False
-    )
-    # pprint(_output_l)
-
-    _output_d: dict = get_variables(_target_path)
-    # pprint(_output_d)
-
-    assert len(_output_l1) > 0
-    assert len(_output_l2) > 0
-    assert _output_d != {}
+    aggregator = Aggregator()
+    res = aggregator.aggregate(code)
+    print(res)
+    print(project_root)
 
 
 if __name__ == "__main__":
-    # test_integration()
-    print(project_root)
+    test_integration()

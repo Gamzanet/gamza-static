@@ -5,13 +5,12 @@ from os.path import join
 
 import engine.foundry
 import extractor.getter
-from main import project_root
-from utils.paths import open_with_mkdir
+from utils.paths import open_with_mkdir, project_root_abs
 from utils.unichain import get_contract_json
 
 
 class Loader:
-    def __init__(self, root: str = project_root):
+    def __init__(self, root: str = project_root_abs):
         self._root = root
 
     @property
