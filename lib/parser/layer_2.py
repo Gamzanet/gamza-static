@@ -246,19 +246,3 @@ def detect_storage_overwrite_in_multi_pool_initialization(
     return {}
 
 
-def get_contract_name(_code: str) -> str:
-    return re.search(r"contract\s+(\w+)[\s\S]+?{", _code).group(1)
-
-
-def get_inheritance(target_abs_path: str) -> list[str]:
-    if not target_abs_path:
-        raise ValueError
-    info_inheritance: list[dict] = get_semgrep_output("info-inheritance", target_abs_path)
-    return search("[*].data.INHERIT", info_inheritance)
-
-
-def get_library(target_abs_path: str) -> list[str]:
-    if not target_abs_path:
-        raise ValueError
-    info_library: list[dict] = get_semgrep_output("info-library", target_abs_path)
-    return search("[*].data.LIBRARY", info_library)

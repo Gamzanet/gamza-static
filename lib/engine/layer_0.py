@@ -1,7 +1,10 @@
 import os
 import re
 
+from jmespath import search
+
 from etherscan.unichain import store_all_dependencies, store_remappings, foundry_dir, store_foundry_toml
+from parser.run_semgrep import get_semgrep_output
 from utils.paths import run_cli_must_succeed, run_cli_can_failed
 
 
@@ -63,3 +66,21 @@ def set_solc_version(_version: str) -> None:
     if not is_installed:
         run_cli_must_succeed(f"solc-select install {_version}")
     run_cli_must_succeed(f"solc-select use {_version}")
+
+
+def get_contract_name(_code: str) -> str:
+    return re.search(r"contract\s+(\w+)[\s\S]+?{", _code).group(1)
+
+
+def get_inheritance(target_abs_path: str) -> list[str]:
+    if not target_abs_path:
+        raise ValueError
+    info_inheritance: list[dict] = get_semgrep_output("info-inheritance", target_abs_path)
+    return search("[*].data.INHERIT", info_inheritance)
+
+
+def get_library(target_abs_path: str) -> list[str]:
+    if not target_abs_path:
+        raise ValueError
+    info_library: list[dict] = get_semgrep_output("info-library", target_abs_path)
+    return search("[*].data.LIBRARY", info_library)
