@@ -2,12 +2,12 @@ import os.path
 import re
 from typing import Generic, TypeVar
 
-from engine.layer_0 import get_contract_name, get_inheritance, get_library, get_license, \
+from engine.layer_2 import get_variables, get_functions
+from extractor.getter import get_contract_name, get_inheritance, get_library, get_license, get_imports, \
     get_solc_version
 from layers.Loader import Loader
 from layers.dataclass.Attributes import Mutability, Scope, Location, Visibility
 from layers.dataclass.Components import Contract, Function, Variable, Metadata
-from parser.layer_2 import get_variables, get_functions
 
 Buildable = TypeVar('Buildable', Contract, Function, Variable)
 
@@ -17,6 +17,7 @@ class BaseBuilder(Generic[Buildable]):
         self.loader = Loader()
 
     def build(self, _code) -> str:
+        _code = self.loader.remove_comments(_code)
         _path = self.loader.get_cache_path(_code, "sol")
         if not os.path.exists(_path):
             self.loader.overwrite(_path, _code)
@@ -38,6 +39,7 @@ class MetadataBuilder(BaseBuilder[Metadata]):
             solc_version=get_solc_version(_code)
         )
 
+
 class ContractBuilder(BaseBuilder[Contract]):
     def __init__(self):
         super().__init__()
@@ -47,8 +49,8 @@ class ContractBuilder(BaseBuilder[Contract]):
         _code = self.loader.read_code(_path)
         return Contract(
             target_code=_code,
+            imports=get_imports(_code),
             inline_code=self.loader.inline_code(_code),
-            version=get_solc_version(_code),
             name=get_contract_name(_code),
             inheritance=get_inheritance(_path),
             library=get_library(_path)
@@ -67,10 +69,10 @@ class FunctionBuilder(BaseBuilder[Function]):
         # 2. Builder should build the functions
         for _function in _parsed:
             _function.name = _function.name.split("(")[0]
-            _function.parameters = self.search_small_bracket_and_parse(str(_function.parameters))
+            _function.parameters = _function.parameters if _function.parameters else []
             _function.payable = _function.payable == "payable"
             _function.returns = self.search_small_bracket_and_parse(str(_function.returns))
-            _function.modifiers = _function.modifiers if _function.modifiers else []
+
         return _parsed
 
     @staticmethod
@@ -81,6 +83,7 @@ class FunctionBuilder(BaseBuilder[Function]):
         except AttributeError:
             _parse = []
         return _parse
+
 
 class VariableBuilder(BaseBuilder[Variable]):
     def __init__(self):
