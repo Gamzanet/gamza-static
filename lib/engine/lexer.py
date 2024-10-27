@@ -1,7 +1,7 @@
 import re
 from threading import Condition
 
-from attr import dataclass
+import attr
 
 
 class Logic:
@@ -61,6 +61,12 @@ class LogicNode:
         return ~_children[-1].logic  # else
 
 
+@attr.frozen(auto_attribs=True)
+class Condition:
+    method: str
+    logic: str
+
+
 def add_child(parent: LogicNode, condition: str = "") -> LogicNode:
     child_node = LogicNode(
         parent.logic &
@@ -83,8 +89,7 @@ class Tokenizer:
         # all kinds of spaces to single space
         code = re.sub(r"\s+", " ", code)
 
-        # TODO: <temp> focus on contract scope
-        code = re.search(r"contract\s+[\s\S]+}", code).group(0)
+        # code = re.search(r"contract\s+[\s\S]+}", code).group(0)
 
         # tokenize
         code = (
@@ -101,7 +106,7 @@ class Tokenizer:
         pattern = r"\$\w+\$\s*\([\s\S]+?\)\;|[\{\}]|\$\w+\$"
         code = "\n".join(re.findall(pattern, code))
         code = re.sub(r"\$rev\$[\s\S]+?;", "$revX$;", code)
-        code = re.sub(r",\s*\"[\w ]+\"", "", code)
+        code = re.sub(r",\s*\"[\S ]+\"", "", code)
 
         code = (
             code
@@ -122,15 +127,6 @@ class Tokenizer:
         code = list(map(str.strip, code))
 
         return code
-
-
-@dataclass
-class Condition:
-    method: str
-    logic: Logic
-
-    def __str__(self):
-        return f"{self.method}:{self.logic.native}"
 
 
 class ConditionStack:
@@ -175,7 +171,11 @@ class ConditionStack:
 
         if self.is_condition(item) and self.peek() in self.leaf_keywords:
             _unwrapped = item[1:-1]
-            self.conditions.append(Condition(self.pop(), Logic(self.cur.logic & Logic(_unwrapped))))
+            self.conditions.append(
+                Condition(
+                    self.pop(),
+                    Logic(str(self.cur.logic & Logic(_unwrapped))).native
+                ))
             return
 
         # TODO: currently, if-else block should use brackets
