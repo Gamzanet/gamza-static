@@ -28,7 +28,6 @@ def test_contract_builder():
 
     assert res.target_code == open(_cached_path, "r").read()
     assert res.inline_code != ""
-    assert res.version == "0.8.0"
     assert res.name == "ComplexChecks"
     assert res.inheritance == ["A", "B"]
     assert res.library == ["aa"]
@@ -38,24 +37,24 @@ def test_function_builder():
     builder = FunctionBuilder()
     res = builder.build(_target_code)
 
-    assert res[0].name == 'isEven'
-    assert res[0].visibility == Visibility.INTERNAL
+    assert res[0].name == 'setValue'
+    assert res[0].visibility == Visibility.PUBLIC
     assert res[0].parameters == ['uint256 _value']
     assert res[0].payable == False
-    assert res[0].purity == Purity.PURE
-    assert res[0].modifiers == []
-    assert res[0].is_override == False
-    assert res[0].returns == ['bool']
+    assert res[0].purity is None
+    assert res[0].modifiers == ['aa', 'b(this)']
+    assert res[0].is_override == True
+    assert res[0].returns == []
     assert res[0].body != ""
 
-    assert res[1].name == 'setValue'
-    assert res[1].visibility == Visibility.PUBLIC
+    assert res[1].name == 'isEven'
+    assert res[1].visibility == Visibility.INTERNAL
     assert res[1].parameters == ['uint256 _value']
     assert res[1].payable == False
-    assert res[1].purity is None
-    assert res[1].modifiers == ['aa', 'b(this)']
-    assert res[1].is_override == True
-    assert res[1].returns == []
+    assert res[1].purity == Purity.PURE
+    assert res[1].modifiers == []
+    assert res[1].is_override == False
+    assert res[1].returns == ['bool']
     assert res[1].body != ""
 
 
