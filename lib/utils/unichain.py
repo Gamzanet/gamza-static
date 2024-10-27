@@ -8,7 +8,7 @@ import os.path
 
 from eth_typing import HexAddress, HexStr
 
-from etherscan import _cache_base
+from utils import _cache_base
 from utils.paths import open_with_mkdir
 
 

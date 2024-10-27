@@ -1,8 +1,8 @@
 import os
 import re
 
-from etherscan import foundry_dir
 from extractor.getter import get_solc_version
+from utils import foundry_dir
 from utils.paths import run_cli_can_failed, run_cli_must_succeed
 
 

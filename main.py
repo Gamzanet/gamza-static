@@ -16,8 +16,8 @@ _path_code = base_paths("code")
 sys.path.append(_path_lib)
 
 from utils.paths import rule_rel_path_by_name
-from etherscan.unichain import store_foundry_toml, store_remappings, store_all_dependencies
-from etherscan import foundry_dir
+from utils.unichain import store_foundry_toml, store_remappings, store_all_dependencies
+from utils import foundry_dir
 from engine.layer_2 import get_variables
 from engine.run_semgrep import get_semgrep_output
 

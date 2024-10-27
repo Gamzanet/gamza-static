@@ -2,9 +2,9 @@ import os
 
 from engine.foundry import format_code
 from engine.slither import set_solc_version_by_content, lint_code, set_solc_version
-from etherscan.unichain import store_unichain_contract, store_remappings, store_foundry_toml
 from layers.Loader import Loader
 from utils.paths import run_cli_must_succeed
+from utils.unichain import store_unichain_contract, store_remappings, store_foundry_toml
 
 
 def test_store_source_and_lint():
