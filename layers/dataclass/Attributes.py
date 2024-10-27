@@ -1,7 +1,15 @@
 import enum
 
 
-class Purity(enum.Enum):
+class Type(enum.Enum):
+    def __str__(self):
+        return self.value
+
+    def __eq__(self, other):
+        return self.value == other or super().__eq__(other)
+
+
+class Purity(Type):
     PURE = "pure"
     VIEW = "view"
 
@@ -16,8 +24,7 @@ class Purity(enum.Enum):
         return mapping.get(value.lower())
 
 
-
-class Visibility(enum.Enum):
+class Visibility(Type):
     PUBLIC = "public"
     EXTERNAL = "external"
     INTERNAL = "internal"
@@ -36,7 +43,7 @@ class Visibility(enum.Enum):
         return mapping.get(value.lower())
 
 
-class Mutability(enum.Enum):
+class Mutability(Type):
     MUTABLE = "mutable"
     IMMUTABLE = "immutable"
     CONSTANT = "constant"
@@ -55,7 +62,7 @@ class Mutability(enum.Enum):
         return mapping.get(value.lower())
 
 
-class Scope(enum.Enum):
+class Scope(Type):
     FUNCTION = "function"
     STORAGE = "storage"
     ARGS = "args"
@@ -76,7 +83,7 @@ class Scope(enum.Enum):
         return mapping.get(value.lower())
 
 
-class Location(enum.Enum):
+class Location(Type):
     CALLDATA = "calldata"
     MEMORY = "memory"
     STORAGE = "storage"
