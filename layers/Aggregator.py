@@ -1,35 +1,106 @@
-from layers.Builder2 import Builder
-from layers.dataclass.Components import Metadata, Contract
+import attr
+
+from engine.lexer import Condition
+from layers import Builder
+from layers.dataclass.Attributes import Purity, Visibility
+from layers.dataclass.Components import Variable
 
 
-# 5. 이후 추가적으로 필요한 custom semgrep rules 돌리기 (전처리기 이전에 수행하는게 맞음) ㅡ 차라리 condition 확인을 l2 함수로 만들면 됨
-# 6. conditions는 현재 contract 기준으로 구현되어 있는데 이제 각각의 함수 컨텍스트 안에서 실행해야함
-#     1. ㅁㅣ리 만들어둔 전처리기로 클린업
-#     2. 토크나이저로 토큰화
-#     3. Parse로 파싱
-#         1. 원래라면 다시 평문화 안 하겠지만 이미 구현해둔거 때뭉에 평문화
-#     4. Lexer 돌리기
+@attr.s(auto_attribs=True)
+class ResultScope:
+    name: str
+    variable: list[Variable]
+
+
+@attr.s(auto_attribs=True)
+class ContractScope(ResultScope):
+    functions: list[str]
+    libraries: list[str]
+
+
+@attr.s(auto_attribs=True)
+class FunctionScope(ResultScope):
+    parameters: list[Variable]
+    purity: Purity
+    visibility: Visibility
+    payable: bool
+    override: bool
+    modifier: list[str]
+    returns: list[Variable]
+    body: str
+    access_control: list[Condition]
+
+
+@attr.s(auto_attribs=True)
+class FileScope:
+    file_name: str
+    license: str
+    solc_version: str
+    imports: list[str]
+    contract_scope: ContractScope
+    function_scopes: list[FunctionScope]
+
+
+@attr.s(auto_attribs=True)
+class CodeAnalysisAggregation:
+    chain_name: str
+    evm_version: str
+    data: FileScope  # assume single contract
+
 
 class Aggregator:
-    """
-    This class designed for aggregating all informative analysis results, especially handled in layer 2.
-    This class focus on handling user customized rules, which use variety of different message schemas.
-    """
 
     def __init__(self):
-        self.metadata: Metadata = Metadata(
-            chain="unichain",
-            evm_version="cancun"
+        self.metadata_builder = Builder.MetadataBuilder()
+        self.contract_builder = Builder.ContractBuilder()
+        self.function_builder = Builder.FunctionBuilder()
+        self.variable_builder = Builder.VariableBuilder()
+
+    def aggregate(self, code: str) -> CodeAnalysisAggregation:
+        """
+        This function is designed for aggregating all informative analysis results, especially handled in layer 2.
+        This function focus on handling user customized rules, which use variety of different message schemas.
+        """
+        metadata = self.metadata_builder.build(code)
+        contract = self.contract_builder.build(code)
+        functions = self.function_builder.build(code)
+        variables = self.variable_builder.build(code)
+
+        function_names = [f.name for f in functions]
+        storage_variables = [v for v in variables if v.location == "storage"]
+        function_variables = [v for v in variables if v.location in ["memory", "calldata"]]
+
+        return CodeAnalysisAggregation(
+            chain_name=metadata.chain,
+            evm_version=metadata.evm_version,
+            data=FileScope(
+                license=metadata.license,
+                solc_version=metadata.solc_version,
+                imports=contract.imports,
+                file_name=contract.name,
+                contract_scope=ContractScope(
+                    name=contract.name,
+                    variable=storage_variables,
+                    functions=function_names,
+                    libraries=contract.library
+                ),
+                function_scopes=[
+                    FunctionScope(
+                        name=f.name,
+                        purity=f.purity,
+                        visibility=f.visibility,
+                        payable=f.payable,
+                        override=f.is_override,
+                        body=f.body,
+                        variable=[v for v in function_variables if v.signature.split(":")[-1] == f.name],
+                        modifier=f.modifiers,
+                        access_control=f.access_control,
+                        parameters=[v for v in function_variables if
+                                    v.signature.split(":")[-1] == f.name and v.scope == "args"],
+                        returns=[v for v in function_variables if
+                                 v.signature.split(":")[-1] == f.name and v.scope == "returns"],
+
+                    ) for f in functions
+                ]
+            )
         )
-        self.builder: Builder = Builder({
-
-        })
-        self.contracts: dict[str, Contract] = {}
-
-    def add_contract(self, code: str):
-        self.contracts[str(contract)] = Contract(code)
-
-    def get_functions(self, key: Contract | str):
-        if type(key) == Contract:
-            key = str(key)
-        raise NotImplementedError
