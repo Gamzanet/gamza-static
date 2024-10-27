@@ -21,6 +21,7 @@ def test_metadata_builder():
     assert res.license == "MIT"
     assert res.solc_version == "0.8.0"
 
+
 def test_contract_builder():
     builder = ContractBuilder()
     res = builder.build(_target_code)
@@ -56,7 +57,6 @@ def test_function_builder():
     assert res[1].is_override == True
     assert res[1].returns == []
     assert res[1].body != ""
-
 
 
 def test_variable_builder():

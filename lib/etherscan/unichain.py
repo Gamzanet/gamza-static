@@ -2,17 +2,14 @@
 This module is used to fetch the source code of a contract from the Unichain network.
 The source code is fetched from the Unichain Blockscout API and stored in the code/unichain directory.
 """
-
 import json
+import os
 import os.path
 
 from eth_typing import HexAddress, HexStr
 
+from etherscan import _cache_base
 from utils.paths import open_with_mkdir
-
-_network = "unichain"
-_cache_base = os.path.join("code", _network)
-foundry_dir: str = os.path.join("code", "unichain")
 
 
 def to_hex_address(_str: str) -> HexAddress:
@@ -22,30 +19,6 @@ def to_hex_address(_str: str) -> HexAddress:
     :return: hex address
     """
     return HexAddress(HexStr(_str))
-
-
-def get_contract_json(_address: HexAddress | str) -> dict:
-    """
-    Get the json object of a contract
-    :param _address: address of the contract
-    :return: API JSON response
-    """
-    _address: HexAddress = to_hex_address(_address)
-    _file_path = os.path.join(_cache_base, "json", f"{_address}.json")
-    try:
-        # force cache, since no need to fetch the same contract source code multiple times
-        with open(_file_path, "r") as j:
-            _json = json.load(j)
-    except (FileNotFoundError, json.JSONDecodeError):
-        with open_with_mkdir(_file_path, "w") as j:
-            _api_endpoint = "https://unichain-sepolia.blockscout.com/api/v2/smart-contracts/"
-            import requests
-            _json = requests.get(
-                f"{_api_endpoint}{_address}",
-                headers={"Content-Type": "application/json", "Cache-Control": "public"},
-            ).json()
-            json.dump(_json, j)
-    return _json
 
 
 def store_all_dependencies(_address: str) -> list[str]:
@@ -113,3 +86,39 @@ evm-version = "cancun"
             f.write(_toml_content)
     except FileExistsError:
         pass
+
+
+def store_unichain_contract(_address: str) -> str:
+    """
+    Get the source unichain of an address.
+    :param _address: The address to get the source unichain of.
+    :return: path where the target contract code is stored
+    """
+    _paths = store_all_dependencies(_address)
+    store_remappings(_address)
+    store_foundry_toml()
+    return _paths[0]
+
+
+def get_contract_json(_address: HexAddress | str) -> dict:
+    """
+    Get the json object of a contract
+    :param _address: address of the contract
+    :return: API JSON response
+    """
+    _address: HexAddress = HexAddress(HexStr(_address))
+    _file_path = os.path.join(_cache_base, "json", f"{_address}.json")
+    try:
+        # force cache, since no need to fetch the same contract source code multiple times
+        with open(_file_path, "r") as j:
+            _json = json.load(j)
+    except (FileNotFoundError, json.JSONDecodeError):
+        with open_with_mkdir(_file_path, "w") as j:
+            _api_endpoint = "https://unichain-sepolia.blockscout.com/api/v2/smart-contracts/"
+            import requests
+            _json = requests.get(
+                f"{_api_endpoint}{_address}",
+                headers={"Content-Type": "application/json", "Cache-Control": "public"},
+            ).json()
+            json.dump(_json, j)
+    return _json

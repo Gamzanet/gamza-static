@@ -1,6 +1,9 @@
 import os
 import sys
 
+import engine.foundry
+import engine.slither
+
 
 def base_paths(x: str) -> str:
     return os.path.abspath(os.path.join(os.path.dirname(__file__), x))
@@ -13,10 +16,10 @@ _path_code = base_paths("code")
 sys.path.append(_path_lib)
 
 from utils.paths import rule_rel_path_by_name
-from engine import layer_0
-from etherscan.unichain import store_foundry_toml, store_remappings, store_all_dependencies, foundry_dir
-from parser.layer_2 import get_variables
-from parser.run_semgrep import get_semgrep_output
+from etherscan.unichain import store_foundry_toml, store_remappings, store_all_dependencies
+from etherscan import foundry_dir
+from engine.layer_2 import get_variables
+from engine.run_semgrep import get_semgrep_output
 
 
 def test_integration():
@@ -27,11 +30,11 @@ def test_integration():
     store_remappings(_address)
     store_foundry_toml()
 
-    _diff = layer_0.format_code(foundry_dir)  # "code/unichain" directory
+    _diff = engine.foundry.format_code(foundry_dir)  # "code/unichain" directory
     # print(_diff)
 
     # linting the target contract recursively lints all dependencies
-    _res: tuple[str, str] = layer_0.lint_code(_paths[0])
+    _res: tuple[str, str] = engine.slither.lint_code(_paths[0])
     # print(res)
 
     # to run semgrep rules,

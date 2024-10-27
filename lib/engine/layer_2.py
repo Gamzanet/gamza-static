@@ -4,9 +4,9 @@ from pprint import pprint
 
 from jmespath import search
 
+from engine.run_semgrep import get_semgrep_output
 from layers.dataclass.Attributes import Purity, Visibility
 from layers.dataclass.Components import Function
-from parser.run_semgrep import get_semgrep_output
 
 
 def is_valid_hook(_target_path="code/1.sol"):
@@ -74,8 +74,8 @@ def get_functions(_target_path="code/3.sol") -> list[Function]:
         name = ''.join(re.split(r"(?<=[,()])\s+|\s+(?=\))", _output['SIG'], flags=re.MULTILINE)) if _output[
             "SIG"] else None
         modifiers = list(map(str.strip, re.split(r"\s", _output["MOD"]))) if _output["MOD"] else []
-        parameters = list(map(str.strip, re.search(r"\((.*)\)", _output["SIG"]).group(0).split(","))) if _output[
-            "SIG"] else []
+        _has_params = re.search(r"\((.*)\)", _output["SIG"])
+        parameters = list(map(str.strip, _has_params.group(1).split(","))) if _has_params else []
 
         # TODO: delegate data processing to Builder
 
@@ -244,5 +244,3 @@ def detect_storage_overwrite_in_multi_pool_initialization(
                     "SIG": o["SIG"],
                 }
     return {}
-
-

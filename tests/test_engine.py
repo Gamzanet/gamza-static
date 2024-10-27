@@ -1,7 +1,10 @@
 import os
 
-from engine import layer_0
-from etherscan import unichain
+import engine
+import engine.foundry
+import etherscan
+import etherscan.unichain
+import utils
 
 
 def test_store_source_and_lint():
@@ -9,12 +12,12 @@ def test_store_source_and_lint():
     _path = os.path.join("lib", "v4-core", "src", "PoolManager.sol")
 
     if not os.path.exists(_path):
-        _path = layer_0.store_unichain_contract(_address)
+        _path = etherscan.unichain.store_unichain_contract(_address)
         assert "PoolManager.sol" in _path
 
-        layer_0.store_remappings(_address)
-        layer_0.store_foundry_toml()
-    [_stdout, _stderr] = layer_0.lint_code(_path)
+        etherscan.unichain.store_remappings(_address)
+        etherscan.unichain.store_foundry_toml()
+    [_stdout, _stderr] = engine.slither.lint_code(_path)
     assert "INFO:Detectors:" in _stderr
     print(_stdout, _stderr)
 
@@ -30,12 +33,12 @@ def test_format():
     afterRemoveLiquidity: true,beforeDonate: true,afterDonate: true
     });}}"""
     _file = "ExampleHook.sol"
-    _path = os.path.join(unichain.foundry_dir, _file)
+    _path = os.path.join(etherscan.foundry_dir, _file)
     with open(_path, "w") as f:
         f.write(dirty_code)
 
     # check if the source code not formatted
-    diff = layer_0.format_code(_path)
+    diff = engine.foundry.format_code(_path)
     assert diff  # check if the source code successfully formatted
 
 
@@ -49,8 +52,8 @@ def test_set_solc_version():
     _expect = "0.8.28"
     _content = f"""// SPDX-License-Identifier: UNLICENSED
     pragma solidity >={_expect}; contract DoubleInitHook is BaseHook {{}}"""
-    _version = layer_0.set_solc_version_by_content(_content)
+    _version = engine.slither.set_solc_version_by_content(_content)
     assert _version == _expect
-    layer_0.set_solc_version(_version)
-    _out = layer_0.run_cli_must_succeed("solc-select versions", capture_output=True)
+    engine.slither.set_solc_version(_version)
+    _out = utils.paths.run_cli_must_succeed("solc-select versions", capture_output=True)
     assert f"{_expect} (current, set by" in _out

@@ -1,3 +1,5 @@
+__all__ = ["paths", "project_root_abs"]
+
 import os
 from os.path import dirname as _dir
 

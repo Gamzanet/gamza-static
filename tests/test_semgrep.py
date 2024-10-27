@@ -1,4 +1,4 @@
-from parser.run_semgrep import get_semgrep_output, parse_emacs_output, parse_message_schema, \
+from engine.run_semgrep import get_semgrep_output, parse_emacs_output, parse_message_schema, \
     emacs_tuple_to_dict_with_schema
 from utils.paths import rule_rel_path_by_name, run_cli_must_succeed, open_with_mkdir
 
