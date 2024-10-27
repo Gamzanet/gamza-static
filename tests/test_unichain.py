@@ -1,4 +1,4 @@
-from etherscan.unichain import store_all_dependencies
+from utils.unichain import store_all_dependencies
 
 
 def test_store_all():

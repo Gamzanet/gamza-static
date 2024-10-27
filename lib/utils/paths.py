@@ -29,4 +29,3 @@ def run_cli_must_succeed(_command: str, capture_output=False) -> str:
 def run_cli_can_failed(_command: str) -> tuple[str, str]:
     out = subprocess.run(_command, shell=True, capture_output=True, text=True)
     return out.stdout, out.stderr
-

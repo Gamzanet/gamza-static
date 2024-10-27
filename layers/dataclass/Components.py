@@ -1,11 +1,14 @@
-from dataclasses import dataclass
+import hashlib
 
+import attr
+
+from engine.lexer import Condition
 from layers.dataclass.Attributes import Location, Visibility, Scope, Mutability, Purity
 
 
 # TODO: consider using slither classes
 
-@dataclass
+@attr.s(auto_attribs=True)
 class Variable(dict):
     name: str
     signature: str  # contract:(function)
@@ -19,17 +22,16 @@ class Variable(dict):
 
 # TODO: map library and inheritance to mappings of import path
 
-@dataclass(
-    init=True,
-    frozen=True,
-)
+@attr.s(auto_attribs=True)
 class Metadata(dict):
     chain: str
     evm_version: str
+    license: str
+    solc_version: str
     # ... etc
 
 
-@dataclass
+@attr.s(auto_attribs=True)
 class Function(dict):
     name: str | None
     parameters: list[str]
@@ -40,6 +42,7 @@ class Function(dict):
     purity: Purity | None
     returns: list[str] | None
     body: str
+    access_control: list[Condition]
 
     # _has_low_level_call: bool
 
@@ -50,13 +53,11 @@ class Function(dict):
         return self.__dict__.items()
 
 
-@dataclass(
-    init=True,
-    eq=True,
-)
+@attr.s(auto_attribs=True)
 class Contract(dict):
     target_code: str
-    version: str  # solc version # TODO: git commit hash if possible
+    imports: list[str]
+    inline_code: str
     name: str
     inheritance: list[str]
     library: list[str]
@@ -65,4 +66,4 @@ class Contract(dict):
         raise NotImplementedError
 
     def __hash__(self):
-        return hash(f"{self.name}:{self.version}")
+        return hash(f"{self.name}:{hashlib.sha3_256(self.inline_code.encode()).hexdigest()[0:8]}")

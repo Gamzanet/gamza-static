@@ -8,4 +8,4 @@ rules:
       - pattern-inside: |
           contract $CONTRACT { ... ... ... }
       - pattern-regex: |-
-          ^\s*function\s+(?<SIG>\w+\s*\([\S\s,]*?\))\s*(?<VIS>public|external|internal|private)?(?:\s+(?<PAY>payable))?(?:\s+(?<PURITY>view|pure))?(?:\s+(?<OVER>override))?(?:\s*(?<RETURN>returns\s*\([\s\S]*?\)))?(?<MOD>[\s\S]*?){\s*$
+          ^\s*function\s+(?<SIG>\w+\s*\([\S\s,]*?\))\s*(?<VIS>public|external|internal|private)?(?:\s+(?<PAY>payable))?(?:\s+(?<PURITY>view|pure))?(?:\s+(?<OVER>override))?(?:(?<MOD>[\S\s]*?))(?=\s+returns\b|\s*\{)(?:\s*(?<RETURN>returns\s*\([\s\S]*?\)))?

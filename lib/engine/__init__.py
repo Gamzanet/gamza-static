@@ -1,5 +1,7 @@
-__all__ = ["layer_0"]
+__all__ = ["run_semgrep", "layer_2", "foundry", "slither", "lexer", "llm"]
 
-import dotenv
+import os
 
-dotenv.load_dotenv()
+from utils import project_root_abs
+
+os.chdir(project_root_abs)

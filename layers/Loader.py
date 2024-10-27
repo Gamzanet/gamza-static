@@ -1,15 +1,16 @@
 import hashlib
 import os.path
+import re
 from os.path import join
 
-from engine import layer_0
-from etherscan.unichain import get_contract_json
-from main import project_root
-from utils.paths import open_with_mkdir
+import engine.foundry
+import extractor.getter
+from utils.paths import open_with_mkdir, project_root_abs
+from utils.unichain import get_contract_json
 
 
 class Loader:
-    def __init__(self, root: str = project_root):
+    def __init__(self, root: str = project_root_abs):
         self._root = root
 
     @property
@@ -56,10 +57,19 @@ class Loader:
             return file.read()
 
     def read_code(self, path):
-        if self.is_path_rel(path) and type(path) == str:
+        if self.is_path_rel(path) and type(path) is str:
             path = join(self.path_abs_code, path)
         with open(path, "r") as file:
             return file.read()
+
+    @staticmethod
+    def inline_code(content):
+        # 0. assume code is already formatted
+        # 1. remove comments
+        import re
+        content = re.sub(r"//[\S ]+", "", content)
+        # 2. replace empty lines or multiple spaces to single space
+        return re.sub(r"\s+", " ", content).strip()
 
     @staticmethod
     def fetch_code(address, explorer="blockscout"):
@@ -83,6 +93,8 @@ class Loader:
         return join(self.path_abs_output, f"{_key}.{extension}")
 
     def cache_content(self, content: str, extension: str) -> str:
+        # TODO: handle cache by its original content hash
+        # TODO: <HASH>/formatted.sol, contract.json, functions,json etc.
         """
         Cache content and return the path
         :param content: writable content
@@ -95,4 +107,15 @@ class Loader:
 
     @staticmethod
     def format(_path):
-        layer_0.format_code(_path)
+        # TODO: check cache in same directory
+        engine.foundry.format_code(_path)
+        # TODO: cache formatted code
+
+    def get_function_body(self, _path: str) -> str:
+        return extractor.getter.get_function_body(_path)
+
+    @staticmethod
+    def remove_comments(_code):
+        # only /* ... */
+        _code = re.sub(r"/\*[\s\S]*?\*/", "", _code)
+        return _code

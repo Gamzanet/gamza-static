@@ -4,9 +4,10 @@ from pprint import pprint
 
 from jmespath import search
 
+from engine.run_semgrep import get_semgrep_output
+from extractor.getter import get_conditions
 from layers.dataclass.Attributes import Purity, Visibility
 from layers.dataclass.Components import Function
-from parser.run_semgrep import get_semgrep_output
 
 
 def is_valid_hook(_target_path="code/1.sol"):
@@ -59,25 +60,41 @@ def get_modifiers(_target_path="code/3.sol"):
 
 
 # currently source code should include single contract
+# TODO: delegate to Builder
 def get_functions(_target_path="code/3.sol") -> list[Function]:
-    body: list[dict] = get_semgrep_output("info-function-body", _target_path)
-    body = search("[*].data[]", body)
-    body.sort(key=lambda x: (x["CONTRACT"], x["SIG"]))
+    bodies: list[dict] = get_semgrep_output("info-function-body", _target_path)
+    _raw_body = search("[0].data.BODY", bodies)
+
+    # remove from receive & fallback to EOF
+    _pattern_to_remove = r"(?:receive|fallback)\s*\(\s*\)[\s\S]+\{[\s\S]+"
+    _body_cleansed = re.sub(_pattern_to_remove, "", _raw_body)
 
     output = get_semgrep_output("info-function", _target_path)
     output = search("[*].data[]", output)
-    output.sort(key=lambda x: (x["CONTRACT"], x["SIG"]))
 
     res = []
 
-    for _output, _body in zip(output, body):
-        name = ''.join(re.split(r"(?<=[,()])\s+|\s+(?=\))", _output['SIG'], flags=re.MULTILINE)) if _output[
-            "SIG"] else None
-        modifiers = list(map(str.strip, re.split(r"\s", _output["MOD"]))) if _output["MOD"] else []
-        parameters = list(map(str.strip, re.search(r"\((.*)\)", _output["SIG"]).group(0).split(","))) if _output[
-            "SIG"] else []
+    for idx, (_output) in enumerate(output):
+        name = _output["SIG"].split("(")[0]
 
-        # TODO: delegate data processing to Builder
+        _has_params = re.search(r"\((.*)\)", _output["SIG"])
+        parameters = list(map(str.strip, _has_params.group(1).split(","))) if _has_params else []
+        modifiers = _output["MOD"].split(" ") if _output["MOD"] else []
+
+        _pattern_prefix = rf"function\s+{name}\(.*?\).*?"
+        _pattern_general = _pattern_prefix + r"(\{[\s\S]+?)\s*function"
+        _pattern_end = _pattern_prefix + r"(\{.+)"
+        _pattern = _pattern_general if idx != len(output) - 1 else _pattern_end
+        _body_pattern = re.search(_pattern, _body_cleansed, flags=re.MULTILINE | re.DOTALL)
+
+        function_body: str = _body_pattern.group(1) if _body_pattern else ""
+        # print("name " + name)
+        # print("------------")
+        # print(function_body)
+        # print("------------")
+        # print(_pattern, _body["BODY"])
+
+        conditions = get_conditions(function_body)
 
         res.append(Function(
             name=name,
@@ -88,7 +105,8 @@ def get_functions(_target_path="code/3.sol") -> list[Function]:
             purity=Purity.from_str(_output["PURITY"]),
             is_override="override" == _output["OVER"],
             returns=_output["RETURN"],
-            body=_body["BODY"],
+            body=function_body,
+            access_control=conditions,
         ))
     return res
 
@@ -244,21 +262,3 @@ def detect_storage_overwrite_in_multi_pool_initialization(
                     "SIG": o["SIG"],
                 }
     return {}
-
-
-def get_contract_name(_code: str) -> str:
-    return re.search(r"contract\s+(\w+)[\s\S]+?{", _code).group(1)
-
-
-def get_inheritance(target_abs_path: str) -> list[str]:
-    if not target_abs_path:
-        raise ValueError
-    info_inheritance: list[dict] = get_semgrep_output("info-inheritance", target_abs_path)
-    return search("[*].data.INHERIT", info_inheritance)
-
-
-def get_library(target_abs_path: str) -> list[str]:
-    if not target_abs_path:
-        raise ValueError
-    info_library: list[dict] = get_semgrep_output("info-library", target_abs_path)
-    return search("[*].data.LIBRARY", info_library)
