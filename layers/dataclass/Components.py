@@ -26,6 +26,8 @@ class Variable(dict):
 class Metadata(dict):
     chain: str
     evm_version: str
+    license: str
+    solc_version: str
     # ... etc
 
 
@@ -56,6 +58,7 @@ class Function(dict):
 )
 class Contract(dict):
     target_code: str
+    inline_code: str
     version: str  # solc version # TODO: git commit hash if possible
     name: str
     inheritance: list[str]

@@ -56,10 +56,20 @@ class Loader:
             return file.read()
 
     def read_code(self, path):
-        if self.is_path_rel(path) and type(path) == str:
+        if self.is_path_rel(path) and type(path) is str:
             path = join(self.path_abs_code, path)
         with open(path, "r") as file:
             return file.read()
+
+    @staticmethod
+    def inline_code(content):
+        # 0. assume code is already formatted
+        # 1. remove comments
+        import re
+        content = re.sub(r"//[\S ]+", "", content)
+        # 2. replace empty lines or multiple spaces to single space
+        return re.sub(r"\s+", " ", content)
+
 
     @staticmethod
     def fetch_code(address, explorer="blockscout"):
@@ -95,4 +105,6 @@ class Loader:
 
     @staticmethod
     def format(_path):
+        # TODO: check cache in same directory
         layer_0.format_code(_path)
+        # TODO: cache formatted code
