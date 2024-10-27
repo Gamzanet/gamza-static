@@ -1,14 +1,18 @@
-import enum
+import attr
 
 
-class Type(enum.Enum):
+@attr.frozen(auto_attribs=True)
+class Type():
+    value: str
+
     def __str__(self):
         return self.value
 
     def __eq__(self, other):
-        return self.value == other or super().__eq__(other)
+        return self.value == other or self == other
 
 
+@attr.frozen(auto_attribs=True)
 class Purity(Type):
     PURE = "pure"
     VIEW = "view"
@@ -24,6 +28,7 @@ class Purity(Type):
         return mapping.get(value.lower())
 
 
+@attr.frozen(auto_attribs=True)
 class Visibility(Type):
     PUBLIC = "public"
     EXTERNAL = "external"
@@ -43,6 +48,7 @@ class Visibility(Type):
         return mapping.get(value.lower())
 
 
+@attr.frozen(auto_attribs=True)
 class Mutability(Type):
     MUTABLE = "mutable"
     IMMUTABLE = "immutable"
@@ -62,6 +68,7 @@ class Mutability(Type):
         return mapping.get(value.lower())
 
 
+@attr.s(auto_attribs=True)
 class Scope(Type):
     FUNCTION = "function"
     STORAGE = "storage"
@@ -83,6 +90,7 @@ class Scope(Type):
         return mapping.get(value.lower())
 
 
+@attr.s(auto_attribs=True)
 class Location(Type):
     CALLDATA = "calldata"
     MEMORY = "memory"
