@@ -5,6 +5,7 @@ from pprint import pprint
 from jmespath import search
 
 from engine.run_semgrep import get_semgrep_output
+from extractor.getter import get_conditions
 from layers.dataclass.Attributes import Purity, Visibility
 from layers.dataclass.Components import Function
 
@@ -59,24 +60,44 @@ def get_modifiers(_target_path="code/3.sol"):
 
 
 # currently source code should include single contract
+# TODO: delegate to Builder
 def get_functions(_target_path="code/3.sol") -> list[Function]:
-    body: list[dict] = get_semgrep_output("info-function-body", _target_path)
-    body = search("[*].data[]", body)
-    body.sort(key=lambda x: (x["CONTRACT"], x["SIG"]))
+    bodies: list[dict] = get_semgrep_output("info-function-body", _target_path)
+    _raw_body = search("[0].data.BODY", bodies)
+
+    # remove from receive & fallback to EOF
+    _pattern_to_remove = r"(?:receive|fallback)\s*\(\s*\)[\s\S]+\{[\s\S]+"
+    _body_cleansed = re.sub(_pattern_to_remove, "", _raw_body)
+
+    # TODO: make as a function and move to test
+    assert True not in [w in _body_cleansed for w in ["receive", "fallback"]]
 
     output = get_semgrep_output("info-function", _target_path)
     output = search("[*].data[]", output)
-    output.sort(key=lambda x: (x["CONTRACT"], x["SIG"]))
 
     res = []
 
-    for _output, _body in zip(output, body):
-        name = ''.join(re.split(r"(?<=[,()])\s+|\s+(?=\))", _output['SIG'], flags=re.MULTILINE)) if _output[
-            "SIG"] else None
+    for idx, (_output) in enumerate(output):
+        name = _output["SIG"].split("(")[0]
+
         _has_params = re.search(r"\((.*)\)", _output["SIG"])
         parameters = list(map(str.strip, _has_params.group(1).split(","))) if _has_params else []
         modifiers = _output["MOD"].split(" ") if _output["MOD"] else []
-        # TODO: delegate data processing to Builder
+
+        _pattern_prefix = rf"function\s+{name}\(.*?\).*?"
+        _pattern_general = _pattern_prefix + r"(\{[\s\S]+?)\s*function"
+        _pattern_end = _pattern_prefix + r"(\{.+)"
+        _pattern = _pattern_general if idx != len(output) - 1 else _pattern_end
+        _body_pattern = re.search(_pattern, _body_cleansed, flags=re.MULTILINE | re.DOTALL)
+
+        function_body: str = _body_pattern.group(1) if _body_pattern else ""
+        # print("name " + name)
+        # print("------------")
+        # print(function_body)
+        # print("------------")
+        # print(_pattern, _body["BODY"])
+
+        conditions = get_conditions(function_body)
 
         res.append(Function(
             name=name,
@@ -87,7 +108,8 @@ def get_functions(_target_path="code/3.sol") -> list[Function]:
             purity=Purity.from_str(_output["PURITY"]),
             is_override="override" == _output["OVER"],
             returns=_output["RETURN"],
-            body=_body["BODY"],
+            body=function_body,
+            access_control=conditions,
         ))
     return res
 

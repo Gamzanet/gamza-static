@@ -4,9 +4,10 @@ rules:
     languages:
       - solidity
     severity: INFO
-    pattern-either:
-      - patterns:
-          - pattern-inside: |
-              contract $CONTRACT { ... ... ... }
-          - pattern-regex: |-
-              (?<BODY>function\s+(?<SIG>[\s\S]+?)\{[\s\S]+?\})
+    patterns:
+      - pattern-inside: |
+          contract $CONTRACT { ... ... ... }
+      - pattern:
+          function $SIG ( ... ) { ... ... ... }
+      - pattern-regex: |-
+          (?<BODY>function[\S\s]+)
