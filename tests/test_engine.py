@@ -1,21 +1,23 @@
 import os
 
-from engine import layer_0
-from etherscan import unichain
+from engine.foundry import format_code
+from engine.slither import set_solc_version_by_content, lint_code, set_solc_version
+from layers.Loader import Loader
+from utils.paths import run_cli_must_succeed
+from utils.unichain import store_unichain_contract, store_remappings, store_foundry_toml
 
 
 def test_store_source_and_lint():
     _address: str = "0x38EB8B22Df3Ae7fb21e92881151B365Df14ba967"
+    _path = os.path.join("lib", "v4-core", "src", "PoolManager.sol")
 
-    if not os.path.exists(unichain.foundry_dir):
-        _path = layer_0.store_unichain_contract(_address)
+    if not os.path.exists(_path):
+        _path = store_unichain_contract(_address)
         assert "PoolManager.sol" in _path
 
-        layer_0.store_remappings(_address)
-        layer_0.store_foundry_toml()
-    else:
-        _path = os.path.join("lib", "v4-core", "src", "PoolManager.sol")
-    [_stdout, _stderr] = layer_0.lint_code(_path)
+        store_remappings(_address)
+        store_foundry_toml()
+    [_stdout, _stderr] = lint_code(_path)
     assert "INFO:Detectors:" in _stderr
     print(_stdout, _stderr)
 
@@ -30,28 +32,21 @@ def test_format():
     afterAddLiquidity: true,beforeRemoveLiquidity: true,
     afterRemoveLiquidity: true,beforeDonate: true,afterDonate: true
     });}}"""
-    _file = "ExampleHook.sol"
-    _path = os.path.join(unichain.foundry_dir, _file)
-    with open(_path, "w") as f:
-        f.write(dirty_code)
+    _path = Loader().cache_content(
+        dirty_code, "sol"
+    )
 
     # check if the source code not formatted
-    diff = layer_0.format_code(_path)
+    diff = format_code(_path)
     assert diff  # check if the source code successfully formatted
-
-
-def test_forge_clone():
-    # _address = "0x2880aB155794e7179c9eE2e38200202908C17B43"  # Pyth proxy contract in unichain
-    # get contract dependencies
-    pass
 
 
 def test_set_solc_version():
     _expect = "0.8.28"
     _content = f"""// SPDX-License-Identifier: UNLICENSED
     pragma solidity >={_expect}; contract DoubleInitHook is BaseHook {{}}"""
-    _version = layer_0.set_solc_version_by_content(_content)
+    _version = set_solc_version_by_content(_content)
     assert _version == _expect
-    layer_0.set_solc_version(_version)
-    _out = layer_0.run_cli_must_succeed("solc-select versions", capture_output=True)
+    set_solc_version(_version)
+    _out = run_cli_must_succeed("solc-select versions", capture_output=True)
     assert f"{_expect} (current, set by" in _out

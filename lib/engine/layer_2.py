@@ -1,10 +1,13 @@
 import json
+import re
 from pprint import pprint
 
 from jmespath import search
 
-from parser.run_semgrep import get_semgrep_output
-from utils.paths import rule_rel_path_by_name
+from engine.run_semgrep import get_semgrep_output
+from extractor.getter import get_conditions
+from layers.dataclass.Attributes import Purity, Visibility
+from layers.dataclass.Components import Function
 
 
 def is_valid_hook(_target_path="code/1.sol"):
@@ -51,18 +54,72 @@ def get_modifiers(_target_path="code/3.sol"):
                 inline = ''.join(re.split(r"(?<=[,()])\s+|\s+(?=\))", e['SIG'], flags=re.MULTILINE))
                 contract_sig = f"{e['CONTRACT']}:{inline}"
                 res[mod].append(contract_sig)
-    json.dump(res, open("out/modifiers.json", "w"))
+    with open("out/modifiers.json", "w") as f:
+        json.dump(res, f)
+    return res
+
+
+# currently source code should include single contract
+# TODO: delegate to Builder
+def get_functions(_target_path="code/3.sol") -> list[Function]:
+    bodies: list[dict] = get_semgrep_output("info-function-body", _target_path)
+    _raw_body = search("[0].data.BODY", bodies)
+
+    # remove from receive & fallback to EOF
+    _pattern_to_remove = r"(?:receive|fallback)\s*\(\s*\)[\s\S]+\{[\s\S]+"
+    _body_cleansed = re.sub(_pattern_to_remove, "", _raw_body)
+
+    output = get_semgrep_output("info-function", _target_path)
+    output = search("[*].data[]", output)
+
+    res = []
+
+    for idx, (_output) in enumerate(output):
+        name = _output["SIG"].split("(")[0]
+
+        _has_params = re.search(r"\((.*)\)", _output["SIG"])
+        parameters = list(map(str.strip, _has_params.group(1).split(","))) if _has_params else []
+        modifiers = _output["MOD"].split(" ") if _output["MOD"] else []
+
+        _pattern_prefix = rf"function\s+{name}\(.*?\).*?"
+        _pattern_general = _pattern_prefix + r"(\{[\s\S]+?)\s*function"
+        _pattern_end = _pattern_prefix + r"(\{.+)"
+        _pattern = _pattern_general if idx != len(output) - 1 else _pattern_end
+        _body_pattern = re.search(_pattern, _body_cleansed, flags=re.MULTILINE | re.DOTALL)
+
+        function_body: str = _body_pattern.group(1) if _body_pattern else ""
+        # print("name " + name)
+        # print("------------")
+        # print(function_body)
+        # print("------------")
+        # print(_pattern, _body["BODY"])
+
+        conditions = get_conditions(function_body)
+
+        res.append(Function(
+            name=name,
+            parameters=parameters,
+            visibility=Visibility.from_str(_output["VIS"]),
+            payable=_output["PAY"],
+            modifiers=modifiers,
+            purity=Purity.from_str(_output["PURITY"]),
+            is_override="override" == _output["OVER"],
+            returns=_output["RETURN"],
+            body=function_body,
+            access_control=conditions,
+        ))
     return res
 
 
 def get_variables(_target_path="code/0xe8e23e97fa135823143d6b9cba9c699040d51f70.sol") -> dict[str, list[dict]]:
     """
     Get the variables of the contract.
+    Code should be formatted by the Loader before calling this function.
     :rtype: dict[str, list[dict]]
     :returns: { $variableName: [{ 'NAME', 'SIG', 'SCOPE', 'LOCATION', 'VISIBLE', 'TYPE', 'MUTABLE' }, ...], ... }
     """
     output: list[dict] = get_semgrep_output(
-        rule_rel_path_by_name("info-variable"),
+        "info-variable",
         _target_path, use_cache=True)
     output = search("[*].data", output)
 
@@ -186,7 +243,7 @@ def detect_storage_overwrite_in_multi_pool_initialization(
     # TODO: Refactor the following code to a function
     # 2. get info-layer2-assignee
     output: list = get_semgrep_output(
-        rule_rel_path_by_name("info-layer2-assignee"),
+        "info-layer2-assignee",
         _target_path, use_cache=True)
     output = search("[*].data", output)
     for o in output:

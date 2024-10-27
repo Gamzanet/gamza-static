@@ -34,6 +34,7 @@ function main() {
     pip install -U jmespath -q
     pip install -U PyYAML -q
     pip install -U pytest -q
+    pip install -U pytest-cov -q
     pip install -U slither-analyzer -q
     pip install -U openai -q
     pip freeze --require-virtualenv > requirements.txt

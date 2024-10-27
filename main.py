@@ -1,15 +1,26 @@
 import os
 import sys
+from os.path import join as _join
+
+
+def base_paths(x: str) -> str:
+    return os.path.abspath(os.path.join(os.path.dirname(__file__), x))
+
 
 # to run `python main.py` in root dir, add path of library to sys.path
-_path_lib = os.path.abspath(os.path.join(os.path.dirname(__file__), "lib"))
+project_root = base_paths(".")
+_path_lib = base_paths("lib")
+_path_code = base_paths("code")
 sys.path.append(_path_lib)
 
-from utils.paths import rule_rel_path_by_name
-from engine import layer_0
-from etherscan.unichain import store_foundry_toml, store_remappings, store_all_dependencies, foundry_dir
-from parser.layer_2 import get_variables
-from parser.run_semgrep import get_semgrep_output
+os.chdir(project_root)
+sys.path.append(_join(project_root, "lib"))
+
+import engine.foundry
+import engine.slither
+
+from utils.unichain import store_foundry_toml, store_remappings, store_all_dependencies
+from utils import foundry_dir
 
 
 def test_integration():
@@ -20,37 +31,34 @@ def test_integration():
     store_remappings(_address)
     store_foundry_toml()
 
-    _diff = layer_0.format_code(foundry_dir)  # "code/unichain" directory
+    _diff = engine.foundry.format_code(foundry_dir)  # "code/unichain" directory
     # print(_diff)
 
     # linting the target contract recursively lints all dependencies
-    _res: list[str] = layer_0.lint_code(_paths[0])
+    _res: tuple[str, str] = engine.slither.lint_code(_paths[0])
     # print(res)
 
-    # to run semgrep rules,
-    # path needs to start with "code"
-    _target_path = os.path.join(foundry_dir, _paths[0])
+    from layers.Loader import Loader
+    # code in "code/*" dir can simply be read by Loader
+    file_name = "TakeProfitHook"
+    code = Loader().read_code(f"{file_name}.sol")
+    assert len(code) > 0
 
-    _output_l1: list = get_semgrep_output(
-        rule_rel_path_by_name("misconfigured-Hook"),
-        _target_path,
-        False
-    )
-    # pprint(_output_l)
+    # can also read code from absolute path
+    file_path = os.path.join(project_root, "code", "TakeProfitHook.sol")
+    code = Loader().read_code(file_path)
+    assert len(code) > 0
 
-    _output_l2: list = get_semgrep_output(
-        rule_rel_path_by_name("info-variable"),
-        _target_path,
-        False
-    )
-    # pprint(_output_l)
+    from layers.Aggregator import Aggregator
+    aggregator = Aggregator()
+    res = aggregator.aggregate(code)
 
-    _output_d: dict = get_variables(_target_path)
-    # pprint(_output_d)
+    # can store the result as json using attr
+    from attr import asdict
+    import json
+    json.dump(asdict(res, recurse=True), open(f"out/{file_name}.json", "w"), indent=4)
 
-    assert len(_output_l1) > 0
-    assert len(_output_l2) > 0
-    assert _output_d != {}
+    print(res)
 
 
 if __name__ == "__main__":

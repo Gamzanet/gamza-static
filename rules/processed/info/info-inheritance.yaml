@@ -8,4 +8,4 @@ rules:
       - pattern-regex: |-
           contract\s+(?P<CONTRACT>[\w_]+)\s+is\s+[\s\S]+?{
       - pattern-regex: |-
-          (?<INHERIT>\S+),
+          (?<INHERIT>\S+)(?:,|\s*{)

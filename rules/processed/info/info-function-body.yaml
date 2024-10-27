@@ -1,0 +1,13 @@
+rules:
+  - id: info-function-body
+    message: $CONTRACT |&| $SIG |&| $BODY |;|
+    languages:
+      - solidity
+    severity: INFO
+    patterns:
+      - pattern-inside: |
+          contract $CONTRACT { ... ... ... }
+      - pattern:
+          function $SIG ( ... ) { ... ... ... }
+      - pattern-regex: |-
+          (?<BODY>function[\S\s]+)
