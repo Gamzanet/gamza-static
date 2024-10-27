@@ -1,4 +1,4 @@
-__all__ = ["unichain", "verify_script", "paths.py", "project_root_abs"]
+__all__ = ["unichain", "verify_script", "paths", "project_root_abs", "foundry_dir"]
 
 import os
 from os.path import dirname as _dir

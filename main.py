@@ -18,8 +18,6 @@ sys.path.append(_join(project_root, "lib"))
 
 import engine.foundry
 import engine.slither
-from layers.Aggregator import Aggregator
-from layers.Loader import Loader
 
 from utils.unichain import store_foundry_toml, store_remappings, store_all_dependencies
 from utils import foundry_dir
@@ -40,20 +38,27 @@ def test_integration():
     _res: tuple[str, str] = engine.slither.lint_code(_paths[0])
     # print(res)
 
+    from layers.Loader import Loader
     # code in "code/*" dir can simply be read by Loader
-    file_name = "DoubleInitHook"
+    file_name = "TakeProfitHook"
     code = Loader().read_code(f"{file_name}.sol")
     assert len(code) > 0
 
     # can also read code from absolute path
-    file_path = os.path.join(project_root, "code", "DoubleInitHook.sol")
+    file_path = os.path.join(project_root, "code", "TakeProfitHook.sol")
     code = Loader().read_code(file_path)
     assert len(code) > 0
 
+    from layers.Aggregator import Aggregator
     aggregator = Aggregator()
     res = aggregator.aggregate(code)
+
+    # can store the result as json using attr
+    from attr import asdict
+    import json
+    json.dump(asdict(res, recurse=True), open(f"out/{file_name}.json", "w"), indent=4)
+
     print(res)
-    print(project_root)
 
 
 if __name__ == "__main__":

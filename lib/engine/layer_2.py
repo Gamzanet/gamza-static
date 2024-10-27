@@ -69,9 +69,6 @@ def get_functions(_target_path="code/3.sol") -> list[Function]:
     _pattern_to_remove = r"(?:receive|fallback)\s*\(\s*\)[\s\S]+\{[\s\S]+"
     _body_cleansed = re.sub(_pattern_to_remove, "", _raw_body)
 
-    # TODO: make as a function and move to test
-    assert True not in [w in _body_cleansed for w in ["receive", "fallback"]]
-
     output = get_semgrep_output("info-function", _target_path)
     output = search("[*].data[]", output)
 
