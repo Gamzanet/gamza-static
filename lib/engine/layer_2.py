@@ -1,25 +1,21 @@
 import json
-from pprint import pprint
 
 from jmespath import search
 
-from engine.run_semgrep import get_semgrep_output
+from engine.run_semgrep import get_semgrep_output, run_semgrep_one
 from layers.Builder import get_variables
 
 
 def is_valid_hook(_target_path="code/1.sol"):
     # Get the output of the semgrep command
-    output: list = get_semgrep_output("misconfigured-Hook", _target_path)
-    pprint(output)
+    output: list[dict[str, str]] = run_semgrep_one("misconfigured-Hook", _target_path)
 
     # group output["data"]["SIG"]
     # group output["data"]["IMPL"]
-    # intersect the two groups
-    sig = set(search("[*].data.SIG", output))
-    # print(sig)
-    impl = set(search("[*].data.IMPL", output))
-    # print(impl)
-    res = sig - impl
+    permissions = set(search("[*].data.SIG", output))
+    impls = search("[*].data.IMPL", output)
+    impls = set(map(lambda x: x.split("(")[0], impls))
+    res = permissions - impls  # intersect the two groups
     if res:
         print(f"{_target_path}:", ', '.join(res), "is not implemented")
         return False

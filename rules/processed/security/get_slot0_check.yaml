@@ -1,6 +1,6 @@
 rules:
   - id: get_slot0_check
-    message: using getSlot0 | $OBJ | $TARGET
+    message: $OBJ |&| $TARGET |;|
     metadata:
       category: security
       technology:
@@ -9,8 +9,7 @@ rules:
         - audit
     patterns:
       - pattern-inside: function $TARGET(...) { ... }
-      - pattern-either:
-          - pattern: $OBJ.getSlot0(...)
+      - pattern-regex: (?P<OBJ>[\w_]+)\.getSlot0\([\s\S]+?\)\;
     languages:
       - solidity
     severity: INFO

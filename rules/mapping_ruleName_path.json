@@ -2,7 +2,7 @@
     "root": "processed",
     "class": {
         "misconfigured-Hook": "best-practice",
-        "missing-poolManager": "security",
+        "missing-onlyPoolManager-modifier": "security",
         "low_call": "security",
         "missing_token_transfer_while_burnt": "security",
         "get_slot0_check": "security"
