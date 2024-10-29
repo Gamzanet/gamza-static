@@ -67,7 +67,10 @@ def get_functions(_target_path="code/3.sol") -> list[Function]:
 
     # remove from receive & fallback to EOF
     _pattern_to_remove = r"(?:receive|fallback)\s*\(\s*\)[\s\S]+\{[\s\S]+"
-    _body_cleansed = re.sub(_pattern_to_remove, "", _raw_body)
+    if _raw_body:
+        _body_cleansed = re.sub(_pattern_to_remove, "", _raw_body)
+    else:
+        _body_cleansed = ""
 
     output = get_semgrep_output("info-function", _target_path)
     output = search("[*].data[]", output)
