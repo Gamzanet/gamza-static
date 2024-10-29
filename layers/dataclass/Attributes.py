@@ -108,3 +108,9 @@ class Location(Type):
             "transient": Location.TRANSIENT
         }
         return mapping.get(value.lower())
+
+
+@attr.frozen(auto_attribs=True)
+class Condition:
+    method: str
+    logic: str
