@@ -112,7 +112,7 @@ def test_read_rule_by_name():
     assert _rule_meta["severity"] == "WARNING"
     assert _rule_meta["id"] == "misconfigured-Hook"
 
-    assert _rules["missing-poolManager"] == "security"
+    assert _rules["missing-onlyPoolManager-modifier"] == "security"
     assert _rules["low_call"] == "security"
     assert _rules["missing_token_transfer_while_burnt"] == "security"
     assert _rules["get_slot0_check"] == "security"
