@@ -7,8 +7,9 @@ from engine.lexer import Tokenizer, ConditionStack
 from engine.run_semgrep import get_semgrep_output
 
 
-def get_contract_name(_code: str) -> str:
-    return re.search(r"contract\s+(\w+)[\s\S]+?{", _code).group(1)
+def get_contract_name(_code: str) -> str | None:
+    _s = re.search(r"contract\s+(\w+)[\s\S]+?{", _code)
+    return _s.group(1) if _s else None
 
 
 def get_inheritance(target_abs_path: str) -> list[str]:
@@ -25,8 +26,9 @@ def get_library(target_abs_path: str) -> list[str]:
     return search("[*].data.LIBRARY", info_library)
 
 
-def get_license(_code: str) -> str:
-    return re.search(r"//\s*SPDX-License-Identifier:\s*(.*)", _code).group(1)
+def get_license(_code: str) -> str | None:
+    _s = re.search(r"//\s*SPDX-License-Identifier:\s*(.*)", _code)
+    return _s.group(1) if _s else None
 
 
 def get_function_body(_target_path: str) -> list[dict]:
@@ -48,5 +50,6 @@ def get_conditions(code: str) -> list[Condition]:
     return stack.conditions
 
 
-def get_solc_version(_content: str) -> str:
-    return re.search(r"pragma\s+solidity\s+(?:\W+)?([\d.]+);", _content).group(1)
+def get_solc_version(_content: str) -> str | None:
+    _s = re.search(r"pragma\s+solidity\s+(?:\W+)?([\d.]+);", _content)
+    return _s.group(1) if _s else None

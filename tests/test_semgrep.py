@@ -1,5 +1,7 @@
+import json
+
 from engine.run_semgrep import get_semgrep_output, parse_emacs_output, parse_message_schema, \
-    emacs_tuple_to_dict_with_schema
+    emacs_tuple_to_dict_with_schema, read_message_schema_by_rule_name, read_rule_by_name
 from utils.paths import rule_rel_path_by_name, run_cli_must_succeed, open_with_mkdir
 
 
@@ -91,3 +93,26 @@ def test_emacs_tuple_to_dict():
         _scheme = emacs_tuple_to_dict_with_schema(r, _msg_schema)
         _output.append(_scheme)
     assert _output == _expect
+
+
+def test_read_rule_by_name():
+    # read mapping_ruleName_path.json
+    with open("rules/mapping_ruleName_path.json", "r") as f:
+        _mapping = json.load(f)
+    assert _mapping["root"] == "processed"
+
+    _rules: dict[str, str] = _mapping["class"]
+
+    assert len(_rules.keys()) > 0
+
+    assert _rules["misconfigured-Hook"] == "best-practice"
+    assert read_message_schema_by_rule_name("misconfigured-Hook") == "$CONTRACT |&| $SIG |&| $IMPL |;|"
+
+    _rule_meta = read_rule_by_name("misconfigured-Hook")
+    assert _rule_meta["severity"] == "WARNING"
+    assert _rule_meta["id"] == "misconfigured-Hook"
+
+    assert _rules["missing-onlyPoolManager-modifier"] == "security"
+    assert _rules["low_call"] == "security"
+    assert _rules["missing_token_transfer_while_burnt"] == "security"
+    assert _rules["get_slot0_check"] == "security"

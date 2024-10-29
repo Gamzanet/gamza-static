@@ -22,6 +22,24 @@ import engine.slither
 from utils.unichain import store_foundry_toml, store_remappings, store_all_dependencies
 from utils import foundry_dir
 
+from custom_rules import get_model_suite
+from layers.Aggregator import ThreatDetectionResult, ThreatModelBase, Aggregator
+from layers.dataclass.Components import SimpleDetectionLog
+
+
+def get_analysis_result_with_threats(code: str, models: list[ThreatModelBase]) -> ThreatDetectionResult:
+    if not models:
+        raise ValueError("No models provided")
+    _res: ThreatDetectionResult = ThreatDetectionResult(
+        info=Aggregator().aggregate(code),
+        threats=[]
+    )
+    for model in models:
+        detection_log = model.run(code)
+        if detection_log and len(detection_log.scopes) > 0:
+            _res.threats.append(SimpleDetectionLog.from_log(detection_log))
+    return _res
+
 
 def test_integration():
     # _address: str = "0x38EB8B22Df3Ae7fb21e92881151B365Df14ba967"  # Uniswap v4 PoolManager in unichain
@@ -58,7 +76,11 @@ def test_integration():
     import json
     json.dump(asdict(res, recurse=True), open(f"out/{file_name}.json", "w"), indent=4)
 
-    print(res)
+    _path = Loader().read_code("TakeProfitHook.sol")
+    res = get_analysis_result_with_threats(_path, get_model_suite())
+    assert type(res) == ThreatDetectionResult
+    with open(f"out/TakeProfitHook123.json", "w") as f:
+        json.dump(asdict(res, recurse=True), f, indent=4)
 
 
 if __name__ == "__main__":

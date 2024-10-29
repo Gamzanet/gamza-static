@@ -1,10 +1,11 @@
 from rich.pretty import pprint
 
 import engine.layer_2
+import layers.Builder
 
 
 def test_get_variables():
-    res = engine.layer_2.get_variables(
+    res = layers.Builder.get_variables(
         _target_path="code/0xe8e23e97fa135823143d6b9cba9c699040d51f70.sol",
     )
     assert res != {}
@@ -29,7 +30,7 @@ def test_scope_storage():
      'VISIBLE': 'private'}
     """  # pprint(_input[0])
 
-    _output_0: list[dict] = engine.layer_2.parse_args_returns(_input[0])
+    _output_0: list[dict] = layers.Builder.parse_args_returns(_input[0])
     assert len(_output_0) == 1
     _output_0_0: dict = _output_0[0]
 
@@ -56,7 +57,7 @@ def test_scope_storage():
      'VISIBLE': 'private'}
     """  # pprint(_output_0_0)
 
-    _result_0_0 = engine.layer_2.classify_variables(_output_0_0)
+    _result_0_0 = layers.Builder.classify_variables(_output_0_0)
     assert _result_0_0 == {
         "LOCATION": "storage",
         "MUTABLE": "constant",
@@ -86,7 +87,7 @@ def test_scope_function_explicit_declaration():
      'VISIBLE': None}
     """  # pprint(_input[6])
 
-    _output_6: list[dict] = engine.layer_2.parse_args_returns(_input[6])
+    _output_6: list[dict] = layers.Builder.parse_args_returns(_input[6])
     assert len(_output_6) == 1
     _output_6_0: dict = _output_6[0]
 
@@ -101,7 +102,7 @@ def test_scope_function_explicit_declaration():
         'VISIBLE': None
     }
 
-    _result_6_0 = engine.layer_2.classify_variables(_output_6_0)
+    _result_6_0 = layers.Builder.classify_variables(_output_6_0)
     assert _result_6_0 == {
         "LOCATION": "memory",
         "MUTABLE": "mutable",
@@ -133,7 +134,7 @@ def test_scope_function_calldata_immutable():
      'VISIBLE': None}
     """  # pprint(_input[5])
 
-    _output_5: list[dict] = engine.layer_2.parse_args_returns(_input[5])
+    _output_5: list[dict] = layers.Builder.parse_args_returns(_input[5])
     assert len(_output_5) == 3 + 2  # 3 args, 2 returns
     _output_5_2: dict = _output_5[2]
 
@@ -148,7 +149,7 @@ def test_scope_function_calldata_immutable():
         'VISIBLE': None
     }
 
-    _result_5_2 = engine.layer_2.classify_variables(_output_5_2)
+    _result_5_2 = layers.Builder.classify_variables(_output_5_2)
     assert _result_5_2 == {
         'LOCATION': 'calldata',
         'MUTABLE': 'immutable',
@@ -178,7 +179,7 @@ def test_scope_function_parsing_args_returns():
      'VISIBLE': None}
     """  # pprint(_input[22])
 
-    _output_22: list[dict] = engine.layer_2.parse_args_returns(_input[22])
+    _output_22: list[dict] = layers.Builder.parse_args_returns(_input[22])
     assert len(_output_22) == 2 + 0  # 2 args, 0 returns
 
 
@@ -264,12 +265,12 @@ def test_scope_global_duplicated_name_listing():
      'VISIBLE': None}
     """  # pprint(_input[25])
 
-    _output_4: list[dict] = engine.layer_2.parse_args_returns(_input[4])
-    _output_5: list[dict] = engine.layer_2.parse_args_returns(_input[5])
-    _output_8: list[dict] = engine.layer_2.parse_args_returns(_input[8])
-    _output_14: list[dict] = engine.layer_2.parse_args_returns(_input[14])
-    _output_22: list[dict] = engine.layer_2.parse_args_returns(_input[22])
-    _output_25: list[dict] = engine.layer_2.parse_args_returns(_input[25])
+    _output_4: list[dict] = layers.Builder.parse_args_returns(_input[4])
+    _output_5: list[dict] = layers.Builder.parse_args_returns(_input[5])
+    _output_8: list[dict] = layers.Builder.parse_args_returns(_input[8])
+    _output_14: list[dict] = layers.Builder.parse_args_returns(_input[14])
+    _output_22: list[dict] = layers.Builder.parse_args_returns(_input[22])
+    _output_25: list[dict] = layers.Builder.parse_args_returns(_input[25])
 
     assert len(_output_4) == 2 + 1  # 2 args, 1 returns
     assert len(_output_5) == 3 + 2  # 3 args, 2 returns
@@ -287,7 +288,7 @@ def test_scope_global_duplicated_name_listing():
     #     variable name `delta` is duplicated for 2 times
     # which makes 13 unique names
 
-    _result_key = engine.layer_2.aggregate_result_variables(_outputs_key)
+    _result_key = layers.Builder.aggregate_result_variables(_outputs_key)
     assert len(_result_key) == 22 - 5 - 2 - 1 - 1
     assert len(_result_key["key"]) == 6
     assert len(_result_key["hookData"]) == 3

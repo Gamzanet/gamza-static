@@ -5,8 +5,6 @@ rules:
       - solidity
     severity: WARNING
     pattern-either:
-      - pattern-inside: |
-          contract $CONTRACT is ..., BaseHook, ... { ... }
       - patterns:
           - pattern-regex: |-
               (?P<SIG>\w+):\s*true
@@ -17,5 +15,7 @@ rules:
           - pattern-inside: |
               contract $CONTRACT is ..., BaseHook, ... { ... }
       - patterns:
+          - pattern-inside: |
+              contract $CONTRACT { ... ... ... }
           - pattern-regex: |-
-              function\s+(?P<IMPL>\w+)[\(\w \)]+\s+override\s+returns\s+[\(\S \)]+{
+              ^\s*function\s+(?P<IMPL>\w+\s*\([\S\s,]*?\))\s*(?P<VIS>public|external|internal|private)?(?:\s+(?P<PAY>payable))?(?:\s+(?P<PURITY>view|pure))?(?:\s+(?P<OVER>override))?(?:(?P<MOD>[\S\s]*?))(?=\s+returns\b|\s*\{)(?:\s*(?P<RETURN>returns\s*\([\s\S]*?\)))?
