@@ -1,7 +1,7 @@
 import re
 from threading import Condition
 
-import attr
+from layers.dataclass.Attributes import Condition
 
 
 class Logic:
@@ -59,12 +59,6 @@ class LogicNode:
         if condition:  # else if
             return Logic(condition) & ~_children[-1].logic
         return ~_children[-1].logic  # else
-
-
-@attr.frozen(auto_attribs=True)
-class Condition:
-    method: str
-    logic: str
 
 
 def add_child(parent: LogicNode, condition: str = "") -> LogicNode:

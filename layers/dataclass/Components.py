@@ -1,9 +1,9 @@
 import hashlib
 
 import attr
+import attrs
 
-from engine.lexer import Condition
-from layers.dataclass.Attributes import Location, Visibility, Scope, Mutability, Purity
+from layers.dataclass.Attributes import Location, Visibility, Scope, Mutability, Purity, Condition
 
 
 # TODO: consider using slither classes
@@ -67,3 +67,71 @@ class Contract(dict):
 
     def __hash__(self):
         return hash(f"{self.name}:{hashlib.sha3_256(self.inline_code.encode()).hexdigest()[0:8]}")
+
+
+@attr.s(auto_attribs=True)
+class ResultScope:
+    name: str
+    variable: list[Variable]
+
+
+@attr.s(auto_attribs=True)
+class ContractScope(ResultScope):
+    functions: list[str]
+    libraries: list[str]
+
+
+@attr.s(auto_attribs=True)
+class FunctionScope(ResultScope):
+    parameters: list[Variable]
+    purity: Purity
+    visibility: Visibility
+    payable: bool
+    override: bool
+    modifier: list[str]
+    returns: list[Variable]
+    body: str
+    access_control: list[Condition]
+
+
+@attr.s(auto_attribs=True)
+class FileScope:
+    file_name: str
+    license: str
+    solc_version: str
+    imports: list[str]
+    contract_scope: ContractScope
+    function_scopes: list[FunctionScope]
+
+
+@attrs.define(init=True, auto_attribs=True)
+class DetectionLog:
+    title: any
+    summary: str
+    description: str
+    impact: str
+    severity: str
+    recommendation: str | None
+    scopes: list[FileScope | ContractScope | FunctionScope]
+
+
+@attrs.frozen(auto_attribs=True)
+class SlitherData:
+    description: str
+    impact: str
+
+
+@attrs.frozen(auto_attribs=True)
+class SimpleDetectionLog:
+    detector: str
+    data: SlitherData
+
+    @staticmethod
+    def from_log(log: DetectionLog):
+        return SimpleDetectionLog(
+            detector=log.summary,
+            data=SlitherData(
+                description=log.description,
+                impact=log.impact
+            )
+        )
