@@ -3,7 +3,6 @@ import re
 import subprocess
 
 import yaml
-from jmespath import search
 
 from utils.paths import open_with_mkdir, run_cli_must_succeed, rule_rel_path_by_name
 
@@ -11,6 +10,10 @@ from utils.paths import open_with_mkdir, run_cli_must_succeed, rule_rel_path_by_
 # save variable context
 # rule should be in the `rules` directory
 def read_message_schema_by_rule_name(_rule_name: str):
+    return read_rule_by_name(_rule_name)["message"]
+
+
+def read_rule_by_name(_rule_name: str):
     try:
         with open(f"rules/{rule_rel_path_by_name(_rule_name)}", "r") as f:
             file = f.read()
@@ -18,7 +21,7 @@ def read_message_schema_by_rule_name(_rule_name: str):
         with open(f"rules/{_rule_name}", "r") as f:
             file = f.read()
     res = yaml.safe_load(file)
-    return search("rules[0].message", res)
+    return res["rules"][0]
 
 
 # input: $CONTRACT |&| $SIG |&| $LVALUE |&| $RVALUE |;|
