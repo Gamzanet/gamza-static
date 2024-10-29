@@ -6,7 +6,7 @@ import attrs
 from engine.run_semgrep import run_semgrep_one
 from layers import Builder
 from layers.Loader import Loader
-from layers.dataclass.Components import FileScope, ContractScope, DetectionLog, FunctionScope
+from layers.dataclass.Components import FileScope, ContractScope, DetectionLog, FunctionScope, SimpleDetectionLog
 
 
 @attr.s(auto_attribs=True)
@@ -14,6 +14,12 @@ class CodeAnalysisAggregation:
     chain_name: str
     evm_version: str
     data: FileScope  # assume single contract
+
+
+@attrs.define(auto_attribs=True)
+class ThreatDetectionResult:
+    info: CodeAnalysisAggregation
+    threats: list[DetectionLog | SimpleDetectionLog]
 
 
 class Aggregator:
@@ -74,13 +80,6 @@ class Aggregator:
         )
 
 
-@attrs.frozen(auto_attribs=True)
-class ThreatDetectionResult:
-    info: CodeAnalysisAggregation
-    threats: list[DetectionLog]
-
-
-@attrs.define(init=False, auto_attribs=True)
 class ThreatModelBase:
     loader: Loader
     target_scope: FileScope | ContractScope | FunctionScope
@@ -116,13 +115,19 @@ class ThreatModelBase:
     # custom function runs on attributes which takes the target scope as an argument
     def mount_rule(self, rule: Union[str, Callable]):
         if isinstance(rule, str):
+            # semgrep rule
             if self.target_scope is FunctionScope:
                 self.rule = lambda scope, code: (
-                    [run_semgrep_one(rule, self.loader.cache_content(_scope.body, "sol")) for _scope in scope])
+                    True in [run_semgrep_one(rule, self.loader.cache_content(_scope.body, "sol")) for _scope in scope])
             else:
-                # TODO: make body for each scope
-                self.rule = lambda scope, code: run_semgrep_one(rule, self.loader.cache_content(code, "sol"))
+                def run_semgrep_on_target(scope, code):
+                    _path = self.loader.cache_content(code, "sol")
+                    self.loader.format(_path)
+                    return True if run_semgrep_one(rule, _path) else False
+
+                self.rule = run_semgrep_on_target
         elif callable(rule):
+            # custom function
             # this params forced because the rule function must accept the target scope as an argument
             self.rule = lambda scope, code: rule(scope, code)
         else:
@@ -154,7 +159,6 @@ class ThreatModelBase:
             recommendation=self.recommendation,
             scopes=[]
         )
-        from layers.Aggregator import Aggregator
 
         res = base_log.scopes
         _agg = Aggregator().aggregate(code)
@@ -162,30 +166,14 @@ class ThreatModelBase:
             for _scope in _agg.data.function_scopes:
                 if self.rule(_agg.data.function_scopes, _scope.body):
                     res.append(_scope)
+
         elif self.target_scope is ContractScope:
             if self.rule(_agg.data.contract_scope, code):
                 res.append(_agg.data.contract_scope)
+
         elif self.target_scope is FileScope:
             if self.rule(_agg.data, code):
                 res.append(_agg.data)
         else:
             raise ValueError("Invalid target scope")
         return base_log
-
-
-def get_analysis_result_with_threats(code: str, rules: list[ThreatModelBase]) -> ThreatDetectionResult:
-    from layers.Aggregator import Aggregator
-    result = Aggregator().aggregate(code)
-    fileScope: FileScope = result.data
-    contractScope: ContractScope = fileScope.contract_scope
-    functionScopes: list[FunctionScope] = fileScope.function_scopes
-
-    if not rules:
-        return ThreatDetectionResult(info=result, threats=[])
-
-    threats = []
-
-    for rule in rules:
-        base_detection_log = rule.run(code)
-        if base_detection_log.scopes:
-            threats.append(base_detection_log)

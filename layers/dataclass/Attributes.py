@@ -2,7 +2,7 @@ import attr
 
 
 @attr.frozen(auto_attribs=True)
-class Type():
+class Type:
     value: str
 
     def __str__(self):
