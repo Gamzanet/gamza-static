@@ -80,6 +80,7 @@ src = "src"
 out = "out"
 libs = ["lib"]
 evm-version = "cancun"
+via_ir = true
 """
     try:
         with open_with_mkdir(os.path.join(_cache_base, "foundry.toml"), "x") as f:
