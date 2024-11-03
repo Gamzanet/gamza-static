@@ -15,10 +15,10 @@ def read_message_schema_by_rule_name(_rule_name: str):
 
 def read_rule_by_name(_rule_name: str):
     try:
-        with open(f"rules/{rule_rel_path_by_name(_rule_name)}", "r") as f:
+        with open(f"./rules/{rule_rel_path_by_name(_rule_name)}", "r") as f:
             file = f.read()
     except FileNotFoundError:
-        with open(f"rules/{_rule_name}", "r") as f:
+        with open(f"./rules/{_rule_name}", "r") as f:
             file = f.read()
     res = yaml.safe_load(file)
     return res["rules"][0]
@@ -38,7 +38,7 @@ def run_semgrep_one(_rule_name: str, _target_path: str = "code") -> list[dict]:
     _msg_raw_schema = read_message_schema_by_rule_name(_rule_name)
     _msg_schema = parse_message_schema(_msg_raw_schema)
 
-    arg = f"semgrep scan -f rules/{rule_rel_path_by_name(_rule_name)} {_target_path} --emacs"
+    arg = f"semgrep scan -f ./rules/{rule_rel_path_by_name(_rule_name)} {_target_path} --emacs"
     res = run_cli_must_succeed(arg, capture_output=True)
     parsed = parse_emacs_output(res)
     _output = []
@@ -61,7 +61,7 @@ def parse_emacs_output(_emacs: str):
 def run_semgrep_raw_msg(_target_path: str = "code") -> list[tuple]:
     # semgrep scan -f rules/misconfigured-Hook.yaml code --emacs
     res = subprocess.run(
-        ["semgrep", "scan", "-f", "rules/raw", _target_path, "--emacs"],
+        ["semgrep", "scan", "-f", "./rules/raw", _target_path, "--emacs"],
         capture_output=True
     ).stdout.decode("utf-8")
 
